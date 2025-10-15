@@ -41,6 +41,13 @@ add_executable(${CMAKE_PROJECT_NAME}
         PYRo/Component/RC/pyro_dr16_rc_drv.cpp
         PYRo/Application/Demo/pyro_rc_demo.cpp
         PYRo/Application/Demo/demo_task.cpp
+        PYRo/Peripheral/CAN/pyro_can_drv.cpp
+        PYRo/Core/ETL/map.cpp
+        PYRo/Component/Motor/pyro_dji_motor_drv.cpp
+        PYRo/Component/Motor/pyro_dm_motor_drv.cpp
+        PYRo/Component/Motor/pyro_motor_base.cpp
+        PYRo/Application/Demo/pyro_motor_demo.cpp
+
 )
 
 # Add STM32CubeMX generated sources
@@ -63,6 +70,7 @@ target_include_directories(${CMAKE_PROJECT_NAME} PUBLIC
     PYRo/Core/Def
     PYRo/Core/Memory
     PYRo/Core/Config
+    PYRo/Core/ETL
     PYRo/Peripheral/UART
     PYRo/Peripheral/CAN
     PYRo/Component/RC

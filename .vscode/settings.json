@@ -1,0 +1,18 @@
+{
+    "clangd.arguments": [
+        "--header-insertion=never",
+        "--compile-commands-dir=./build",
+        "--query-driver=E:\\Toolchain\\arm-gnu-toolchain-14.3\\bin\\arm-none-eabi-gcc.exe",
+        "--query-driver=E:\\Toolchain\\arm-gnu-toolchain-14.3\\bin\\arm-none-eabi-g++.exe",
+
+    ],        
+   "editor.rulers": [
+ 
+        { "column": 80, "color": "#3d3c3d" },
+    ],
+    "files.associations": {
+        "fdcan.h": "c",
+        "main.h": "c"
+    },
+
+}

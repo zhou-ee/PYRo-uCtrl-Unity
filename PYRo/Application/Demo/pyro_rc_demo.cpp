@@ -11,8 +11,8 @@ extern "C"
     pyro::rc_drv_t *dr16_drv;
     void pyro_rc_demo(void *arg)
     {
-        dr16_drv = new pyro::dr16_drv_t(&pyro::uart5);
-        pyro::uart5.enable_rx_dma();
+        pyro::get_uart5().enable_rx_dma();
+        dr16_drv = new pyro::dr16_drv_t(&pyro::get_uart5());
         dr16_drv->init();
         dr16_drv->enable();
         static auto *p_ctrl = static_cast<pyro::dr16_drv_t::dr16_ctrl_t *>(

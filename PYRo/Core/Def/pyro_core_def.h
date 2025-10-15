@@ -16,7 +16,7 @@ enum status_t
     PYRO_NOT_FOUND   = 0X06,
 };
 
-extern float PI;
+constexpr float PI=3.14159265358979323846f;
 
 #define CHECK_HAL_RET(ret)        if(HAL_OK != ret)           \
                                   {                           \

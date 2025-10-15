@@ -25,8 +25,17 @@
 
 namespace pyro
 {
-uart_drv_t uart1(&huart1, 42);
-uart_drv_t uart5(&huart5, 36);
+uart_drv_t& get_uart1()
+{
+    static uart_drv_t instance(&huart1, 42);
+    return instance;
+}
+uart_drv_t& get_uart5()
+{
+    static uart_drv_t instance(&huart5, 36);
+    return instance;
+}
+
 /* Constructor and Destructor ------------------------------------------------*/
 /**
  * @brief Constructor for the UART driver.
@@ -72,7 +81,8 @@ uart_drv_t::~uart_drv_t()
 
 /* Static Map Management -----------------------------------------------------*/
 /**
- * @brief Provides access to the static map linking HAL handles to driver instances.
+ * @brief Provides access to the static map linking HAL handles to driver
+ * instances.
  */
 std::map<UART_HandleTypeDef *, uart_drv_t *> &uart_drv_t::uart_map()
 {
@@ -82,7 +92,8 @@ std::map<UART_HandleTypeDef *, uart_drv_t *> &uart_drv_t::uart_map()
 
 /* Transmission Methods ------------------------------------------------------*/
 /**
- * @brief Blocking write using HAL polling. Updates state flags on error/timeout.
+ * @brief Blocking write using HAL polling. Updates state flags on
+ * error/timeout.
  */
 status_t uart_drv_t::write(const uint8_t *p, const uint16_t size,
                            const uint32_t waittime)
@@ -331,7 +342,7 @@ extern "C" void HAL_UART_ErrorCallback(UART_HandleTypeDef *huart)
         const auto drv = it->second;
         __HAL_UART_CLEAR_FLAG(huart, UART_CLEAR_PEF | UART_CLEAR_FEF |
                                          UART_CLEAR_NEF | UART_CLEAR_OREF |
-                                         UART_CLEAR_RTOF );
+                                         UART_CLEAR_RTOF);
         drv->enable_rx_dma();
     }
 }

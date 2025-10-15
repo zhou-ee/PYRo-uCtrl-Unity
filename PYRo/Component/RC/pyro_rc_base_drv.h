@@ -17,7 +17,7 @@
 #define __PYRO_RC_BASE_DRV_H__
 
 /* Includes ------------------------------------------------------------------*/
-#include "PYRo_uart_drv.h"  // Dependency on the UART driver
+#include "pyro_uart_drv.h"  // Dependency on the UART driver
 #include "message_buffer.h" // FreeRTOS Message Buffer definitions
 #include "semphr.h"         // FreeRTOS Semaphore definitions
 #include "task.h"           // FreeRTOS Task definitions

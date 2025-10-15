@@ -6,6 +6,7 @@
 #if DEMO_MODE
 
 #define RC_DEMO_EN 1
+#define MOTOR_DEMO_EN 1
 
 #endif
 

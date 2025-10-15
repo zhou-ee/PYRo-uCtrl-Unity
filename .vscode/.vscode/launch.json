@@ -1,0 +1,25 @@
+{
+    "configurations": [
+        {
+             "cwd":"${workspaceRoot}",
+    "type":"cortex-debug",
+    "request":"launch",
+    "name":"openocd-launch",
+    "servertype":"openocd",
+    "configFiles":[
+        "interface/cmsis-dap.cfg",
+        "target/stm32h7x.cfg"
+    ],
+    "interface":"swd",
+    "executable":".\\build\\Debug\\ForLearn.elf",
+    "runToEntryPoint": "main",
+    "svdFile": ".\\STM32H723.svd",
+    "liveWatch": {
+        "enabled": true,
+        "samplesPerSecond": 4
+    }
+        }
+
+
+    ]
+}

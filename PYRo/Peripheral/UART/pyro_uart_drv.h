@@ -31,8 +31,8 @@
 namespace pyro
 {
 class uart_drv_t;
-extern pyro::uart_drv_t uart1;
-extern pyro::uart_drv_t uart5;
+extern uart_drv_t& get_uart1();
+extern uart_drv_t& get_uart5();
 /* Class Definition ----------------------------------------------------------*/
 /**
  * @brief C++ class to encapsulate the STM32 HAL UART driver functionality.
