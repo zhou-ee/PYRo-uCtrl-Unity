@@ -14,6 +14,7 @@ enum status_t
     PYRO_NO_MEMORY   = 0X04,
     PYRO_PARAM_ERROR = 0X05,
     PYRO_NOT_FOUND   = 0X06,
+    PYRO_WARNING     = 0X07
 };
 
 constexpr float PI=3.14159265358979323846f;

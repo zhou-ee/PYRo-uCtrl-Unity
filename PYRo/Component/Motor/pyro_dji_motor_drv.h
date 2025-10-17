@@ -25,15 +25,13 @@ class dji_motor_tx_frame_t
     ~dji_motor_tx_frame_t();
 
     const _frame_key_t &get_key(void);
-    pyro::status_t register_id(register_id_t id);
+    status_t register_id(register_id_t id);
 
-    pyro::status_t update_value(uint8_t id, int16_t value);
+    status_t update_value(uint8_t id, int16_t value);
 
   private:
     _frame_key_t _key;
-    // can_hub_t::which_can _which;
     can_drv_t *_can;
-    // uint32_t _id;
     std::array<uint8_t, 8> _data;
 
     std::array<uint8_t, 4> _register_list;
@@ -45,7 +43,7 @@ class dji_motor_tx_frame_pool_t
 {
   public:
     static dji_motor_tx_frame_pool_t *get_instance(void);
-    dji_motor_tx_frame_t *get_frame(pyro::can_hub_t::which_can which,
+    dji_motor_tx_frame_t *get_frame(can_hub_t::which_can which,
                                     uint32_t id);
 
   private:
@@ -60,16 +58,15 @@ class dji_motor_tx_frame_pool_t
 class dji_motor_drv_t : public motor_base_t
 {
   public:
-    dji_motor_drv_t(pyro::dji_motor_tx_frame_t::register_id_t id,
+    dji_motor_drv_t(dji_motor_tx_frame_t::register_id_t id,
                     can_hub_t::which_can which);
     // ~dji_m_motor_drv_t();
 
-    pyro::status_t init() override;
-    pyro::status_t enable() override;
-    pyro::status_t disable() override;
+    status_t enable() override;
+    status_t disable() override;
 
-    bool update_feedback() override;
-    bool send_torque(float torque) override;
+    status_t update_feedback() override;
+    status_t send_torque(float torque) override;
 
   protected:
     dji_motor_tx_frame_t::register_id_t _register_id;

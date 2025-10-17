@@ -4,32 +4,32 @@
     "version": "2.0.0",
     "tasks": [
         {
-            "label": "echo",
-            "type": "shell",
-            "command": "echo Hello"
-        },
-        {
-            "label": "Cmake Configure",
-            "type": "shell",
-            "command": "cmake",
-            "args": [
-                "-GNinja",
-                "-BBuild",
-                "-DCMAKE_EXPORT_COMPILE_COMMANDS:BOOL=TRUE"
+            "label":"build",
+            "dependsOn":[
+                "cmake-config",
+                "ninja-build"
             ],
             "group": "build"
         },
         {
-            "label": "Cmake Build",
-            "type": "shell",
-            "command": "cmake",
-            "args": [
-                "--build",
+            "label":"cmake-config",
+            "type":"shell",
+            "command":"cmake",
+            "args":[
+                "-B",
                 "build",
-                "--target",
-                "all"
+                "-G",
+                "Ninja"
             ],
-            "group": "build"
+            "group":"build"
+        },
+        {
+            "label":"ninja-build",
+            "command":"ninja",
+            "args":[
+                "-C",
+                "build"
+            ]
         },
         {
             "label":"download",

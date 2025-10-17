@@ -22,12 +22,11 @@ class dm_motor_drv_t : public motor_base_t // MIT only
     dm_motor_drv_t(uint32_t tx_id, uint32_t rx_id, can_hub_t::which_can which);
     ~dm_motor_drv_t();
 
-    pyro::status_t init() override;
-    pyro::status_t enable() override;
-    pyro::status_t disable() override;
+    status_t enable() override;
+    status_t disable() override;
 
-    bool update_feedback() override;
-    bool send_torque(float torque) override;
+    status_t update_feedback() override;
+    status_t send_torque(float torque) override;
 
     void set_position_range(float min, float max);
     void set_rotate_range(float min, float max);
@@ -37,8 +36,8 @@ class dm_motor_drv_t : public motor_base_t // MIT only
     void set_runtime_kd(float kd);
 
   private:
-    uint32_t _tx_id;
-    uint32_t _rx_id;
+    uint32_t _can_id;
+    uint32_t _master_id;
 
     error_code _error_code;
 
