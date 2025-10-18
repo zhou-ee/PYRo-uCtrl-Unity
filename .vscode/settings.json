@@ -48,5 +48,5 @@
         "portable.h": "c"
     },
     "cortex-debug.variableUseNaturalFormat": false,
-    "C_Cpp.errorSquiggles": "disabled"
+    "C_Cpp.errorSquiggles": "enabled",
 }

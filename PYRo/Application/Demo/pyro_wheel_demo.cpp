@@ -22,6 +22,11 @@ extern "C"
     std::vector<uint8_t> can1_data_vec;
     std::vector<uint8_t> can2_data_vec;
 
+    pyro::dji_m3508_motor_drv_t *m3508_drv_1;
+    pyro::dji_m3508_motor_drv_t *m3508_drv_2;
+    pyro::dji_m3508_motor_drv_t *m3508_drv_3;
+    pyro::dji_m3508_motor_drv_t *m3508_drv_4;
+
     pyro::pyro_wheel_drv_t *wheel_drv_1;
     pyro::pyro_wheel_drv_t *wheel_drv_2;
     pyro::pyro_wheel_drv_t *wheel_drv_3;
@@ -43,7 +48,7 @@ extern "C"
         can1_drv = new pyro::can_drv_t(&hfdcan1);
         can2_drv = new pyro::can_drv_t(&hfdcan2);
         can3_drv = new pyro::can_drv_t(&hfdcan3);
-=
+
         can1_drv->init();
         can2_drv->init();
         can3_drv->init();
@@ -62,44 +67,54 @@ extern "C"
         speed_pid_3->set_output_limits(100.0f);
         speed_pid_4->set_output_limits(100.0f);
 
+        m3508_drv_1 = new pyro::dji_m3508_motor_drv_t(
+            pyro::dji_motor_tx_frame_t::id_1, pyro::can_hub_t::can2);
+        m3508_drv_2 = new pyro::dji_m3508_motor_drv_t(
+            pyro::dji_motor_tx_frame_t::id_3, pyro::can_hub_t::can2);
+        m3508_drv_3 = new pyro::dji_m3508_motor_drv_t(
+            pyro::dji_motor_tx_frame_t::id_1, pyro::can_hub_t::can1);
+        m3508_drv_4 = new pyro::dji_m3508_motor_drv_t(
+            pyro::dji_motor_tx_frame_t::id_2, pyro::can_hub_t::can1);
+
         wheel_drv_1 = new pyro::pyro_wheel_drv_t(
-            pyro::dji_motor_tx_frame_t::id_1,
-            pyro::can_hub_t::can2,
-            0.05f,
+            m3508_drv_1,
+            dr16_drv,
             *speed_pid_1,
-            dr16_drv);
+            0.05f);
 
         wheel_drv_2 = new pyro::pyro_wheel_drv_t(
-            pyro::dji_motor_tx_frame_t::id_3,
-            pyro::can_hub_t::can2,
-            0.05f,
+            m3508_drv_2,
+            dr16_drv,
             *speed_pid_2,
-            dr16_drv);
+            0.05f);
 
         wheel_drv_3 = new pyro::pyro_wheel_drv_t(
-            pyro::dji_motor_tx_frame_t::id_1,
-            pyro::can_hub_t::can1,
-            0.05f,
+           m3508_drv_3,
+            dr16_drv,
             *speed_pid_3,
-            dr16_drv);
+            0.05f);
         
         wheel_drv_4 = new pyro::pyro_wheel_drv_t(
-            pyro::dji_motor_tx_frame_t::id_2,
-            pyro::can_hub_t::can1,
-            0.05f,
+            m3508_drv_4,
+            dr16_drv,
             *speed_pid_4,
-            dr16_drv);
+            0.05f);
+
+        wheel_drv_1->set_gear_ratio(19.0f);
+        wheel_drv_2->set_gear_ratio(19.0f);
+        wheel_drv_3->set_gear_ratio(19.0f);
+        wheel_drv_4->set_gear_ratio(19.0f);
 
         while (true)
         {
-            wheel_drv_1->update_feedback();
-            wheel_drv_2->update_feedback();
-            wheel_drv_3->update_feedback();
-            wheel_drv_4->update_feedback();
-            wheel_drv_1->set_rotate(wheel_drv_1->get_target_rotate());
-            wheel_drv_2->set_rotate(wheel_drv_1->get_target_rotate());
-            wheel_drv_3->set_rotate(wheel_drv_1->get_target_rotate());
-            wheel_drv_4->set_rotate(-wheel_drv_1->get_target_rotate());
+            wheel_drv_1->motor_base->update_feedback();
+            wheel_drv_2->motor_base->update_feedback();
+            wheel_drv_3->motor_base->update_feedback();
+            wheel_drv_4->motor_base->update_feedback();
+            wheel_drv_1->set_speed(wheel_drv_1->get_target_speed());
+            wheel_drv_2->set_speed(-wheel_drv_1->get_target_speed());
+            wheel_drv_3->set_speed(wheel_drv_1->get_target_speed());
+            wheel_drv_4->set_speed(wheel_drv_1->get_target_speed());
             // wheel_drv_1->send_torque(0.2f);
             // wheel_drv_2->send_torque(0.2f);
             // wheel_drv_3->send_torque(0.2f);
