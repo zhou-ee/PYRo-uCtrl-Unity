@@ -46,7 +46,11 @@ add_executable(${CMAKE_PROJECT_NAME}
         PYRo/Component/Motor/pyro_dji_motor_drv.cpp
         PYRo/Component/Motor/pyro_dm_motor_drv.cpp
         PYRo/Component/Motor/pyro_motor_base.cpp
+        PYRo/Component/Wheel/pyro_wheel_drv.cpp
+        PYRo/Component/Wheel/pyro_steering_wheel_drv.cpp
+        PYRo/Component/Pid/pyro_pid_ctrl.cpp
         PYRo/Application/Demo/pyro_motor_demo.cpp
+        PYRo/Application/Demo/pyro_wheel_demo.cpp
 
 )
 
@@ -75,6 +79,8 @@ target_include_directories(${CMAKE_PROJECT_NAME} PUBLIC
     PYRo/Peripheral/CAN
     PYRo/Component/RC
     PYRo/Component/Motor
+    PYRo/Component/Wheel
+    PYRo/Component/Pid
     PYRo/Application/Demo
 )
 

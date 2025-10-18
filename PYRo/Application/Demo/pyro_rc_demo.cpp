@@ -1,5 +1,5 @@
 #include "pyro_core_config.h"
-#ifdef RC_DEMO_EN
+#if RC_DEMO_EN
 #include "pyro_dr16_rc_drv.h"
 #include "pyro_rc_base_drv.h"
 #include "pyro_uart_drv.h"
@@ -8,7 +8,7 @@
 
 extern "C"
 {
-    pyro::rc_drv_t *dr16_drv;
+    pyro::dr16_drv_t *dr16_drv;
     void pyro_rc_demo(void *arg)
     {
         pyro::get_uart5().enable_rx_dma();

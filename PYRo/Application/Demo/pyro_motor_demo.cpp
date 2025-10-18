@@ -1,5 +1,5 @@
 #include "pyro_core_config.h"
-#ifdef MOTOR_DEMO_EN
+#if MOTOR_DEMO_EN
 #include "cmsis_os.h"
 #include "fdcan.h"
 #include "pyro_can_drv.h"

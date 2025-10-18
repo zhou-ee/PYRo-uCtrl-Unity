@@ -1,8 +1,8 @@
       
 {
     "configurations": [
-        {
-             "cwd":"${workspaceRoot}",
+    {
+    "cwd":"${workspaceRoot}",
     "type":"cortex-debug",
     "request":"launch",
     "name":"openocd-launch",
@@ -12,7 +12,7 @@
         "target/stm32h7x.cfg"
     ],
     "interface":"swd",
-    "executable":".\\build\\Debug\\ForLearn.elf",
+    "executable":".\\build\\Debug\\PYRo.elf",
     "runToEntryPoint": "main",
     "svdFile": ".\\STM32H723.svd",
     "liveWatch": {
