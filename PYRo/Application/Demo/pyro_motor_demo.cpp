@@ -26,6 +26,7 @@ extern "C"
     pyro::dji_m3508_motor_drv_t *m3508_drv_4;
 
     pyro::dm_motor_drv_t *dm_drv;
+    float rot;
 
     void pyro_motor_demo(void *arg)
     {
@@ -51,13 +52,21 @@ extern "C"
         m3508_drv_4 = new pyro::dji_m3508_motor_drv_t(
             pyro::dji_motor_tx_frame_t::id_2, pyro::can_hub_t::can1);
 
-        dm_drv = new pyro::dm_motor_drv_t(0x10, 0x20, pyro::can_hub_t::can1);
+        //dm_drv = new pyro::dm_motor_drv_t(0x10, 0x20, pyro::can_hub_t::can1);
+        dm_drv = new pyro::dm_motor_drv_t(0x5, 0x4, pyro::can_hub_t::can1);
         dm_drv->set_position_range(-pyro::PI, pyro::PI);
         dm_drv->set_rotate_range(-20, 20);
         dm_drv->set_torque_range(-10, 10);
 
+        HAL_Delay(1000);
+        dm_drv->enable();
+
         while (true)
         {
+            dm_drv->update_feedback();
+            dm_drv->send_torque(1);
+            rot = dm_drv->get_current_position();
+
             m3508_drv_1->update_feedback();
             m3508_drv_2->update_feedback();
             m3508_drv_3->update_feedback();

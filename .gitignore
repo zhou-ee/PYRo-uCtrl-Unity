@@ -1,5 +1,3 @@
-/.idea/
-/.vscode/
-/build/
-/.gitignore
-/Readme.md
+.idea/
+.vscode/
+build/
