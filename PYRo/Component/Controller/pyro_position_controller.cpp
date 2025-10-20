@@ -13,10 +13,18 @@ position_controller_t::position_controller_t(motor_base_t* motor, pid_ctrl_t* po
     _control_value = 0.0f;
 }
 
-void position_controller_t::set_target(float target)
+float position_controller_t::set_target(float target)
 {
     _target_pos = target;
-    _target_rot = 0.0f;
+    if(_target_pos > _upper_limit)
+    {
+        _target_pos = _upper_limit;
+    }
+    else if(_target_pos < _lower_limit)
+    {
+        _target_pos = _lower_limit;
+    }
+    return _target_pos;
 }
 
 void position_controller_t::update()
@@ -45,6 +53,16 @@ void position_controller_t::control(float dt)
     _target_rot = _pos_pid->compute(angle_correction(_target_pos, _feedback_pos, pyro::PI), _feedback_pos, dt);
     _control_value = _rot_pid->compute(_target_rot, _feedback_rot, dt);
     _motor->send_torque(_control_value);
+}
+
+void position_controller_t::set_upper_limit(float upper_limit)
+{
+    _upper_limit = upper_limit;
+}
+
+void position_controller_t::set_lower_limit(float lower_limit)
+{
+    _lower_limit = lower_limit;
 }
 
 };

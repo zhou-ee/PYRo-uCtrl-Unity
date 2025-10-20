@@ -43,6 +43,7 @@ void can_msg_buffer_t::update_data(const uint8_t *data) // Mutex or not
     memcpy(_buffer.data(), data, 8);
     _last_update_time = xTaskGetTickCount();
     _is_fresh         = true;
+    
     // xSemaphoreGive(_mtx);
     // }
 }

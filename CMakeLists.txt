@@ -57,6 +57,7 @@ add_executable(${CMAKE_PROJECT_NAME}
         PYRo/Application/Demo/pyro_motor_demo.cpp
         PYRo/Application/Demo/pyro_wheel_demo.cpp
         PYRo/Application/Demo/pyro_controller_demo.cpp
+        PYRo/Application/Demo/pyro_engineer_arm_demo.cpp
 
 )
 
