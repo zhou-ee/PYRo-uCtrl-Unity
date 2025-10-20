@@ -31,8 +31,8 @@
 namespace pyro
 {
 class uart_drv_t;
-extern uart_drv_t& get_uart1();
-extern uart_drv_t& get_uart5();
+extern uart_drv_t &get_uart1();
+extern uart_drv_t &get_uart5();
 /* Class Definition ----------------------------------------------------------*/
 /**
  * @brief C++ class to encapsulate the STM32 HAL UART driver functionality.
@@ -74,39 +74,50 @@ class uart_drv_t
     } state_t;
 
   public:
-    /* Public Methods - Initialization and De-initialization -------------------*/
+    /* Public Methods - Initialization and De-initialization
+     * -------------------*/
     explicit uart_drv_t(UART_HandleTypeDef *huart, uint16_t buf_length);
     ~uart_drv_t();
-    status_t reset();
+    status_t reset(uint32_t BaudRate, uint32_t WordLength, uint32_t StopBits,
+                   uint32_t Parity);
 
-    /* Public Methods - Transmission -------------------------------------------*/
-    status_t write(const uint8_t *p, uint16_t size, uint32_t waittime); // Polling
-    status_t write(const uint8_t *p, uint16_t size);                   // DMA
 
-    /* Public Methods - Reception Control --------------------------------------*/
+    /* Public Methods - Transmission
+     * -------------------------------------------*/
+    status_t write(const uint8_t *p, uint16_t size,
+                   uint32_t waittime);               // Polling
+    status_t write(const uint8_t *p, uint16_t size); // DMA
+
+    /* Public Methods - Reception Control
+     * --------------------------------------*/
     status_t enable_rx_dma();
     status_t disable_rx_dma();
 
-    /* Public Methods - Custom Callback Management -----------------------------*/
+    /* Public Methods - Custom Callback Management
+     * -----------------------------*/
     void add_rx_event_callback(const rx_event_func &func, uint32_t owner);
     status_t remove_rx_event_callback(uint32_t);
 
-    /* Public Methods - HAL Callback Registration ------------------------------*/
+    /* Public Methods - HAL Callback Registration
+     * ------------------------------*/
     status_t register_event_callback(pUART_RxEventCallbackTypeDef pCallback);
     status_t unregister_event_callback();
     status_t register_callback(HAL_UART_CallbackIDTypeDef CB_ID,
                                pUART_CallbackTypeDef pCallback);
     status_t unregister_callback(HAL_UART_CallbackIDTypeDef CB_ID);
 
-    /* Public Members - Internal State/Data ------------------------------------*/
+    /* Public Members - Internal State/Data
+     * ------------------------------------*/
     std::vector<rx_event_callback_t> rx_event_callbacks;
     static std::map<UART_HandleTypeDef *, uart_drv_t *> &uart_map();
     uint8_t *rx_buf[2];      // Double buffers for DMA reception
     uint8_t rx_buf_switch{}; // Index of the currently active buffer
     state_t state{};
 
+
   private:
-    /* Private Members ---------------------------------------------------------*/
+    /* Private Members
+     * ---------------------------------------------------------*/
     UART_HandleTypeDef *_huart; // HAL handle for the peripheral
     uint16_t _rx_buf_size{};    // Size of each RX buffer
 };

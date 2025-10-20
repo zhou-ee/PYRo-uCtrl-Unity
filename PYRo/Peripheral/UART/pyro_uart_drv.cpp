@@ -25,12 +25,12 @@
 
 namespace pyro
 {
-uart_drv_t& get_uart1()
+uart_drv_t &get_uart1()
 {
     static uart_drv_t instance(&huart1, 42);
     return instance;
 }
-uart_drv_t& get_uart5()
+uart_drv_t &get_uart5()
 {
     static uart_drv_t instance(&huart5, 36);
     return instance;
@@ -189,8 +189,14 @@ status_t uart_drv_t::disable_rx_dma()
  *
  * Clears all pending error flags and restarts DMA reception.
  */
-status_t uart_drv_t::reset()
+status_t uart_drv_t::reset(uint32_t BaudRate, uint32_t WordLength,
+                           uint32_t StopBits, uint32_t Parity)
 {
+    _huart->Init.BaudRate   = BaudRate;
+    _huart->Init.WordLength = WordLength;
+    _huart->Init.StopBits   = StopBits;
+    _huart->Init.Parity     = Parity;
+
     if (HAL_OK != HAL_UART_DeInit(_huart))
     {
         return PYRO_ERROR;
