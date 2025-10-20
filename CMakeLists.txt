@@ -57,6 +57,7 @@ add_executable(${CMAKE_PROJECT_NAME}
         PYRo/Application/Demo/pyro_motor_demo.cpp
         PYRo/Application/Demo/pyro_wheel_demo.cpp
         PYRo/Application/Demo/pyro_controller_demo.cpp
+        PYRo/Debug/VOFA/pyro_vofa.cpp
 
 )
 
@@ -89,6 +90,7 @@ target_include_directories(${CMAKE_PROJECT_NAME} PUBLIC
     PYRo/Component/Pid
     PYRo/Component/Controller
     PYRo/Application/Demo
+    PYRo/Debug/VOFA
 )
 
 # Add project symbols (macros)
