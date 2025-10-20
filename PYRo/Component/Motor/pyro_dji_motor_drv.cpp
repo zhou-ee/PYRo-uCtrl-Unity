@@ -131,10 +131,20 @@ status_t dji_motor_drv_t::update_feedback()
     return PYRO_OK;
 }
 
+static float constraint(float value, float max)
+    {
+        if(value > max)
+            return max;
+        if(value < -max)
+            return -max;
+        return value;
+    }
+
 status_t dji_motor_drv_t::send_torque(float torque)
 {
     static std::array<uint8_t, 8> data;
     data.fill(0);
+    torque=constraint(torque,_max_torque_f);
     int16_t torque_i = (int16_t)(torque / _max_torque_f * _max_torque_i);
     _tx_frame->update_value(_register_id, torque_i);
     return PYRO_OK;
@@ -224,7 +234,7 @@ dji_gm_6020_motor_drv_t::dji_gm_6020_motor_drv_t(
         case dji_motor_tx_frame_t::id_2:
         case dji_motor_tx_frame_t::id_3:
         case dji_motor_tx_frame_t::id_4:
-            _tx_id = 0x1fe;
+            _tx_id = 0x1ff;
             _rx_id = 0x204 + id + 1;
             break;
         case dji_motor_tx_frame_t::id_5:

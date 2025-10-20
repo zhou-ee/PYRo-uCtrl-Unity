@@ -1,10 +1,10 @@
 #include "pyro_core_config.h"
-#if WHEEL_DEMO_EN
+#if CONTROL_DEMO_EN
 #include "cmsis_os.h"
 #include "fdcan.h"
 #include "pyro_can_drv.h"
 #include "pyro_chassis_drv.h"
-#include "pyro_dr16_rc_drv.h"
+#include "pyro_yaw_drv.h"
 
 #ifdef __cplusplus
 
@@ -32,6 +32,7 @@ extern "C"
 
     pyro::dji_gm_6020_motor_drv_t *gm6020_drv_1;
     pyro::dji_gm_6020_motor_drv_t *gm6020_drv_2;
+    pyro::dji_gm_6020_motor_drv_t *gm6020_drv_3;
 
     pyro::wheel_drv_t *wheel_drv_1;
     pyro::wheel_drv_t *wheel_drv_2;
@@ -46,6 +47,8 @@ extern "C"
     pyro::steering_wheel_drv_t *steering_wheel_drv_1;
     pyro::steering_wheel_drv_t *steering_wheel_drv_2;
 
+    pyro::yaw_drv_t *yaw_drv_1;
+
     pyro::chassis_drv_t *chassis_drv;
 
     pyro::pid_ctrl_t *rudder_rotate_pid_1;
@@ -53,7 +56,10 @@ extern "C"
     pyro::pid_ctrl_t *rudder_rotate_pid_2;
     pyro::pid_ctrl_t *rudder_position_pid_2;
 
-    void pyro_wheel_demo(void *arg)
+    pyro::pid_ctrl_t *yaw_rotate_pid_1;
+    pyro::pid_ctrl_t *yaw_position_pid_1;
+
+    void pyro_control_demo(void *arg)
     {
         pyro::get_uart5().enable_rx_dma();
         dr16_drv = new pyro::dr16_drv_t(&pyro::get_uart5());
@@ -93,11 +99,11 @@ extern "C"
         rudder_rotate_pid_1->set_output_limits(3.0f);
         rudder_rotate_pid_2->set_output_limits(3.0f);
 
-        rudder_position_pid_1->set_integral_limits(50.0f);
-        rudder_rotate_pid_1->set_integral_limits(50.0f);
-        rudder_position_pid_2->set_integral_limits(50.0f);
-        rudder_rotate_pid_2->set_integral_limits(50.0f);
-
+        yaw_position_pid_1 = new pyro::pid_ctrl_t(20.0f, 0.0f, 0.00f);
+        yaw_rotate_pid_1 = new pyro::pid_ctrl_t(0.1f, 0.0f, 0.00f);
+        yaw_position_pid_1->set_output_limits(1000.0f);
+        yaw_rotate_pid_1->set_output_limits(3.0f);
+        
         m3508_drv_1 = new pyro::dji_m3508_motor_drv_t(
             pyro::dji_motor_tx_frame_t::id_1, pyro::can_hub_t::can2);
         m3508_drv_2 = new pyro::dji_m3508_motor_drv_t(
@@ -111,11 +117,13 @@ extern "C"
             pyro::dji_motor_tx_frame_t::id_3, pyro::can_hub_t::can2);
         gm6020_drv_2 = new pyro::dji_gm_6020_motor_drv_t(
             pyro::dji_motor_tx_frame_t::id_1, pyro::can_hub_t::can1);
+        gm6020_drv_3 = new pyro::dji_gm_6020_motor_drv_t(
+            pyro::dji_motor_tx_frame_t::id_1, pyro::can_hub_t::can2);
 
         wheel_drv_1 = new pyro::wheel_drv_t(
             m3508_drv_1,
             *speed_pid_1,
-            0.065f);
+            0.0685f);
 
         wheel_drv_2 = new pyro::wheel_drv_t(
             m3508_drv_2,
@@ -130,7 +138,7 @@ extern "C"
         wheel_drv_4 = new pyro::wheel_drv_t(
             m3508_drv_4,
             *speed_pid_4,
-            0.065f);
+            0.0685f);
 
         wheel_drv_1->set_gear_ratio(19.0f);
         wheel_drv_2->set_gear_ratio(19.0f);
@@ -149,8 +157,14 @@ extern "C"
             *rudder_rotate_pid_2,
             *rudder_position_pid_2);
 
+        yaw_drv_1 = new pyro::yaw_drv_t(
+            gm6020_drv_3,
+            *yaw_rotate_pid_1,
+            *yaw_position_pid_1);
+
         steering_wheel_drv_1->set_offset_radian(0.959505022f);
         steering_wheel_drv_2->set_offset_radian(4.52447653f);
+        yaw_drv_1->set_offset_radian(0.48397094f);
 
         chassis_drv = new pyro::chassis_drv_t(
             steering_wheel_drv_1,
@@ -162,7 +176,9 @@ extern "C"
         while (true)
         {
             chassis_drv->update_feedback();
+            yaw_drv_1->update_feedback();
 
+            yaw_drv_1->set_radian(0);
             chassis_drv->chassis_control();
 
             vTaskDelay(1);

@@ -9,3 +9,6 @@ This directory contains demonstration applications and example code for the PYRo
 
 * V1.0, 2025-10-15, By Lucky: created
   * 框架与rc demo
+* V1.01, 2025-10-20, By Pason: created
+  * control demo 与 wheel demo(已经将功能合并至control demo)
+  
