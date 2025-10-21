@@ -10,9 +10,6 @@
 
 pyro::rc_drv_t *dr16_drv;
 
-float offset_angle_1 = 0.0f;
-float offset_angle_2 = 0.0f;
-
 extern "C"
 {
     pyro::can_drv_t *can1_drv;
@@ -79,10 +76,10 @@ extern "C"
         can2_drv->start();
         can3_drv->start();
 
-        speed_pid_1 = new pyro::pid_ctrl_t(20.0f, 0.0f, 0.00f);
-        speed_pid_2 = new pyro::pid_ctrl_t(20.0f, 0.0f, 0.00f);
-        speed_pid_3 = new pyro::pid_ctrl_t(20.0f, 0.0f, 0.00f);
-        speed_pid_4 = new pyro::pid_ctrl_t(20.0f, 0.0f, 0.00f);
+        speed_pid_1 = new pyro::pid_ctrl_t(24.0f, 0.1f, 0.00f);
+        speed_pid_2 = new pyro::pid_ctrl_t(24.0f, 0.1f, 0.00f);
+        speed_pid_3 = new pyro::pid_ctrl_t(20.0f, 0.1f, 0.00f);
+        speed_pid_4 = new pyro::pid_ctrl_t(20.0f, 0.1f, 0.00f);
 
         speed_pid_1->set_output_limits(100.0f);
         speed_pid_2->set_output_limits(100.0f);

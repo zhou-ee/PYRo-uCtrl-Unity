@@ -19,7 +19,9 @@ class wheel_drv_t
     void set_speed(float target_speed);
     void zero_force();
     float get_target_speed();
+    float *get_p_target_speed();
     float get_current_speed();
+    float *get_p_current_speed();
     void update_feedback();
 
     motor_base_t *motor_base;

@@ -21,6 +21,7 @@ void wheel_drv_t::set_speed(float target_speed)
 {
     float torque_cmd = _speed_pid.compute(target_speed, _current_speed, 0.001f);
     motor_base->send_torque(torque_cmd);
+    _target_speed = target_speed;
 }
 
 void wheel_drv_t::zero_force()
@@ -33,9 +34,19 @@ float wheel_drv_t::get_target_speed()
     return _target_speed;
 }
 
+float *wheel_drv_t::get_p_target_speed()
+{
+    return & _target_speed;
+}
+
 float wheel_drv_t::get_current_speed()
 {
     return _current_speed;
+}
+
+float *wheel_drv_t::get_p_current_speed()
+{
+    return &_current_speed;
 }
 
 void wheel_drv_t::update_feedback()
