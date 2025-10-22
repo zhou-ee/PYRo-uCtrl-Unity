@@ -1,3 +1,4 @@
-.idea/
-.vscode/
-build/
+/.idea/
+/build/
+/.vscode/
+/.gitignore

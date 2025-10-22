@@ -18,8 +18,10 @@ extern void pyro_motor_demo(void *arg);
 extern void pyro_wheel_demo(void *arg);
 extern void pyro_controller_demo(void *arg);
 extern void pyro_vofa_demo(void *arg);
+extern void IMU_task(void * argument);
 void start_demo_task(void const *argument)
 {
+ //变成IMU_TASK 之后自己写一个demo
 #if DEMO_MODE
 
 #if RC_DEMO_EN
@@ -42,6 +44,10 @@ void start_demo_task(void const *argument)
 
 #if VOFA_DEMO_EN
      xTaskCreate(pyro_vofa_demo, "pyro_vofa_demo", 512, nullptr,
+                 configMAX_PRIORITIES - 2, nullptr);
+#endif
+#if IMU_DEMO_EN
+     xTaskCreate(IMU_task, "IMU_task", 512, nullptr,
                  configMAX_PRIORITIES - 2, nullptr);
 #endif
 

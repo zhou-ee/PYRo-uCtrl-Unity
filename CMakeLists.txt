@@ -48,6 +48,13 @@ add_executable(${CMAKE_PROJECT_NAME}
         PYRo/Component/Motor/pyro_motor_base.cpp
         PYRo/Component/Wheel/pyro_wheel_drv.cpp
         PYRo/Component/Wheel/pyro_steering_wheel_drv.cpp
+        PYRo/Component/IMU/AHRS.c
+        PYRo/Component/IMU/BMI088driver.c
+        PYRo/Component/IMU/BMI088Middleware.c
+        PYRo/Component/IMU/IMU_Base.c
+        PYRo/Component/IMU/IMU_Ext.c
+        PYRo/Component/IMU/MATH_LIB.c
+        PYRo/Component/IMU/PID.c
         PYRo/Component/Pid/pyro_pid_ctrl.cpp
         PYRo/Component/Controller/pyro_velocity_controller.cpp
         PYRo/Component/Controller/pyro_position_controller.cpp
@@ -91,6 +98,7 @@ target_include_directories(${CMAKE_PROJECT_NAME} PUBLIC
     PYRo/Component/Controller
     PYRo/Application/Demo
     PYRo/Debug/VOFA
+    PYRo/Component/IMU
 )
 
 # Add project symbols (macros)
