@@ -30,9 +30,12 @@
 
 namespace pyro
 {
+enum which_uart
+{
+    uart1,
+    uart5,
+};
 class uart_drv_t;
-extern uart_drv_t &get_uart1();
-extern uart_drv_t &get_uart5();
 /* Class Definition ----------------------------------------------------------*/
 /**
  * @brief C++ class to encapsulate the STM32 HAL UART driver functionality.
@@ -74,13 +77,14 @@ class uart_drv_t
     } state_t;
 
   public:
+
     /* Public Methods - Initialization and De-initialization
      * -------------------*/
     explicit uart_drv_t(UART_HandleTypeDef *huart, uint16_t buf_length);
     ~uart_drv_t();
     status_t reset(uint32_t BaudRate, uint32_t WordLength, uint32_t StopBits,
                    uint32_t Parity);
-
+    static uart_drv_t *get_instance(which_uart uart);
 
     /* Public Methods - Transmission
      * -------------------------------------------*/
