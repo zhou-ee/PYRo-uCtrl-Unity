@@ -46,17 +46,21 @@ add_executable(${CMAKE_PROJECT_NAME}
         PYRo/Component/Motor/pyro_dji_motor_drv.cpp
         PYRo/Component/Motor/pyro_dm_motor_drv.cpp
         PYRo/Component/Motor/pyro_motor_base.cpp
-        PYRo/Component/Wheel/pyro_wheel_drv.cpp
-        PYRo/Component/Wheel/pyro_steering_wheel_drv.cpp
+        #PYRo/Component/Wheel/pyro_wheel_drv.cpp
+        #PYRo/Component/Wheel/pyro_steering_wheel_drv.cpp
         PYRo/Component/Pid/pyro_pid_ctrl.cpp
         PYRo/Component/Controller/pyro_velocity_controller.cpp
         PYRo/Component/Controller/pyro_position_controller.cpp
+        PYRo/Component/Chassis/pyro_wheel_drv.cpp
+        PYRo/Component/Chassis/pyro_chassis_base_drv.cpp
+        PYRo/Component/Chassis/pyro_macunum_chassis_drv.cpp
 
         PYRo/Application/Demo/pyro_rc_demo.cpp
         PYRo/Application/Demo/demo_task.cpp
         PYRo/Application/Demo/pyro_motor_demo.cpp
         PYRo/Application/Demo/pyro_wheel_demo.cpp
         PYRo/Application/Demo/pyro_controller_demo.cpp
+        PYRo/Application/Demo/engineer_chassis_demo.cpp
         PYRo/Debug/VOFA/pyro_vofa.cpp
         PYRo/Core/Lock/pyro_rw_lock.cpp
 
@@ -91,6 +95,7 @@ target_include_directories(${CMAKE_PROJECT_NAME} PUBLIC
     PYRo/Component/Wheel
     PYRo/Component/Pid
     PYRo/Component/Controller
+    PYRo/Component/Chassis
     PYRo/Application/Demo
     PYRo/Debug/VOFA
 )

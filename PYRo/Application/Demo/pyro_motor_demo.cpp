@@ -44,13 +44,13 @@ extern "C"
         can3_drv->start();
 
         m3508_drv_1 = new pyro::dji_m3508_motor_drv_t(
-            pyro::dji_motor_tx_frame_t::id_1, pyro::can_hub_t::can2);
-        m3508_drv_2 = new pyro::dji_m3508_motor_drv_t(
-            pyro::dji_motor_tx_frame_t::id_3, pyro::can_hub_t::can2);
-        m3508_drv_3 = new pyro::dji_m3508_motor_drv_t(
             pyro::dji_motor_tx_frame_t::id_1, pyro::can_hub_t::can1);
-        m3508_drv_4 = new pyro::dji_m3508_motor_drv_t(
+        m3508_drv_2 = new pyro::dji_m3508_motor_drv_t(
             pyro::dji_motor_tx_frame_t::id_2, pyro::can_hub_t::can1);
+        m3508_drv_3 = new pyro::dji_m3508_motor_drv_t(
+            pyro::dji_motor_tx_frame_t::id_3, pyro::can_hub_t::can1);
+        m3508_drv_4 = new pyro::dji_m3508_motor_drv_t(
+            pyro::dji_motor_tx_frame_t::id_4, pyro::can_hub_t::can1);
 
         //dm_drv = new pyro::dm_motor_drv_t(0x10, 0x20, pyro::can_hub_t::can1);
         dm_drv = new pyro::dm_motor_drv_t(0x5, 0x4, pyro::can_hub_t::can1);
@@ -71,10 +71,11 @@ extern "C"
             m3508_drv_2->update_feedback();
             m3508_drv_3->update_feedback();
             m3508_drv_4->update_feedback();
-            m3508_drv_1->send_torque(0.2);
-            m3508_drv_2->send_torque(0.2);
-            m3508_drv_3->send_torque(0.2);
-            m3508_drv_4->send_torque(0.2);
+            
+            m3508_drv_1->send_torque(0.4);
+            m3508_drv_2->send_torque(0.4);
+            m3508_drv_3->send_torque(0.4);
+            m3508_drv_4->send_torque(0.4);
 
             vTaskDelay(1);
         }

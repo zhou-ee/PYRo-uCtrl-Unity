@@ -7,9 +7,10 @@
 
 #define RC_DEMO_EN 0
 #define MOTOR_DEMO_EN 0
-#define WHEEL_DEMO_EN 1
+#define WHEEL_DEMO_EN 0
 #define CONTROLLER_DEMO_EN 0
-#define VOFA_DEMO_EN 1
+#define VOFA_DEMO_EN 0
+#define ENGINEER_CHASSIS_DEMO_EN 1
 
 #endif
 

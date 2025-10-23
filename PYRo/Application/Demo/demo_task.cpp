@@ -18,6 +18,7 @@ extern void pyro_motor_demo(void *arg);
 extern void pyro_wheel_demo(void *arg);
 extern void pyro_controller_demo(void *arg);
 extern void pyro_vofa_demo(void *arg);
+extern void pyro_engineer_chassis_demo(void *arg);
 void start_demo_task(void const *argument)
 {
 #if DEMO_MODE
@@ -42,6 +43,11 @@ void start_demo_task(void const *argument)
 
 #if VOFA_DEMO_EN
      xTaskCreate(pyro_vofa_demo, "pyro_vofa_demo", 512, nullptr,
+                 configMAX_PRIORITIES - 2, nullptr);
+#endif
+
+#if ENGINEER_CHASSIS_DEMO_EN
+     xTaskCreate(pyro_engineer_chassis_demo, "pyro_engineer_chassis_demo", 512, nullptr,
                  configMAX_PRIORITIES - 2, nullptr);
 #endif
 

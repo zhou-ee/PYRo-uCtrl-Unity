@@ -13,6 +13,7 @@ namespace pyro
             virtual void set_target(float target) = 0 ;
             virtual void update() = 0 ;
             virtual void control(float dt) = 0 ;
+            void zero_force(){_motor->send_torque(0.0f);}
         protected:
             motor_base_t *_motor;
     };
