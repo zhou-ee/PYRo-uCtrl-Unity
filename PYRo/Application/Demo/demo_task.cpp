@@ -17,6 +17,7 @@ extern void pyro_rc_demo(void *arg);
 extern void pyro_motor_demo(void *arg);
 extern void pyro_wheel_demo(void *arg);
 extern void pyro_controller_demo(void *arg);
+extern void pyro_shoot_demo(void *arg);
 extern void pyro_vofa_demo(void *arg);
 void start_demo_task(void const *argument)
 {
@@ -37,6 +38,11 @@ void start_demo_task(void const *argument)
 
 #if CONTROLLER_DEMO_EN
      xTaskCreate(pyro_controller_demo, "pyro_controller_demo", 512, nullptr,
+                 configMAX_PRIORITIES - 2, nullptr);
+#endif
+
+#if SHOOT_DEMO_EN
+     xTaskCreate(pyro_shoot_demo, "pyro_shoot_demo", 512, nullptr,
                  configMAX_PRIORITIES - 2, nullptr);
 #endif
 

@@ -52,11 +52,16 @@ add_executable(${CMAKE_PROJECT_NAME}
         PYRo/Component/Controller/pyro_velocity_controller.cpp
         PYRo/Component/Controller/pyro_position_controller.cpp
 
+        PYRo/Component/Shoot/pyro_fric_drv.cpp
+        PYRo/Component/Shoot/pyro_trigger_drv.cpp
+        PYRo/Component/Shoot/pyro_shoot_drv.cpp
+
         PYRo/Application/Demo/pyro_rc_demo.cpp
         PYRo/Application/Demo/demo_task.cpp
         PYRo/Application/Demo/pyro_motor_demo.cpp
         PYRo/Application/Demo/pyro_wheel_demo.cpp
         PYRo/Application/Demo/pyro_controller_demo.cpp
+        PYRo/Application/Demo/pyro_shoot_demo.cpp
         PYRo/Debug/VOFA/pyro_vofa.cpp
 
 )
@@ -89,6 +94,7 @@ target_include_directories(${CMAKE_PROJECT_NAME} PUBLIC
     PYRo/Component/Wheel
     PYRo/Component/Pid
     PYRo/Component/Controller
+    PYRo/Component/Shoot
     PYRo/Application/Demo
     PYRo/Debug/VOFA
 )
