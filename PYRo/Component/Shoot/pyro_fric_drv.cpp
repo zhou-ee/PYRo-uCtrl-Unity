@@ -3,43 +3,49 @@
 namespace pyro
 {
 fric_drv_t::fric_drv_t(motor_base_t *motor_base,
-                     const pid_ctrl_t &speed_pid, float radius)
-    : motor_base(motor_base),
+                       const pid_ctrl_t &speed_pid, 
+                       float radius,
+                       rotate_direction_t direction)
+    : _motor_base(_motor_base),
       _speed_pid(speed_pid),
-      _radius(radius)
+      _radius(radius),
+      _direction(direction)
 {
 };
 
+void fric_drv_t::set_dt(float dt)
+{
+    _dt = dt;
+}
+
 void fric_drv_t::set_speed(float target_speed)
 {
-    _target_speed = target_speed;
+    if (rotate_direction_t::CLOCKWISE == _direction)
+    {
+        _target_speed = abs(target_speed);
+    }
+    else 
+    {
+        _target_speed = -abs(target_speed);
+    }
+    float torque_cmd = _speed_pid.compute(_target_speed, _current_speed, _dt);
+    _motor_base->send_torque(torque_cmd);
 }
 
 void fric_drv_t::zero_force()
 {
-    if(abs(_current_speed) < 0.5f)
-    {
-        motor_base->send_torque(0.0f);
-    }
-    else
-    {
-        float torque_cmd = _speed_pid.compute(0.0f,
-                    _current_speed, 0.001f);
-        motor_base->send_torque(torque_cmd);
-    }
-    // motor_base->send_torque(0.0f);
+    _motor_base->send_torque(0.0f);
 }
 
-void fric_drv_t::fric_control()
+float fric_drv_t::get_speed()
 {
-    float torque_cmd = _speed_pid.compute(_target_speed, _current_speed, 0.001f);
-    motor_base->send_torque(torque_cmd);
+    return _current_speed;
 }
 
 void fric_drv_t::update_feedback()
 {
-    motor_base->update_feedback();
-    _current_speed = motor_base->get_current_rotate() * _radius;
+    _motor_base->update_feedback();
+    _current_speed = _motor_base->get_current_rotate() * _radius;
 }
 
 }

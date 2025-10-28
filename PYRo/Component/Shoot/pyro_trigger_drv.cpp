@@ -9,13 +9,20 @@ namespace pyro
 {
 
 trigger_drv_t::trigger_drv_t(motor_base_t *motor_base,
-                     const pid_ctrl_t &_rotate_pid, 
-                     const pid_ctrl_t &position_pid
+                             const pid_ctrl_t &_rotate_pid, 
+                             const pid_ctrl_t &_position_pid,
+                             float step_radian
                      )
     : motor_base(motor_base),
       _rotate_pid(_rotate_pid),
-      _position_pid(position_pid)
+      _position_pid(_position_pid),
+      _step_radian(step_radian)
 {
+}
+
+void trigger_drv_t::set_dt(float dt)
+{
+    _dt = dt;
 }
 
 void trigger_drv_t::set_gear_ratio(float gear_ratio)
@@ -23,51 +30,47 @@ void trigger_drv_t::set_gear_ratio(float gear_ratio)
     _gear_ratio = gear_ratio;
 }
 
-void trigger_drv_t::step_fire()
+void trigger_drv_t::set_rotate(float target_rotate)
 {
-    set_
+    if (POSITION == _mode)
+    {
+        _rotate_pid.reset();
+        _position_pid.reset();
+    }
+    _mode = ROTATE;
+    _target_rotate = target_rotate;
+    float torque_cmd = _rotate_pid.compute(_target_rotate, _current_rotate, _dt);
+    motor_base->send_torque(torque_cmd);
 }
 
-void trigger_drv_t::continue_fire()
+void trigger_drv_t::set_radian(float target_radian)
 {
-
-    if(_current_rotate <= BLOCK_SPEED)
+    if (ROTATE == _mode)
     {
-    	_block_count1 ++;
-    	if(_block_count1 > BLOCK_THRESHOLD)
-    	{
-            motor_base->send_torque(0.0f);
-    		_block_count1 = 0;
-    		vTaskDelay(BLOCK_TIME);
-    		if(_current_rotate <= BLOCK_SPEED)
-    		{
-    			_block_count2 ++;
-    			if(_block_count2 > BLOCK_THRESHOLD)
-    			{
-    				Step_Backward(shoot_con->shoot->my_trigger);
-    				Step_Backward(shoot_con->shoot->my_trigger);
-    				block_count2 = 0;
-    				vTaskDelay(BLOCK_TIME);
-    			}
-    		}		
-    	}
+        _rotate_pid.reset();
     }
-
-    float torque_cmd = _rotate_pid.compute(_target_rotate,
-                    _current_rotate, 0.001f);
+    _mode = POSITION;
+    _target_radian = target_radian;
+    float rotate_cmd =
+        _position_pid.compute(_target_radian, _current_radian, _dt);
+    float torque_cmd =
+        _rotate_pid.compute(rotate_cmd, _current_rotate, _dt);
     motor_base->send_torque(torque_cmd);
+}
+
+float trigger_drv_t::get_rotate()
+{
+    return _current_rotate;
+}
+
+float trigger_drv_t::get_radian()
+{
+    return _current_radian;
 }
 
 void trigger_drv_t::zero_force()
 {
-    float torque_cmd = _rotate_pid.compute(0.0f,
-                    _current_rotate, 0.001f);
-    motor_base->send_torque(torque_cmd);
-}
-
-void trigger_drv_t::set_rotate(float target_rotate)
-{
-    _target_rotate = target_rotate;
+    motor_base->send_torque(0.0f);
 }
 
 void trigger_drv_t::update_feedback()
