@@ -58,6 +58,7 @@ add_executable(${CMAKE_PROJECT_NAME}
         PYRo/Application/Demo/pyro_wheel_demo.cpp
         PYRo/Application/Demo/pyro_controller_demo.cpp
         PYRo/Debug/VOFA/pyro_vofa.cpp
+        PYRo/Core/Lock/pyro_rw_lock.cpp
 
 )
 
@@ -82,6 +83,7 @@ target_include_directories(${CMAKE_PROJECT_NAME} PUBLIC
     PYRo/Core/Memory
     PYRo/Core/Config
     PYRo/Core/ETL
+    PYRo/Core/Lock
     PYRo/Peripheral/UART
     PYRo/Peripheral/CAN
     PYRo/Component/RC

@@ -25,7 +25,7 @@ vofa_drv_t::~vofa_drv_t()
 
 vofa_drv_t &vofa_drv_t::get_instance(uint8_t max_length)
 {
-    static vofa_drv_t instance(max_length, &get_uart1());
+    static vofa_drv_t instance(max_length, uart_drv_t::get_instance(uart1));
     return instance;
 }
 
@@ -76,10 +76,12 @@ void vofa_drv_t::update_data()
     uint8_t offset               = 0;
     for (const auto &[data, size] : _data_nodes)
     {
-        memcpy(_data_pack + offset, data, size);
-        offset += size;
+        for (uint8_t i = 0; i < size; ++i)
+        {
+            _data_pack[offset++] = data[i];
+        }
     }
-    memcpy(_data_pack + offset, frame_tail, 4);
+    _data_pack[offset] = *reinterpret_cast<float *>(frame_tail);
 }
 
 void vofa_drv_t::send()
