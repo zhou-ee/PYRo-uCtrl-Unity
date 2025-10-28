@@ -48,4 +48,9 @@ void fric_drv_t::update_feedback()
     _current_speed = _motor_base->get_current_rotate() * _radius;
 }
 
+void fric_drv_t::control()
+{
+    set_speed(_target_speed);
+}
+
 }

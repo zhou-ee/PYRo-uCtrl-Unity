@@ -54,7 +54,7 @@ add_executable(${CMAKE_PROJECT_NAME}
 
         PYRo/Component/Shoot/pyro_fric_drv.cpp
         PYRo/Component/Shoot/pyro_trigger_drv.cpp
-        PYRo/Component/Shoot/pyro_shoot_drv.cpp
+        PYRo/Component/Shoot/pyro_shoot_base.cpp
 
         PYRo/Application/Demo/pyro_rc_demo.cpp
         PYRo/Application/Demo/demo_task.cpp

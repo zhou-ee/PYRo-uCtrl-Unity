@@ -34,16 +34,23 @@ private:
         ROTATE      = 0x00,
         POSITION    = 0x01
     };
+
+    float _update_trigger_radian();
+
     pid_ctrl_t _rotate_pid;
     pid_ctrl_t _position_pid;
-    mode_t _mode;
+    trigger_mode_t _mode;
     float _dt = 0.001f;
     float _step_radian;
     float _target_rotate;
     float _current_rotate;
     float _target_radian;
     float _current_radian;
+    float _current_motor_radian;
+    float _last_motor_radian;
+    uint8_t _motor_total_count = 0;
     float _gear_ratio = 1;
+    bool _is_first_update = true;
 
 friend class vofa_drv_t;
 };

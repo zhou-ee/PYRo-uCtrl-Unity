@@ -77,6 +77,44 @@ void trigger_drv_t::update_feedback()
 {
     motor_base->update_feedback();
     _current_rotate = motor_base->get_current_rotate() / _gear_ratio;
+    _current_motor_radian = motor_base->get_current_position();
+    _current_radian = _update_trigger_radian();
+
+}
+
+float trigger_drv_t::_update_trigger_radian()
+{
+    if(_is_first_update)
+    {
+        _last_motor_radian = _current_motor_radian + PI;
+        _is_first_update = false;
+        return _last_motor_radian / _gear_ratio;
+    }
+    
+    float current_motor_radian = _current_motor_radian + PI;
+
+    float delta_motor_radian = current_motor_radian - _last_motor_radian;
+    if(delta_motor_radian < -PI)
+    {
+        _motor_total_count += 1;
+        delta_motor_radian += 2 * PI;
+    }
+    else if(delta_motor_radian > PI)
+    {
+        _motor_total_count -= 1;
+        delta_motor_radian -= 2 * PI;
+    }
+
+    _last_motor_radian = current_motor_radian;
+
+    float total_motor_radian = current_motor_radian + _motor_total_count * 2 * PI;
+    float gear_radian = total_motor_radian / _gear_ratio;
+    if(gear_radian < -PI)
+        gear_radian += 2 * PI;
+    else if(gear_radian > PI)
+        gear_radian -= 2 * PI;
+
+    return gear_radian;
 }
 
 }

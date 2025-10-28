@@ -30,6 +30,7 @@ public:
     void zero_force();
     float get_speed();
     void update_feedback();
+    void control();
 
 private:
     motor_base_t *_motor_base;
