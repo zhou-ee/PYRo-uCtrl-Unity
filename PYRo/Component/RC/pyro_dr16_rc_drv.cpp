@@ -16,6 +16,7 @@
 #include "pyro_dr16_rc_drv.h"
 
 #include "message_buffer.h" // Needed for xMessageBuffer* calls
+#include "pyro_rw_lock.h"
 #include "task.h"           // Needed for xTaskCreate calls
 #include <cstring>
 
@@ -58,11 +59,7 @@ status_t dr16_drv_t::init()
     {
         return PYRO_ERROR;
     }
-    _rc_mutex = xSemaphoreCreateMutex();
-    if (_rc_mutex == nullptr)
-    {
-        return PYRO_ERROR;
-    }
+    _lock = new rw_lock;
     return PYRO_OK;
 }
 
@@ -160,18 +157,15 @@ void dr16_drv_t::unpack(const dr16_buf_t *dr16_buf)
                sizeof(dr16_buf->key_code));
 
         // Execute the registered consumer callback with the decoded data
-        if (xSemaphoreTake(_rc_mutex, portMAX_DELAY) == pdTRUE)
+        write_scope_lock rc_write_lock(get_lock());
+        // Critical section - safely update shared control data
+        // (No other thread can access vt03_ctrl during this time)
+        for (auto &rc_to_cmd : _cmd_funcs)
         {
-            // Critical section - safely update shared control data
-            // (No other thread can access vt03_ctrl during this time)
-            for (auto &get_mode : _cmd_funcs)
+            if (rc_to_cmd)
             {
-                if (get_mode)
-                {
-                    get_mode(this);
-                }
+                rc_to_cmd(this);
             }
-            xSemaphoreGive(_rc_mutex);
         }
     }
 }

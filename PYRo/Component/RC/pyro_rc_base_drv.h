@@ -21,6 +21,7 @@
 #include "message_buffer.h" // FreeRTOS Message Buffer definitions
 #include "semphr.h"         // FreeRTOS Semaphore definitions
 #include "task.h"           // FreeRTOS Task definitions
+#include "pyro_rw_lock.h"
 
 namespace pyro
 {
@@ -52,6 +53,7 @@ class rc_drv_t
     virtual void config_rc_cmd(const cmd_func &func)              = 0;
     virtual void *get_p_ctrl()                                    = 0;
     virtual void *get_p_last_ctrl()                               = 0;
+    rw_lock &get_lock() const;
 
     /**
      * @brief Callback function executed by the underlying UART driver in ISR
@@ -77,7 +79,7 @@ class rc_drv_t
      */
 
     std::vector<cmd_func> _cmd_funcs;
-    SemaphoreHandle_t _rc_mutex{};
+    rw_lock *_lock{};
     MessageBufferHandle_t _rc_msg_buffer{};
     ///< Handle for the FreeRTOS message buffer.
     TaskHandle_t _rc_task_handle{};
