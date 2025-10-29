@@ -11,7 +11,7 @@ public:
     rc_hub_t();
     ~rc_hub_t();
 
-    enum class which_rc_t
+    enum which_rc_t
     {
         VTO3 = 0,
         DR16 = 1,
