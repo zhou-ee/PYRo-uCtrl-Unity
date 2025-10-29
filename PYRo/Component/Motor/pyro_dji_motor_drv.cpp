@@ -131,10 +131,20 @@ status_t dji_motor_drv_t::update_feedback()
     return PYRO_OK;
 }
 
-status_t dji_motor_drv_t::send_torque(float torque)
+static float constraint(float value, float max)
+    {
+        if(value > max)
+            return max;
+        if(value < -max)
+            return -max;
+        return value;
+    }
+
+    status_t dji_motor_drv_t::send_torque(float torque)
 {
     static std::array<uint8_t, 8> data;
     data.fill(0);
+    torque=constraint(torque,_max_torque_f);
     int16_t torque_i = (int16_t)(torque / _max_torque_f * _max_torque_i);
     _tx_frame->update_value(_register_id, torque_i);
     return PYRO_OK;

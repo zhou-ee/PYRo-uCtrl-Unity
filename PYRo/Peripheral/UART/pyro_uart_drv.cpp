@@ -23,19 +23,10 @@
 #include "pyro_uart_drv.h"
 #include "usart.h"
 
+#include <stdexcept>
+
 namespace pyro
 {
-uart_drv_t &get_uart1()
-{
-    static uart_drv_t instance(&huart1, 42);
-    return instance;
-}
-uart_drv_t &get_uart5()
-{
-    static uart_drv_t instance(&huart5, 36);
-    return instance;
-}
-
 /* Constructor and Destructor ------------------------------------------------*/
 /**
  * @brief Constructor for the UART driver.
@@ -79,6 +70,20 @@ uart_drv_t::~uart_drv_t()
     uart_map().erase(_huart);
 }
 
+uart_drv_t *uart_drv_t::get_instance(const which_uart uart)
+{
+    static uart_drv_t uart_drv1(&huart1, 42);
+    static uart_drv_t uart_drv5(&huart5, 36);
+    switch (uart)
+    {
+        case uart1:
+            return &uart_drv1;
+        case uart5:
+            return &uart_drv5;
+        default:
+            return nullptr;
+    }
+}
 /* Static Map Management -----------------------------------------------------*/
 /**
  * @brief Provides access to the static map linking HAL handles to driver

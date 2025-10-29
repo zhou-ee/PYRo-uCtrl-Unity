@@ -7,7 +7,7 @@
 
 #define RC_DEMO_EN 0
 #define MOTOR_DEMO_EN 0
-#define WHEEL_DEMO_EN 0
+#define WHEEL_DEMO_EN 1
 #define CONTROLLER_DEMO_EN 0
 #define SHOOT_DEMO_EN 1
 #define VOFA_DEMO_EN 1
