@@ -25,11 +25,6 @@
 #define DR16_CH_VALUE_OFFSET ((uint16_t)1024)
 #define DR16_CH_VALUE_MAX    ((uint16_t)1684)
 
-// DR16 Switch Positions
-#define RC_SW_UP             ((uint16_t)1)
-#define RC_SW_MID            ((uint16_t)3)
-#define RC_SW_DOWN           ((uint16_t)2)
-
 namespace pyro
 {
 
@@ -65,8 +60,8 @@ class dr16_drv_t : public rc_drv_t
         uint8_t press_l;
         uint8_t press_r;
         uint16_t key_code;
-
         uint16_t wheel;
+
     } dr16_buf_t;
 
     /* Private Types - Control Data ------------------------------------------*/
@@ -81,6 +76,24 @@ class dr16_drv_t : public rc_drv_t
      */
 
   public:
+    enum dr16_sw_state_t
+    {
+        DR16_SW_UP   = 1,
+        DR16_SW_MID  = 3,
+        DR16_SW_DOWN = 2
+    };
+    enum dr16_sw_pos_t
+    {
+        DR16_SW_RIGHT = 0,
+        DR16_SW_LEFT  = 1,
+    };
+    enum dr16_channel_t
+    {
+        DR16_CH_RIGHT_X = 0,
+        DR16_CH_RIGHT_Y = 1,
+        DR16_CH_LEFT_X  = 2,
+        DR16_CH_LEFT_Y  = 3,
+    };
     typedef struct dr16_ctrl_t
     {
         struct

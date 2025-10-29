@@ -46,10 +46,6 @@ void start_demo_task(void const *argument)
                  configMAX_PRIORITIES - 2, nullptr);
 #endif
 
-#if VOFA_DEMO_EN
-     xTaskCreate(pyro_vofa_demo, "pyro_vofa_demo", 512, nullptr,
-                 configMAX_PRIORITIES - 2, nullptr);
-#endif
 
 #endif
     vTaskDelete(nullptr);
