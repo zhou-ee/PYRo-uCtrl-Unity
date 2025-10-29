@@ -64,6 +64,7 @@ add_executable(${CMAKE_PROJECT_NAME}
         PYRo/Application/Demo/pyro_shoot_demo.cpp
         PYRo/Debug/VOFA/pyro_vofa.cpp
         PYRo/Core/Lock/pyro_rw_lock.cpp
+        PYRo/Component/RC/pyro_rc_hub.cpp
 
 )
 
