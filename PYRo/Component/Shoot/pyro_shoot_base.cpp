@@ -4,7 +4,7 @@ namespace pyro
 {
 shoot_base_t::shoot_base_t(rc_drv_t *rc_drv)
 {
-    rc_drv->set_get_mode([this](rc_drv_t *rc_drv) -> void { get_mode(rc_drv); });
+    rc_drv->config_rc_cmd([this](rc_drv_t *rc_drv) -> void { get_mode(rc_drv); });
 }
 
 void shoot_base_t::get_mode(rc_drv_t *rc_drv)

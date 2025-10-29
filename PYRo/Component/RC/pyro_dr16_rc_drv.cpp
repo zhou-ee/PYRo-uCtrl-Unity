@@ -164,7 +164,7 @@ void dr16_drv_t::unpack(const dr16_buf_t *dr16_buf)
         {
             // Critical section - safely update shared control data
             // (No other thread can access vt03_ctrl during this time)
-            for (auto &get_mode : modes)
+            for (auto &get_mode : _cmd_funcs)
             {
                 if (get_mode)
                 {
@@ -253,9 +253,9 @@ void *dr16_drv_t::get_p_last_ctrl()
 /**
  * @brief Sets the callback function that receives the decoded control data.
  */
-void dr16_drv_t::set_get_mode(const mode_func &func)
+void dr16_drv_t::config_rc_cmd(const cmd_func &func)
 {
-    modes.push_back(func);
+    _cmd_funcs.push_back(func);
 }
 
 } // namespace pyro

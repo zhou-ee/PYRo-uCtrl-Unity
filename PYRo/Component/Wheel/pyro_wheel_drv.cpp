@@ -10,7 +10,7 @@ pyro_wheel_drv_t::pyro_wheel_drv_t(motor_base_t *motor_base, rc_drv_t *rc_drv,
       _radius(radius)
       
 {
-    rc_drv->set_get_mode([this](rc_drv_t *rc_drv) -> void { get_mode(rc_drv); });  
+    rc_drv->config_rc_cmd([this](rc_drv_t *rc_drv) -> void { get_mode(rc_drv); });  
 };
 
 void pyro_wheel_drv_t::set_gear_ratio(float gear_ratio)

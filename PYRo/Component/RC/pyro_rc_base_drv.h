@@ -35,7 +35,7 @@ namespace pyro
 class rc_drv_t
 {
   public:
-    using mode_func                = std::function<void(rc_drv_t *)>;
+    using cmd_func                = std::function<void(rc_drv_t *)>;
     inline static uint8_t sequence = 0x80;
 
     /* Public Methods - Construction and Lifecycle
@@ -49,7 +49,7 @@ class rc_drv_t
     virtual void enable()                                         = 0;
     virtual void disable()                                        = 0;
     virtual void thread()                                         = 0;
-    virtual void set_get_mode(const mode_func &func)              = 0;
+    virtual void config_rc_cmd(const cmd_func &func)              = 0;
     virtual void *get_p_ctrl()                                    = 0;
     virtual void *get_p_last_ctrl()                               = 0;
 
@@ -76,7 +76,7 @@ class rc_drv_t
      * @brief Static sequence counter used for protocol state tracking.
      */
 
-    std::vector<mode_func> modes;
+    std::vector<cmd_func> _cmd_funcs;
     SemaphoreHandle_t _rc_mutex{};
     MessageBufferHandle_t _rc_msg_buffer{};
     ///< Handle for the FreeRTOS message buffer.

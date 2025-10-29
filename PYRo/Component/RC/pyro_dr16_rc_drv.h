@@ -131,7 +131,7 @@ class dr16_drv_t : public rc_drv_t
      * ------------------------------------------*/
     void *get_p_ctrl() override;
     void *get_p_last_ctrl() override;
-    void set_get_mode(const mode_func &func) override;
+    void config_rc_cmd(const cmd_func &func) override;
 
   private:
     dr16_ctrl_t _dr16_ctrl{}; ///< The latest decoded control data.
