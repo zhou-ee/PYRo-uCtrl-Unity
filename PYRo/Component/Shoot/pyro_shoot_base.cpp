@@ -18,30 +18,30 @@ void shoot_base_t::dr16_cmd()
             dr16_drv->get_p_ctrl());
     static auto *p_last_ctrl = static_cast<pyro::dr16_drv_t::dr16_ctrl_t *>(
             dr16_drv->get_p_last_ctrl());
-    if(RC_SW_UP == static_cast<uint8_t>(p_ctrl->rc.s[S_RIGHT]))
+    if(dr16_drv_t::DR16_SW_UP == static_cast<uint8_t>(p_ctrl->rc.s[dr16_drv_t::DR16_SW_RIGHT]))
     {
         _total_mode = ZERO_FORCE;
     }
-    else if(RC_SW_MID == static_cast<uint8_t>(p_ctrl->rc.s[S_RIGHT]))
+    else if(dr16_drv_t::DR16_SW_MID == static_cast<uint8_t>(p_ctrl->rc.s[dr16_drv_t::DR16_SW_RIGHT]))
     {
         _total_mode = RC_CONTROL;
     }
-    else if(RC_SW_DOWN == static_cast<uint8_t>(p_ctrl->rc.s[S_RIGHT]))
+    else if(dr16_drv_t::DR16_SW_DOWN == static_cast<uint8_t>(p_ctrl->rc.s[dr16_drv_t::DR16_SW_RIGHT]))
     {
         _total_mode = AUTO_AIM_CONTROL;
     }
 
     if(RC_CONTROL == _total_mode)
     {
-        switch (static_cast<uint8_t>(p_ctrl->rc.s[S_RIGHT]))
+        switch (static_cast<uint8_t>(p_ctrl->rc.s[dr16_drv_t::DR16_SW_RIGHT]))
         {
-        case RC_SW_UP:
+        case dr16_drv_t::DR16_SW_UP:
             _ready_mode = SHOOT_READY_STOP;
             break;
-        case RC_SW_MID:
+        case dr16_drv_t::DR16_SW_MID:
             _ready_mode = SHOOT_READY_SETUP;
             break;
-        case RC_SW_DOWN:
+        case dr16_drv_t::DR16_SW_DOWN:
             _ready_mode = SHOOT_READY_START;
             _continuous_delay++;
             if(_continuous_delay >= _continuous_mode_delay)

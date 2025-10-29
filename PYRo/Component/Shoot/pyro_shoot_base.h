@@ -50,7 +50,7 @@ private:
     total_mode_t _total_mode;
     local_mode_t _local_mode;
     ready_mode_t _ready_mode;
-    uint16_t _continuous_mode_delay = HAL_MAX_DELAY;
+    uint64_t _continuous_mode_delay = HAL_MAX_DELAY;
     uint16_t _continuous_delay = 0;
 };
 
