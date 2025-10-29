@@ -39,8 +39,6 @@ void trigger_drv_t::set_rotate(float target_rotate)
     }
     _mode = ROTATE;
     _target_rotate = target_rotate;
-    float torque_cmd = _rotate_pid.compute(_target_rotate, _current_rotate, _dt);
-    motor_base->send_torque(torque_cmd);
 }
 
 void trigger_drv_t::set_radian(float target_radian)
@@ -51,11 +49,6 @@ void trigger_drv_t::set_radian(float target_radian)
     }
     _mode = POSITION;
     _target_radian = target_radian;
-    float rotate_cmd =
-        _position_pid.compute(_target_radian, _current_radian, _dt);
-    float torque_cmd =
-        _rotate_pid.compute(rotate_cmd, _current_rotate, _dt);
-    motor_base->send_torque(torque_cmd);
 }
 
 float trigger_drv_t::get_rotate()
@@ -80,6 +73,22 @@ void trigger_drv_t::update_feedback()
     _current_motor_radian = motor_base->get_current_position();
     _current_radian = _update_trigger_radian();
 
+}
+
+void trigger_drv_t::control()
+{
+    update_feedback();
+    if(ROTATE == _mode)
+    {
+        float torque_cmd = _rotate_pid.compute(_target_rotate, _current_rotate, _dt);
+        motor_base->send_torque(torque_cmd);
+    }
+    else if(POSITION == _mode) 
+    {
+        float rotate_cmd = _position_pid.compute(_target_radian, _current_radian, _dt);
+        float torque_cmd = _rotate_pid.compute(rotate_cmd, _current_rotate, _dt);
+        motor_base->send_torque(torque_cmd);
+    }
 }
 
 float trigger_drv_t::_update_trigger_radian()

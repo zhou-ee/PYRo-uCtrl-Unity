@@ -26,6 +26,7 @@ public:
     float get_radian();
     void zero_force();
     void update_feedback();
+    void control();
     motor_base_t *motor_base;
 
 private:

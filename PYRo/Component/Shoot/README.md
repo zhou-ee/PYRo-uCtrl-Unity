@@ -96,3 +96,5 @@
     g. ``_total_mode _local_mode``
       私有，模式变量
 
+* V1.0.2, 2025-10-29, By Pason: modified
+  shoot_base_t 类基本完成

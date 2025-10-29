@@ -3,7 +3,7 @@
 
 #include "pyro_trigger_drv.h"
 #include "pyro_fric_drv.h"
-#include "pyro_dr16_rc_drv.h"
+#include "pyro_rc_hub.h"
 
 namespace pyro
 { 
@@ -25,12 +25,23 @@ public:
         SHOOT_WAIT         = 0x04,
         SHOOT_CONTINUOUS   = 0x05
     };
-    shoot_base_t(rc_drv_t *rc_drv);
+    enum ready_mode_t
+    {
+        SHOOT_READY_STOP         = 0x00,
+        SHOOT_READY_SETUP        = 0x01,
+        SHOOT_READY_READY        = 0x02,
+        SHOOT_READY_START        = 0x03,
+        SHOOT_READY_WAIT         = 0x04,
+        SHOOT_READY_CONTINUOUS   = 0x05
+    };
+    shoot_base_t();
     ~shoot_base_t()
     {
     }
     
-    void get_mode(rc_drv_t *rc_drv);
+    void set_continuous_mode_delay(uint16_t delay);
+    void dr16_cmd();
+    void vt03_cmd();
     virtual void update_feedback();
     virtual void zero_force();
     virtual void shoot_control();
@@ -38,6 +49,9 @@ public:
 private:
     total_mode_t _total_mode;
     local_mode_t _local_mode;
+    ready_mode_t _ready_mode;
+    uint16_t _continuous_mode_delay = HAL_MAX_DELAY;
+    uint16_t _continuous_delay = 0;
 };
 
 }

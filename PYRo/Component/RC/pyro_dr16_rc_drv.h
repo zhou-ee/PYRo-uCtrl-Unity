@@ -30,6 +30,10 @@
 #define RC_SW_MID            ((uint16_t)3)
 #define RC_SW_DOWN           ((uint16_t)2)
 
+// DR16 Toggle switch
+#define S_LEFT          ((uint16_t)1)
+#define S_RIGHT         ((uint16_t)0)
+
 namespace pyro
 {
 

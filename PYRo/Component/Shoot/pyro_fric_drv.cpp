@@ -28,8 +28,6 @@ void fric_drv_t::set_speed(float target_speed)
     {
         _target_speed = -abs(target_speed);
     }
-    float torque_cmd = _speed_pid.compute(_target_speed, _current_speed, _dt);
-    _motor_base->send_torque(torque_cmd);
 }
 
 void fric_drv_t::zero_force()
@@ -50,7 +48,8 @@ void fric_drv_t::update_feedback()
 
 void fric_drv_t::control()
 {
-    set_speed(_target_speed);
+    float torque_cmd = _speed_pid.compute(_target_speed, _current_speed, _dt);
+    _motor_base->send_torque(torque_cmd);
 }
 
 }
