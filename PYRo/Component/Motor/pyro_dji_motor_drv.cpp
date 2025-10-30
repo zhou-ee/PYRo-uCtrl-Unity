@@ -51,6 +51,7 @@ status_t dji_motor_tx_frame_t::update_value(uint8_t id,int16_t value)
     data.fill(0);
     for (uint8_t i = 0; i < 4; i++)
     {
+        _update_list[i] = 0 ;
         data[i * 2]     = (_value_list[i] & 0xff00) >> 8;
         data[i * 2 + 1] = _value_list[i] & 0xff;
     }
@@ -121,7 +122,11 @@ status_t dji_motor_drv_t::update_feedback()
     _feedback_msg->get_data(data);
 
     _current_position = ((float)((uint16_t)((data[0] << 8) | (data[1])))) /
-                        8192.0f * 2 * PI - PI;
+                        8192.0f * 2 * PI;
+    if(_current_position > PI)
+    {
+        _current_position -= 2 * PI;
+    }
     _current_rotate =
         ((float)((int16_t)((data[2] << 8) | (data[3])))) * 2 * pyro::PI / 60;
     _current_torque = ((float)((int16_t)((data[4] << 8) | (data[5])))) /
