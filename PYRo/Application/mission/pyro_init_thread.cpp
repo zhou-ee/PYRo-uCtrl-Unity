@@ -19,6 +19,7 @@ extern "C"
             ->enable_rx_dma();
 
         pyro::rc_hub_t::get_instance(pyro::rc_hub_t::DR16)->init();
+        pyro::rc_hub_t::get_instance(pyro::rc_hub_t::DR16)->enable();
 
         pyro::can_hub_t::get_instance();
         can1_drv = new pyro::can_drv_t(&hfdcan1);

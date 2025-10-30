@@ -1,4 +1,5 @@
 #include "pyro_chassis_drv.h"
+#include "pyro_rc_hub.h"
 
 #include <cmath>
 
@@ -14,20 +15,18 @@ namespace pyro
 chassis_drv_t::chassis_drv_t(steering_wheel_drv_t *steering_wheel_drv_1,
                              steering_wheel_drv_t *steering_wheel_drv_2,
                              wheel_drv_t *wheel_drv_1,
-                             wheel_drv_t *wheel_drv_2,
-                             rc_drv_t *rc_drv)
+                             wheel_drv_t *wheel_drv_2)
     : _steering_wheel_drv_1(steering_wheel_drv_1),
       _steering_wheel_drv_2(steering_wheel_drv_2),
       _wheel_drv_1(wheel_drv_1),
       _wheel_drv_2(wheel_drv_2)
 {
-    rc_drv->set_get_mode([this](rc_drv_t *rc_drv) -> void { get_mode(rc_drv); });
 }
 
-void chassis_drv_t::get_mode(rc_drv_t *rc_drv)
+void chassis_drv_t::dr16_cmd()
 {
     static auto *p_ctrl = static_cast<pyro::dr16_drv_t::dr16_ctrl_t *>(
-            rc_drv->get_p_ctrl());
+            pyro::rc_hub_t::get_instance(pyro::rc_hub_t::DR16)->get_p_ctrl());
     _vy = static_cast<float>(p_ctrl->rc.ch[3]) / 660.0f * 2.0f;
     _vx = static_cast<float>(p_ctrl->rc.ch[2]) / 660.0f * 2.0f;
     _wz = static_cast<float>(p_ctrl->rc.ch[0]) / 660.0f;

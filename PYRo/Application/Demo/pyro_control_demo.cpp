@@ -5,6 +5,8 @@
 #include "pyro_can_drv.h"
 #include "pyro_chassis_drv.h"
 #include "pyro_yaw_drv.h"
+#include "pyro_rw_lock.h"
+#include "pyro_rc_hub.h"
 
 #ifdef __cplusplus
 
@@ -12,16 +14,6 @@ pyro::rc_drv_t *dr16_drv;
 
 extern "C"
 {
-    pyro::can_drv_t *can1_drv;
-    pyro::can_drv_t *can2_drv;
-    pyro::can_drv_t *can3_drv;
-
-    std::array<uint8_t, 8> can1_data;
-    std::array<uint8_t, 8> can2_data;
-
-    std::vector<uint8_t> can1_data_vec;
-    std::vector<uint8_t> can2_data_vec;
-
     pyro::dji_m3508_motor_drv_t *m3508_drv_1;
     pyro::dji_m3508_motor_drv_t *m3508_drv_2;
     pyro::dji_m3508_motor_drv_t *m3508_drv_3;
@@ -58,24 +50,6 @@ extern "C"
 
     void pyro_control_demo(void *arg)
     {
-        pyro::get_uart5().enable_rx_dma();
-        dr16_drv = new pyro::dr16_drv_t(&pyro::get_uart5());
-        dr16_drv->init();
-        dr16_drv->enable();
-
-        pyro::can_hub_t::get_instance();
-        can1_drv = new pyro::can_drv_t(&hfdcan1);
-        can2_drv = new pyro::can_drv_t(&hfdcan2);
-        can3_drv = new pyro::can_drv_t(&hfdcan3);
-
-        can1_drv->init();
-        can2_drv->init();
-        can3_drv->init();
-
-        can1_drv->start();
-        can2_drv->start();
-        can3_drv->start();
-
         speed_pid_1 = new pyro::pid_ctrl_t(24.0f, 0.1f, 0.00f);
         speed_pid_2 = new pyro::pid_ctrl_t(24.0f, 0.1f, 0.00f);
         speed_pid_3 = new pyro::pid_ctrl_t(20.0f, 0.1f, 0.00f);
@@ -167,11 +141,11 @@ extern "C"
             steering_wheel_drv_1,
             steering_wheel_drv_2,
             wheel_drv_1,
-            wheel_drv_4,
-            dr16_drv);
+            wheel_drv_4);
 
         while (true)
         {
+            pyro::read_scope_lock lock(pyro::rc_hub_t::get_instance(pyro::rc_hub_t::DR16)->get_lock());
             chassis_drv->update_feedback();
             yaw_drv_1->update_feedback();
 
