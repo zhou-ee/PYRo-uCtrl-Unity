@@ -13,15 +13,23 @@ namespace pyro
 
 chassis_drv_t::chassis_drv_t(steering_wheel_drv_t *steering_wheel_drv_1,
                              steering_wheel_drv_t *steering_wheel_drv_2,
+                             steering_wheel_drv_t *steering_wheel_drv_3,
+                             steering_wheel_drv_t *steering_wheel_drv_4,
                              wheel_drv_t *wheel_drv_1,
                              wheel_drv_t *wheel_drv_2,
+                             wheel_drv_t *wheel_drv_3,
+                             wheel_drv_t *wheel_drv_4,
                              rc_drv_t *rc_drv)
     : _steering_wheel_drv_1(steering_wheel_drv_1),
       _steering_wheel_drv_2(steering_wheel_drv_2),
+      _steering_wheel_drv_3(steering_wheel_drv_3),
+      _steering_wheel_drv_4(steering_wheel_drv_4),
       _wheel_drv_1(wheel_drv_1),
-      _wheel_drv_2(wheel_drv_2)
+      _wheel_drv_2(wheel_drv_2),
+      _wheel_drv_3(wheel_drv_3),
+      _wheel_drv_4(wheel_drv_4)
 {
-    rc_drv->set_get_mode([this](rc_drv_t *rc_drv) -> void { get_mode(rc_drv); });
+    rc_drv->config_rc_cmd([this](rc_drv_t *rc_drv) -> void { get_mode(rc_drv); });
 }
 
 void chassis_drv_t::get_mode(rc_drv_t *rc_drv)
@@ -38,8 +46,12 @@ void chassis_drv_t::update_feedback()
 {
     _steering_wheel_drv_1->update_feedback();
     _steering_wheel_drv_2->update_feedback();
+    _steering_wheel_drv_3->update_feedback();
+    _steering_wheel_drv_4->update_feedback();
     _wheel_drv_1->update_feedback();
     _wheel_drv_2->update_feedback();
+    _wheel_drv_3->update_feedback();
+    _wheel_drv_4->update_feedback();
 }
 
 void chassis_drv_t::zero_force()
@@ -56,32 +68,28 @@ void chassis_drv_t::chassis_control()
     {
         zero_force();
     }
-    else {
-        // _steering_wheel_drv_1->set_radian(-atan2f(_vy - _wz * 17.0f, _vx + _wz * 17.0f));
-        // _steering_wheel_drv_2->set_radian(-atan2f(_vy - _wz * 17.0f, _vx - _wz * 17.0f));
+    else
+    {
+        if ( abs(_vx) < 0.3f && abs(_vy) > 0.3f && abs(_wz) > 0.3f )
+        {
+            _vx = _vy = _wz = 0;
+        }
 
-        // float steering_wheel_1_speed = hypot(_vx - _wz * 0.17f, _vy + _wz * 0.17f);
-        // float steering_wheel_2_speed = hypot(_vx - _wz * 0.17f, _vy - _wz * 0.17f);
+        _steering_wheel_drv_1->set_radian(atan2f(_vx + _wz * Sx, _vy + _wz * Sy));
+        _steering_wheel_drv_2->set_radian(atan2f(_vx - _wz * Sx, _vy + _wz * Sy));
+        _steering_wheel_drv_3->set_radian(atan2f(_vx - _wz * Sx, _vy - _wz * Sy));
+        _steering_wheel_drv_4->set_radian(atan2f(_vx + _wz * Sx, _vy - _wz * Sy));
 
-        // _wheel_drv_1->set_speed( (_vx +_vy) * sqrtf(2.0f) / 2.0f + _wz );
-        // _wheel_drv_2->set_speed( (-_vx +_vy) * sqrtf(2.0f) / 2.0f + _wz );
-        // _steering_wheel_drv_1->wheel_drv->set_speed(-steering_wheel_1_speed);
-        // _steering_wheel_drv_2->wheel_drv->set_speed(-steering_wheel_2_speed);
 
-        _steering_wheel_drv_1->set_radian(-atan2f(_vx - _wz * Sx, _vy + _wz * Sy));
-        _steering_wheel_drv_2->set_radian(-atan2f(_vx - _wz * Sx, _vy - _wz * Sy));
+        float steering_wheel_1_speed = hypotf(_vx - _wz * Sx, _vy - _wz * Sy);
+        float steering_wheel_2_speed = hypotf(_vx - _wz * Sx, _vy + _wz * Sy);
+        float steering_wheel_3_speed = -hypotf(_vx + _wz * Sx, _vy + _wz * Sy);
+        float steering_wheel_4_speed = -hypotf(_vx + _wz * Sx, _vy - _wz * Sy);
 
-        float wheel1_speed = ( _vy + _wz * Oy) * cosf( PI/4) + ( _vx + _wz * Ox) * sinf( PI/4);
-        float wheel2_speed = (-_vy + _wz * Oy) * cosf(-PI/4) + (-_vx - _wz * Ox) * sinf(-PI/4);
-
-        float steering_wheel_1_speed = hypotf(_vy + _wz * Oy, _vx - _wz * Ox);
-        float steering_wheel_2_speed = hypotf(_vy - _wz * Oy, _vx - _wz * Ox);
-
-        _wheel_drv_1->set_speed(wheel1_speed);
-        _wheel_drv_2->set_speed(wheel2_speed);
-
-        _steering_wheel_drv_1->wheel_drv->set_speed(-steering_wheel_1_speed);
-        _steering_wheel_drv_2->wheel_drv->set_speed(-steering_wheel_2_speed);
+        _steering_wheel_drv_1->wheel_drv->set_speed(_steering_wheel_drv_1->direction * steering_wheel_1_speed);
+        _steering_wheel_drv_2->wheel_drv->set_speed(_steering_wheel_drv_2->direction * steering_wheel_2_speed);
+        _steering_wheel_drv_3->wheel_drv->set_speed(_steering_wheel_drv_3->direction * steering_wheel_3_speed);
+        _steering_wheel_drv_4->wheel_drv->set_speed(_steering_wheel_drv_4->direction * steering_wheel_4_speed);
     }
 }
 

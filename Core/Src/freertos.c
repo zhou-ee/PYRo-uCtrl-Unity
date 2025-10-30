@@ -49,6 +49,7 @@
 /* USER CODE END Variables */
 osThreadId defaultTaskHandle;
 osThreadId demo_taskHandle;
+osThreadId ljhsb_taskHandle;
 
 /* Private function prototypes -----------------------------------------------*/
 /* USER CODE BEGIN FunctionPrototypes */
@@ -57,6 +58,7 @@ osThreadId demo_taskHandle;
 
 void StartDefaultTask(void const * argument);
 void start_demo_task(void const * argument);
+void start_ljhsb_task(void const * argument);
 
 void MX_FREERTOS_Init(void); /* (MISRA C 2004 rule 8.1) */
 
@@ -111,6 +113,10 @@ void MX_FREERTOS_Init(void) {
   osThreadDef(demo_task, start_demo_task, osPriorityIdle, 0, 128);
   demo_taskHandle = osThreadCreate(osThread(demo_task), NULL);
 
+  /* definition and creation of ljhsb_task */
+  osThreadDef(ljhsb_task, start_ljhsb_task, osPriorityIdle, 0, 128);
+  ljhsb_taskHandle = osThreadCreate(osThread(ljhsb_task), NULL);
+
   /* USER CODE BEGIN RTOS_THREADS */
   /* add threads, ... */
   /* USER CODE END RTOS_THREADS */
@@ -151,6 +157,24 @@ __weak void start_demo_task(void const * argument)
     osDelay(1);
   }
   /* USER CODE END start_demo_task */
+}
+
+/* USER CODE BEGIN Header_start_ljhsb_task */
+/**
+* @brief Function implementing the ljhsb_task thread.
+* @param argument: Not used
+* @retval None
+*/
+/* USER CODE END Header_start_ljhsb_task */
+__weak void start_ljhsb_task(void const * argument)
+{
+  /* USER CODE BEGIN start_ljhsb_task */
+  /* Infinite loop */
+  for(;;)
+  {
+    osDelay(1);
+  }
+  /* USER CODE END start_ljhsb_task */
 }
 
 /* Private application code --------------------------------------------------*/

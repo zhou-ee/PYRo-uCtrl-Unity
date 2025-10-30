@@ -132,23 +132,13 @@ status_t dji_motor_drv_t::update_feedback()
 }
 
 static float constraint(float value, float max)
-    {
-        if(value > max)
-            return max;
-        if(value < -max)
-            return -max;
-        return value;
-    }
-
-    status_t dji_motor_drv_t::send_torque(float torque)
-static float constraint(float value, float max)
-    {
-        if(value > max)
-            return max;
-        if(value < -max)
-            return -max;
-        return value;
-    }
+{
+    if(value > max)
+        return max;
+    if(value < -max)
+        return -max;
+    return value;
+}
 
 status_t dji_motor_drv_t::send_torque(float torque)
 {

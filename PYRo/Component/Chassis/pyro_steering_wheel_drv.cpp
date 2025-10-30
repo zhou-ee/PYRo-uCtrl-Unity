@@ -1,7 +1,25 @@
 #include "pyro_steering_wheel_drv.h"
 
+static inline float wrap_rad(float x)
+{
+    return atan2f(sinf(x), cosf(x));
+}
+
+
+
+
 namespace pyro
 {
+
+float wrap_pi(float x)
+{
+    while (x > PI) x -= 2 * PI;
+    while (x <= -PI) x += 2 * PI;
+    return x;
+}
+
+float loop_float_constrain(float Input, float minValue, float maxValue);
+
 
 steering_wheel_drv_t::steering_wheel_drv_t(wheel_drv_t *wheel_drv,
                                            motor_base_t *rudder_motor_base,
@@ -21,31 +39,57 @@ void steering_wheel_drv_t::set_offset_radian(float offset_radian)
 
 void steering_wheel_drv_t::set_radian(float target_radian)
 {
-    if(_current_radian < 0)
+    // 1. 修正目标角：带偏移并规约到 (-π, π]
+    target_radian = wrap_pi(target_radian);
+
+    // 2. 计算两种等价目标（不在这里wrap，以免跳变）
+    float target_a = target_radian;      // 正向
+    float target_b = target_radian + PI; // 反向候选（暂不规约）
+
+    // 3. 确保两者相对于当前角的差是连续的
+    float delta_a = wrap_pi(target_a - _current_radian);
+    float delta_b = wrap_pi(target_b - _current_radian);
+
+    // 4. 比较两者的绝对值
+    float abs_a = fabsf(delta_a);
+    float abs_b = fabsf(delta_b);
+
+    // 滞回参数（防止切换）
+    const float hysteresis = 0.15f; // 约9°
+    float chosen_target;
+
+    static uint8_t _chosen_mode;
+
+    // 5. 判断选哪一个（并保持状态避免反复）
+    if (_chosen_mode == 0 && abs_b < abs_a - hysteresis)
     {
-        _current_radian += 2*PI;
+        _chosen_mode = 1;
+    }
+    else if (_chosen_mode == 1 && abs_a < abs_b - hysteresis)
+    {
+        _chosen_mode = 0;
     }
 
-    if(target_radian < 0)
+    chosen_target = _chosen_mode == 0 ? target_a : target_b;
+
+    if (_chosen_mode == 0)
     {
-        target_radian += 2*PI;
+        chosen_target = target_a;
+        direction = 1;
+    }
+    else
+    {
+        chosen_target = target_b;
+        direction = -1;
     }
 
-    float radian_diff = target_radian - _current_radian;
+    // 6. 再 wrap 一次最终目标差，得到连续误差
+    float angle_error = wrap_pi(chosen_target - _current_radian);
 
-    if(radian_diff > PI)
-    {
-        radian_diff -= 2 * PI;
-    }
-    else if (radian_diff < -PI)
-    {
-        radian_diff += 2 * PI;
-    }
+    // 7. 控制律
+    float rotate_cmd = _rudder_position_pid.compute(angle_error + _current_radian, _current_radian, 0.001f);
+    float torque_cmd = _rudder_rotate_pid.compute(rotate_cmd, rudder_motor_base->get_current_rotate(), 0.001f);
 
-    float rotate_cmd =
-        _rudder_position_pid.compute(_current_radian + radian_diff, _current_radian, 0.001f);
-    float torque_cmd =
-        _rudder_rotate_pid.compute(rotate_cmd, rudder_motor_base->get_current_rotate(), 0.001f);
     rudder_motor_base->send_torque(torque_cmd);
 }
 
@@ -59,7 +103,12 @@ void steering_wheel_drv_t::update_feedback()
 {
     wheel_drv->update_feedback();
     rudder_motor_base->update_feedback();
-    _current_radian = rudder_motor_base->get_current_position() - _offset_radian;
+    _current_radian = loop_float_constrain(rudder_motor_base->get_current_position() - _offset_radian, -PI, PI);
+
+    if (_current_radian > PI || _current_radian < -PI)
+    {
+        while (1);
+    }
 
 }
 
@@ -67,5 +116,34 @@ float steering_wheel_drv_t::get_target_radian()
 {
     return _target_radian;
 }
+
+
+//循环限幅函数
+float loop_float_constrain(float Input, float minValue, float maxValue)
+{
+    if (maxValue < minValue)
+    {
+        return Input;
+    }
+
+    if (Input > maxValue)
+    {
+        float len = maxValue - minValue;
+        while (Input > maxValue)
+        {
+            Input -= len;
+        }
+    }
+    else if (Input < minValue)
+    {
+        float len = maxValue - minValue;
+        while (Input < minValue)
+        {
+            Input += len;
+        }
+    }
+    return Input;
+}
+
 
 }

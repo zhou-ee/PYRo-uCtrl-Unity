@@ -76,6 +76,7 @@ add_executable(${CMAKE_PROJECT_NAME}
         
         PYRo/Debug/JCOM/pyro_jcom.cpp
         PYRo/Application/mission/pyro_init_thread.cpp
+        PYRo/Application/mission/misssion_planer.cpp
 
 )
 
