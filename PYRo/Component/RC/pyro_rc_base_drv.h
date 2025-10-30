@@ -77,7 +77,7 @@ class rc_drv_t
      */
 
     std::vector<mode_func> modes;
-    SemaphoreHandle_t _rc_mutex;
+    SemaphoreHandle_t _rc_mutex{};
     MessageBufferHandle_t _rc_msg_buffer{};
     ///< Handle for the FreeRTOS message buffer.
     TaskHandle_t _rc_task_handle{};

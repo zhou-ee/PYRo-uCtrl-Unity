@@ -28,7 +28,7 @@ vofa_drv_t::~vofa_drv_t()
 
 vofa_drv_t &vofa_drv_t::get_instance(uint8_t max_length)
 {
-    static vofa_drv_t instance(max_length, &get_uart1());
+    static vofa_drv_t instance(max_length, uart_drv_t::get_instance(uart1));
     return instance;
 }
 
