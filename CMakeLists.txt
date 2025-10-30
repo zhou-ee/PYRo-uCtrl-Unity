@@ -36,13 +36,17 @@ enable_language(C ASM)
 add_executable(${CMAKE_PROJECT_NAME}
         PYRo/Core/Memory/pyro_core_mem.cpp
         PYRo/Core/Memory/pyro_core_dma_heap.c
+        PYRo/Core/Lock/pyro_rw_lock.cpp
         PYRo/Core/ETL/map.cpp
+        PYRo/Core/Lock/pyro_rw_lock.cpp
 
         PYRo/Peripheral/CAN/pyro_can_drv.cpp
         PYRo/Peripheral/UART/pyro_uart_drv.cpp
 
         PYRo/Component/RC/pyro_rc_base_drv.cpp
         PYRo/Component/RC/pyro_dr16_rc_drv.cpp
+        PYRo/Component/RC/pyro_rc_hub.cpp
+
         PYRo/Component/Motor/pyro_dji_motor_drv.cpp
         PYRo/Component/Motor/pyro_dm_motor_drv.cpp
         PYRo/Component/Motor/pyro_motor_base.cpp
@@ -55,13 +59,23 @@ add_executable(${CMAKE_PROJECT_NAME}
         PYRo/Component/Controller/pyro_velocity_controller.cpp
         PYRo/Component/Controller/pyro_position_controller.cpp
 
+        PYRo/Component/Shoot/pyro_fric_drv.cpp
+        PYRo/Component/Shoot/pyro_trigger_drv.cpp
+        PYRo/Component/Shoot/pyro_shoot_base.cpp
+        
         PYRo/Application/Demo/pyro_rc_demo.cpp
         PYRo/Application/Demo/demo_task.cpp
         PYRo/Application/Demo/pyro_motor_demo.cpp
         PYRo/Application/Demo/pyro_wheel_demo.cpp
         PYRo/Application/Demo/pyro_control_demo.cpp
         PYRo/Application/Demo/pyro_controller_demo.cpp
+        PYRo/Application/Demo/pyro_shoot_demo.cpp
+
+        PYRo/Debug/Debug_task.cpp
         PYRo/Debug/VOFA/pyro_vofa.cpp
+        
+        PYRo/Debug/JCOM/pyro_jcom.cpp
+        PYRo/Application/mission/pyro_init_thread.cpp
 
 )
 
@@ -86,6 +100,7 @@ target_include_directories(${CMAKE_PROJECT_NAME} PUBLIC
     PYRo/Core/Memory
     PYRo/Core/Config
     PYRo/Core/ETL
+    PYRo/Core/Lock
     PYRo/Peripheral/UART
     PYRo/Peripheral/CAN
     PYRo/Component/RC
@@ -94,6 +109,7 @@ target_include_directories(${CMAKE_PROJECT_NAME} PUBLIC
     PYRo/Component/Chassis
     PYRo/Component/Gimbal
     PYRo/Component/Controller
+    PYRo/Component/Shoot
     PYRo/Application/Demo
     PYRo/Debug/VOFA
 )

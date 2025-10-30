@@ -121,7 +121,7 @@ status_t dji_motor_drv_t::update_feedback()
     _feedback_msg->get_data(data);
 
     _current_position = ((float)((uint16_t)((data[0] << 8) | (data[1])))) /
-                        8192.0f * 2 * PI;
+                        8192.0f * 2 * PI - PI;
     _current_rotate =
         ((float)((int16_t)((data[2] << 8) | (data[3])))) * 2 * pyro::PI / 60;
     _current_torque = ((float)((int16_t)((data[4] << 8) | (data[5])))) /
@@ -131,6 +131,16 @@ status_t dji_motor_drv_t::update_feedback()
     return PYRO_OK;
 }
 
+static float constraint(float value, float max)
+    {
+        if(value > max)
+            return max;
+        if(value < -max)
+            return -max;
+        return value;
+    }
+
+    status_t dji_motor_drv_t::send_torque(float torque)
 static float constraint(float value, float max)
     {
         if(value > max)
