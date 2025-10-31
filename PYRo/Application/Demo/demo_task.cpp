@@ -13,12 +13,13 @@
 
 extern "C"
 {
-extern void pyro_rc_demo(void *arg);
-extern void pyro_motor_demo(void *arg);
-extern void pyro_wheel_demo(void *arg);
-extern void pyro_controller_demo(void *arg);
-extern void pyro_shoot_demo(void *arg);
-extern void pyro_vofa_demo(void *arg);
+void pyro_rc_demo(void *arg);
+void pyro_motor_demo(void *arg);
+void pyro_wheel_demo(void *arg);
+void pyro_controller_demo(void *arg);
+void pyro_vofa_demo(void *arg);
+void pyro_control_demo(void *arg);
+
 void start_demo_task(void const *argument)
 {
 #if DEMO_MODE
@@ -35,6 +36,11 @@ void start_demo_task(void const *argument)
      xTaskCreate(pyro_wheel_demo, "pyro_wheel_demo", 512, nullptr,
                  configMAX_PRIORITIES - 2, nullptr);
 #endif
+#if CONTROL_DEMO_EN
+     xTaskCreate(pyro_control_demo, "pyro_control_demo", 512, nullptr,
+                 configMAX_PRIORITIES - 2, nullptr);
+#endif
+
 
 #if CONTROLLER_DEMO_EN
      xTaskCreate(pyro_controller_demo, "pyro_controller_demo", 512, nullptr,

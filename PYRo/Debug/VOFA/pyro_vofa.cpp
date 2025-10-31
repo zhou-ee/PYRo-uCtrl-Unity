@@ -5,6 +5,9 @@
 
 #include "cstring"
 
+// add your Include here
+#include "pyro_chassis_drv.h"
+
 namespace pyro
 {
 vofa_drv_t::vofa_drv_t(uint8_t max_length, uart_drv_t *uart)
@@ -89,15 +92,25 @@ void vofa_drv_t::send()
     _vofa_uart->write(reinterpret_cast<uint8_t *>(_data_pack),
                       (_length + 1) * 4);
 }
-float test_data[5] = {1.1f, 2.2f, 3.3f, 4.4f, 5.5f};
+
+
+// Application zone
+extern "C"
+{
+    extern wheel_drv_t *wheel_drv_1;
+    extern wheel_drv_t *wheel_drv_2;
+}
+
 void vofa_drv_t::thread()
 {
-    add_data(test_data, 5);
+    add_data(wheel_drv_2->get_p_target_speed());
+    add_data(wheel_drv_2->get_p_current_speed());
+
     while (true)
     {
         update_data();
         send();
-        vTaskDelay(1);
+        vTaskDelay(10);
     }
 }
 
