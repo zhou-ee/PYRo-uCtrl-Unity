@@ -33,7 +33,7 @@ void shoot_base_t::dr16_cmd()
 
     if(RC_CONTROL == _total_mode)
     {
-        switch (static_cast<uint8_t>(p_ctrl->rc.s[dr16_drv_t::DR16_SW_RIGHT]))
+        switch (static_cast<uint8_t>(p_ctrl->rc.s[dr16_drv_t::DR16_SW_LEFT]))
         {
         case dr16_drv_t::DR16_SW_UP:
             _ready_mode = SHOOT_READY_STOP;
@@ -61,4 +61,19 @@ void shoot_base_t::vt03_cmd()
 {
 }
 
+void shoot_base_t::set_fric_speed(float target_speed)
+{
+}
+
+void shoot_base_t::update_feedback()
+{
+}
+
+void shoot_base_t::zero_force()
+{
+}
+
+void shoot_base_t::control()
+{
+}
 }

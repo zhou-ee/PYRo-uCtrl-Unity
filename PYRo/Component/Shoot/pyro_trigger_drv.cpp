@@ -72,7 +72,6 @@ void trigger_drv_t::update_feedback()
     _current_rotate = motor_base->get_current_rotate() / _gear_ratio;
     _current_motor_radian = motor_base->get_current_position();
     _current_radian = _update_trigger_radian();
-
 }
 
 void trigger_drv_t::control()

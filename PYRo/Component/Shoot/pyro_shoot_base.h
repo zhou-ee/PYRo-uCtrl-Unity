@@ -42,14 +42,18 @@ public:
     void set_continuous_mode_delay(uint16_t delay);
     void dr16_cmd();
     void vt03_cmd();
+    virtual void set_fric_speed(float target_speed);
     virtual void update_feedback();
     virtual void zero_force();
-    virtual void shoot_control();
+    virtual void control();
 
-private:
+protected:
     total_mode_t _total_mode;
     local_mode_t _local_mode;
     ready_mode_t _ready_mode;
+
+
+private:
     uint64_t _continuous_mode_delay = HAL_MAX_DELAY;
     uint16_t _continuous_delay = 0;
 };

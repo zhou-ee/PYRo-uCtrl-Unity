@@ -29,6 +29,7 @@ public:
     void set_speed(float target_speed);
     void zero_force();
     float get_speed();
+    float get_target_speed();
     void update_feedback();
     void control();
 

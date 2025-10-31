@@ -40,6 +40,11 @@ float fric_drv_t::get_speed()
     return _current_speed;
 }
 
+float fric_drv_t::get_target_speed()
+{
+    return _target_speed;
+}
+
 void fric_drv_t::update_feedback()
 {
     _motor_base->update_feedback();
