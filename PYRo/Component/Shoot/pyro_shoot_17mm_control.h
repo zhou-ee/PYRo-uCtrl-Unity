@@ -15,19 +15,23 @@ public:
     ~shoot_17mm_control_t();
 
     void set_trigger_rotate(float target_rotate);
-    void set_one_bullet_radian(float radian);
     void set_fric_speed(float target_speed) override;
     void update_feedback() override;
     void zero_force() override;
     void set_control();
     void control() override;
+    trigger_drv_t *_trigger_drv;
 
 private:
+    // bool _is_first_setup = true;
+    // bool _is_switch_to_start = true;
+    bool _one_bullet = false;
+    float _first_radian{};
     float _trigger_rotate;
     float _one_bullet_radian;
     float _fric_speed;
     fric_drv_t *_fric_drv[2];
-    trigger_drv_t *_trigger_drv;
+    // trigger_drv_t *_trigger_drv;
 };
     
 

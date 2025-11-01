@@ -22,8 +22,11 @@ public:
     void set_gear_ratio(float gear_ratio);
     void set_rotate(float target_rotate);
     void set_radian(float target_radian);
+    void step_forward();
     float get_rotate();
     float get_radian();
+    float get_target_radian();
+    float get_step_radian();
     void zero_force();
     void update_feedback();
     void control();
@@ -36,22 +39,29 @@ private:
         POSITION    = 0x01
     };
 
-    float _update_trigger_radian();
+    void _motor_to_trigger_radian();
+    // float _update_trigger_radian();
 
     pid_ctrl_t _rotate_pid;
     pid_ctrl_t _position_pid;
-    trigger_mode_t _mode;
+    trigger_mode_t _mode{};
     float _dt = 0.001f;
-    float _step_radian;
-    float _target_rotate;
-    float _current_rotate;
-    float _target_radian;
-    float _current_radian;
-    float _current_motor_radian;
-    float _last_motor_radian;
-    uint8_t _motor_total_count = 0;
+    float _step_radian{};
+    float _target_trigger_rotate{};
+    float _current_trigger_rotate{};
+    // float _target_trigger_radian{};
+    // float _current_trigger_radian{};
+    float _current_trigger_total_radian;
+    float _target_trigger_total_radian;
+    float _current_motor_radian{};
+    float _last_motor_radian{};
+    // float _last_motor_radian;
+    // uint8_t _motor_total_count = 0;
     float _gear_ratio = 1;
     bool _is_first_update = true;
+
+    float _test_rotate_cmd{};
+    float _test_torque_cmd{};
 
 friend class vofa_drv_t;
 };

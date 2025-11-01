@@ -31,10 +31,10 @@ extern "C"
 
     void pyro_shoot_demo(void *arg)
     { 
-        fric1_speed_pid = new pyro::pid_ctrl_t(7.0f, 0.0f, 0.00f);
-        fric2_speed_pid = new pyro::pid_ctrl_t(7.0f, 0.0f, 0.00f);
-        trigger_speed_pid = new pyro::pid_ctrl_t(5.0f, 0.1f, 0.00f);
-        trigger_positon_pid = new pyro::pid_ctrl_t(0.01f, 0.01f, 0.00f);
+        fric1_speed_pid = new pyro::pid_ctrl_t(5.0f, 0.0f, 0.00f);
+        fric2_speed_pid = new pyro::pid_ctrl_t(5.0f, 0.0f, 0.00f);
+        trigger_speed_pid = new pyro::pid_ctrl_t(2.0f, 0.1f, 0.00f);
+        trigger_positon_pid = new pyro::pid_ctrl_t(2.0f, 0.01f, 0.00f);
 
         fric1_speed_pid->set_output_limits(15.0f);
         fric2_speed_pid->set_output_limits(15.0f);
@@ -68,7 +68,7 @@ extern "C"
             STEP);
 
         fric_drv_1->set_dt(0.001f);
-        fric_drv_1->set_dt(0.001f);
+        fric_drv_2->set_dt(0.001f);
 
         trigger_drv->set_dt(0.001f);
         trigger_drv->set_gear_ratio(36.0f);
@@ -78,10 +78,17 @@ extern "C"
             fric_drv_2,
             trigger_drv);
 
+        shoot_drv->set_continuous_mode_delay(50);
+        shoot_drv->set_fric_speed(23.0f);
+        shoot_drv->set_trigger_rotate(10.0f);
+
         while (true)
         {
-            shoot_drv->update_feedback();
-            shoot_drv->set_control();
+            // shoot_drv->update_feedback();
+            // shoot_drv->_trigger_drv->set_radian(shoot_drv->_trigger_drv->get_radian() - STEP);
+            // shoot_drv->_trigger_drv->set_rotate(10.0f);
+            // shoot_drv->_trigger_drv->control();
+            // shoot_drv->set_control();
             shoot_drv->control();
 
             vTaskDelay(1);

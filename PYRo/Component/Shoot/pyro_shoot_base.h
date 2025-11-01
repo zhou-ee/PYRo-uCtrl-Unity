@@ -50,6 +50,7 @@ public:
 protected:
     total_mode_t _total_mode;
     local_mode_t _local_mode;
+    local_mode_t _last_local_mode;
     ready_mode_t _ready_mode;
 
 
