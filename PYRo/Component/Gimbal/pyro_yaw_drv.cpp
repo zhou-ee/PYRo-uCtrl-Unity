@@ -51,15 +51,52 @@ void yaw_drv_t::zero_force()
     motor_base->send_torque(0.0f);
 }
 
+//循环限幅函数
+static float loop_float_constrain(float Input, float minValue, float maxValue)
+{
+    if (maxValue < minValue)
+    {
+        return Input;
+    }
+
+    if (Input > maxValue)
+    {
+        float len = maxValue - minValue;
+        while (Input > maxValue)
+        {
+            Input -= len;
+        }
+    }
+    else if (Input < minValue)
+    {
+        float len = maxValue - minValue;
+        while (Input < minValue)
+        {
+            Input += len;
+        }
+    }
+    return Input;
+}
+
+
 void yaw_drv_t::update_feedback()
 {
     motor_base->update_feedback();
-    _current_radian = motor_base->get_current_position() - _offset_radian;
+    _current_radian = loop_float_constrain(motor_base->get_current_position() - _offset_radian, -PI, PI);
+    if (_current_radian > PI || _current_radian < -PI)
+    {
+        while (1);
+    }
+
 }
 
 float yaw_drv_t::get_target_radian()
 {
     return _target_radian;
+}
+float yaw_drv_t::get_radian()
+{
+    return _current_radian;
 }
 
 }

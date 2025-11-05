@@ -11,6 +11,16 @@
 
 pyro::rc_drv_t *dr16_drv;
 
+typedef struct
+{
+    float err;
+    float kp;
+    float ki;
+    float kd;
+} debug_t;
+
+debug_t debug;
+
 extern "C"
 {
     std::array<uint8_t, 8> can1_data;
@@ -39,6 +49,8 @@ extern "C"
     pyro::pid_ctrl_t *speed_pid_2;
     pyro::pid_ctrl_t *speed_pid_3;
     pyro::pid_ctrl_t *speed_pid_4;
+
+    pyro::pid_ctrl_t *follow_yaw_pid;
 
     pyro::steering_wheel_drv_t *steering_wheel_drv_1;
     pyro::steering_wheel_drv_t *steering_wheel_drv_2;
@@ -89,6 +101,8 @@ extern "C"
         rudder_rotate_pid_3 = new pyro::pid_ctrl_t(0.3f, 0.0f, 0.00f);
         rudder_rotate_pid_4 = new pyro::pid_ctrl_t(0.3f, 0.0f, 0.00f);
 
+        follow_yaw_pid = new pyro::pid_ctrl_t(3.0f, 0.0f, 0.00f);
+
 
         // 2. 限幅
         speed_pid_1->set_output_limits(100.0f);
@@ -110,6 +124,8 @@ extern "C"
         yaw_rotate_pid_1 = new pyro::pid_ctrl_t(0.1f, 0.0f, 0.00f);
         yaw_position_pid_1->set_output_limits(1000.0f);
         yaw_rotate_pid_1->set_output_limits(3.0f);
+
+        follow_yaw_pid->set_output_limits(10);
 
         
         m3508_drv_1 = new pyro::dji_m3508_motor_drv_t(
@@ -190,7 +206,7 @@ extern "C"
         steering_wheel_drv_2->set_offset_radian(-1.817f);
         steering_wheel_drv_3->set_offset_radian(0.753184557f);
         steering_wheel_drv_4->set_offset_radian(2.3554275f);
-        yaw_drv_1->set_offset_radian(0.48397094f);
+        yaw_drv_1->set_offset_radian(2.57632089f);
 
         chassis_drv = new pyro::chassis_drv_t(
             steering_wheel_drv_1,
@@ -201,6 +217,7 @@ extern "C"
             wheel_drv_2,
             wheel_drv_3,
             wheel_drv_4,
+            follow_yaw_pid,
             dr16_drv);
 
         while (true)
@@ -211,9 +228,11 @@ extern "C"
             // 2. 更新Yaw数据
             yaw_drv_1->update_feedback();
 
-            // 3. 更新3
-            yaw_drv_1->set_radian(0);
-            chassis_drv->chassis_control();
+            // // 3. 更新3
+            // yaw_drv_1->set_radian(0);
+            debug.err = yaw_drv_1->get_radian();
+
+            chassis_drv->chassis_control(yaw_drv_1->get_radian());
 
 
 

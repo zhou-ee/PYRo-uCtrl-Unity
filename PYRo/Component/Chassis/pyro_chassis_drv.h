@@ -17,7 +17,9 @@ class chassis_drv_t
                   wheel_drv_t *wheel_drv_2,
                   wheel_drv_t *wheel_drv_3,
                   wheel_drv_t *wheel_drv_4,
+                  pid_ctrl_t* yaw_pid,
                   rc_drv_t *rc_drv
+
                 );
     ~chassis_drv_t()
     {
@@ -26,7 +28,7 @@ class chassis_drv_t
     void get_mode(rc_drv_t *rc_drv);
     void update_feedback();
     void zero_force();
-    void chassis_control();
+    void chassis_control(float yaw_err);
 
     steering_wheel_drv_t *_steering_wheel_drv_1;
     steering_wheel_drv_t *_steering_wheel_drv_2;
@@ -37,6 +39,8 @@ class chassis_drv_t
     wheel_drv_t *_wheel_drv_2;
     wheel_drv_t *_wheel_drv_3;
     wheel_drv_t *_wheel_drv_4;
+
+    pid_ctrl_t *_yaw_pid;
 
 
 

@@ -21,6 +21,7 @@ class yaw_drv_t
       void zero_force();
       void update_feedback();
       float get_target_radian();
+      float get_radian();
       float _offset_radian;
       motor_base_t *motor_base;
 

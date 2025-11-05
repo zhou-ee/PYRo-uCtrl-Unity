@@ -18,7 +18,7 @@ float wrap_pi(float x)
     return x;
 }
 
-float loop_float_constrain(float Input, float minValue, float maxValue);
+static float loop_float_constrain(float Input, float minValue, float maxValue);
 
 
 steering_wheel_drv_t::steering_wheel_drv_t(wheel_drv_t *wheel_drv,
@@ -119,7 +119,7 @@ float steering_wheel_drv_t::get_target_radian()
 
 
 //循环限幅函数
-float loop_float_constrain(float Input, float minValue, float maxValue)
+static float loop_float_constrain(float Input, float minValue, float maxValue)
 {
     if (maxValue < minValue)
     {
