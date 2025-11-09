@@ -4,6 +4,7 @@
 #include "cmsis_os.h"
 #include "main.h"
 #include "tim.h"
+#include <string.h>
 #include"IMU_Base.h"
 //#include "Debug\VOFA/pyro_vofa.h"
 void spi2_DMA_init(uint32_t tx_buf, uint32_t rx_buf, uint16_t num);
@@ -113,8 +114,8 @@ static void imu_slove(float gyro[3], float accel[3], bmi088_real_data_t *bmi088)
 	}
 	#else
 	for(i = 0; i< 3; i++)
-			//实际值减去校准值
-			gyro[i] = gyro[i] - manual_offset[i];
+		//实际值减去校准值
+		gyro[i] = gyro[i] - manual_offset[i];
 	#endif
 }
 
@@ -241,14 +242,14 @@ uint8_t temp_ctrl=0;
 
 void IMU_task(void * argument)
 {
-		//等待陀螺仪启动
+	//等待陀螺仪启动
 	//vTaskDelay
 	//gyro_cali(imu_gyro);
 	//vTaskDelay(20);
 	IMU_Base_Factory_Function();
-		osDelay(500);
-		osDelay(IMU_TASK_INIT_TIME);
-		HAL_TIM_PWM_Start(&htim3,TIM_CHANNEL_4);
+	osDelay(500);
+	osDelay(IMU_TASK_INIT_TIME);
+	HAL_TIM_PWM_Start(&htim3,TIM_CHANNEL_4);
     while(BMI088_init())
     {
         ;
@@ -260,23 +261,21 @@ void IMU_task(void * argument)
 	//控温PID初始化
     //PID_Init(&imu_temp_pid,TEMP_PID_K[0],TEMP_PID_K[1],TEMP_PID_K[2],TEMP_PID_IMAX,TEMP_PID_MAXOUT,	0,0,0,	0,0,0,		0,		0,0);
 	//四元数初始化
-	  AHRS_init(imu_quat);
+	AHRS_init(imu_quat);
 	//低通滤波器启动
     accel_fliter_1[0] = accel_fliter_2[0] = accel_fliter_3[0] = imu_accel[0];
     accel_fliter_1[1] = accel_fliter_2[1] = accel_fliter_3[1] = imu_accel[1];
     accel_fliter_1[2] = accel_fliter_2[2] = accel_fliter_3[2] = imu_accel[2];
    //imu_task_local_handler = xTaskGetHandle(pcTaskGetName(NULL));
     while (1)
-    {
-			
-			
-				//while (ulTaskNotifyTake(pdTRUE, portMAX_DELAY) != pdPASS)
+    {	
+		//while (ulTaskNotifyTake(pdTRUE, portMAX_DELAY) != pdPASS)
         //{
         //}
-				__HAL_TIM_SetCompare(&htim3,TIM_CHANNEL_4,temp_ctrl);
+		__HAL_TIM_SetCompare(&htim3,TIM_CHANNEL_4,temp_ctrl);
 				
-				BMI088_read(bmi088_real_data.gyro, bmi088_real_data.accel, &bmi088_real_data.temp);
-				//计算角速度与加速度
+		BMI088_read(bmi088_real_data.gyro, bmi088_real_data.accel, &bmi088_real_data.temp);
+		//计算角速度与加速度
         imu_slove(imu_gyro, imu_accel, &bmi088_real_data);
         //加速度计低通滤波
         accel_fliter_1[0] = accel_fliter_2[0];
@@ -288,23 +287,23 @@ void IMU_task(void * argument)
         accel_fliter_1[2] = accel_fliter_2[2];
         accel_fliter_2[2] = accel_fliter_3[2];
         accel_fliter_3[2] = accel_fliter_2[2] * fliter_num[0] + accel_fliter_1[2] * fliter_num[1] + imu_accel[2] * fliter_num[2];
-				//四元数更新
-				AHRS_update(imu_quat, imu_gyro, accel_fliter_3);
-				AHRS_get(imu_quat, imu_rad + IMU_YAW_ADDRESS_OFFSET, imu_rad + IMU_PITCH_ADDRESS_OFFSET, imu_rad + IMU_ROLL_ADDRESS_OFFSET);
-				for(int i=0;i<3;i++)
-				{
-					imu_angle[i]=imu_rad[i]/PI*180.0f;
-				}
-				//imu_angle[0]-=minor_diff;
-//				Justfloat_Send
-//				(
-//				imu_gyro[0],imu_gyro[1],imu_gyro[2],
-//				imu_accel[0],imu_accel[1],imu_accel[2],
-//				accel_fliter_3[0],accel_fliter_3[1],accel_fliter_3[2],
-//				imu_angle[0],imu_angle[1],imu_angle[2]
-//				);
-				//yaw_cali();
-				vTaskDelay(1);
+		//四元数更新
+		AHRS_update(imu_quat, imu_gyro, accel_fliter_3);
+		AHRS_get(imu_quat, imu_rad + IMU_YAW_ADDRESS_OFFSET, imu_rad + IMU_PITCH_ADDRESS_OFFSET, imu_rad + IMU_ROLL_ADDRESS_OFFSET);
+		for(int i=0;i<3;i++)
+		{
+			imu_angle[i]=imu_rad[i]/PI*180.0f;
+		}
+		//imu_angle[0]-=minor_diff;
+//		Justfloat_Send
+//		(
+//		imu_gyro[0],imu_gyro[1],imu_gyro[2],
+//		imu_accel[0],imu_accel[1],imu_accel[2],
+//		accel_fliter_3[0],accel_fliter_3[1],accel_fliter_3[2],
+//		imu_angle[0],imu_angle[1],imu_angle[2]
+//		);
+		//yaw_cali();
+		vTaskDelay(1);
 				
 				
 		#if CALI_MODE

@@ -1,5 +1,7 @@
 #include "MATH_LIB.h"
-#include<stdlib.h>
+#include <stdlib.h>
+#include <math.h>
+#include <string.h>
 typedef float float32_t;
 typedef __attribute__((packed)) struct Ordinary_Least_Squares_t;
 #ifdef _CMSIS_OS_H

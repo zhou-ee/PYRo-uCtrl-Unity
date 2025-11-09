@@ -14,7 +14,7 @@ typedef struct
 } ramp_t;               //斜坡函数结构体
 
 //最小二乘拟合
-typedef  __attribute__((packed)) struct
+typedef  struct
 {
     uint16_t Order;
     uint32_t Count;
@@ -29,6 +29,7 @@ typedef  __attribute__((packed)) struct
 
     float t[4];
 } Ordinary_Least_Squares_t;
+#pragma pack()
 /// @brief 快速开方
 /// @param x 原数据
 /// @return 开方结果
