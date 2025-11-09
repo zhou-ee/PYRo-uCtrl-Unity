@@ -29,15 +29,16 @@ public:
     void set_speed(float target_speed);
     void zero_force();
     float get_speed();
+    float get_target_speed();
     void update_feedback();
     void control();
 
 private:
     motor_base_t *_motor_base;
     pid_ctrl_t _speed_pid;
+    float _radius;
     rotate_direction_t _direction;
     float _dt = 0.001f;
-    float _radius;
     float _target_speed;
     float _current_speed;
 
