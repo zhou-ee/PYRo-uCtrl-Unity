@@ -55,8 +55,7 @@ add_executable(${CMAKE_PROJECT_NAME}
         PYRo/Component/Chassis/pyro_chassis_drv.cpp
         PYRo/Component/Gimbal/pyro_gimbal_drv.cpp
         PYRo/Component/Gimbal/pyro_yaw_drv.cpp
-        PYRo/Component/Wheel/pyro_wheel_drv.cpp
-        PYRo/Component/Wheel/pyro_steering_wheel_drv.cpp
+
         PYRo/Component/IMU/AHRS.c
         PYRo/Component/IMU/BMI088driver.c
         PYRo/Component/IMU/BMI088Middleware.c
