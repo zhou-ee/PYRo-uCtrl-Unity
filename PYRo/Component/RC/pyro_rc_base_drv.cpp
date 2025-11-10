@@ -1,6 +1,7 @@
 /**
-* @file pyro_rc_base_drv.cpp
- * @brief Implementation file for the PYRO Remote Control (RC) Driver base class.
+ * @file pyro_rc_base_drv.cpp
+ * @brief Implementation file for the PYRO Remote Control (RC) Driver base
+ * class.
  *
  * This file implements the constructor and destructor for the abstract base
  * class `pyro::rc_drv_t`, handling the initialization of dependencies and the
@@ -14,9 +15,9 @@
 
 /* Includes ------------------------------------------------------------------*/
 #include "pyro_rc_base_drv.h"
-#include <cstring>
 #include "message_buffer.h"
 #include "task.h"
+#include <cstring>
 
 
 // Sequence variable defined globally in the original file, kept for structure
@@ -38,7 +39,7 @@ rc_drv_t::rc_drv_t(uart_drv_t *uart)
     sequence = 0x80;
 }
 
-rw_lock& rc_drv_t::get_lock() const
+rw_lock &rc_drv_t::get_lock() const
 {
     return *_lock;
 }

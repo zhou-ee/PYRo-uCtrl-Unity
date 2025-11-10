@@ -16,7 +16,7 @@ class chassis_drv_t
     {
     }
     
-    void dr16_cmd();
+    void dr16_cmd(void const *rc_ctrl);
     void update_feedback();
     void zero_force();
     void chassis_control();

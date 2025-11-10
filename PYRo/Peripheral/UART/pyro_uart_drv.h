@@ -22,7 +22,6 @@
 #include "pyro_core_def.h"
 
 #include "FreeRTOS.h"
-#include "message_buffer.h"
 
 #include "functional"
 #include "map"

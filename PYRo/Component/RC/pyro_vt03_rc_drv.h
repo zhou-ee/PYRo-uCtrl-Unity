@@ -1,9 +1,9 @@
 /**
- * @file pyro_dr16_rc_drv.h
- * @brief Header file for the PYRO DR16 Remote Control Driver.
+ * @file pyro_vt03_rc_drv.h
+ * @brief Header file for the PYRO VT03 Remote Control Driver.
  *
- * This file defines the `pyro::dr16_drv_t` class, which implements the
- * protocol-specific logic for decoding the data packets from a DJI DR16
+ * This file defines the `pyro::vt03_drv_t` class, which implements the
+ * protocol-specific logic for decoding the data packets from a DJI VT03
  * receiver (used with remote controllers like the RoboMaster/DJI FPV).
  * It inherits from the generic `rc_drv_t` base class.
  *
@@ -13,55 +13,61 @@
  * @copyright [Copyright Information Here]
  */
 
-#ifndef __PYRO_DR16_RC_DRV_H__
-#define __PYRO_DR16_RC_DRV_H__
+#ifndef __PYRO_VT03_RC_DRV_H__
+#define __PYRO_VT03_RC_DRV_H__
 
 /* Includes ------------------------------------------------------------------*/
 #include "pyro_rc_base_drv.h"
 
 /* Defines -------------------------------------------------------------------*/
 
-
 namespace pyro
 {
 
 /* Class Definition ----------------------------------------------------------*/
 /**
- * @brief Driver class for the DJI DR16 remote control protocol.
+ * @brief Driver class for the DJI VT03 remote control protocol.
  *
- * Implements the concrete logic for handling DR16 data packets, including
+ * Implements the concrete logic for handling VT03 data packets, including
  * unpacking channels, mouse/keyboard inputs, error checking, and signaling
  * the main processing thread.
  */
-class dr16_drv_t : public rc_drv_t
+class vt03_drv_t : public rc_drv_t
 {
     /* Private Types - Raw Buffer --------------------------------------------*/
     /**
-     * @brief Raw structure of the 18-byte DR16 data packet.
+     * @brief Raw structure of the 18-byte VT03 data packet.
      *
      * Uses bit-fields to extract 11-bit channel data and 2-bit switch data.
      * The `__packed` attribute is necessary for direct memory mapping.
      */
     typedef struct __packed
     {
-        uint32_t ch0 : 11; // X1 (Right Stick H)
-        uint32_t ch1 : 11; // Y1 (Right Stick V)
-        uint32_t ch2 : 11; // X2 (Left Stick H)
-        uint32_t ch3 : 11; // Y2 (Left Stick V)
-        uint32_t s1  : 2;  // Switch 1
-        uint32_t s2  : 2;  // Switch 2
+        uint8_t sof1;
+        uint8_t sof2;
+
+        uint64_t ch0     : 11; // 11 bits
+        uint64_t ch1     : 11; // 11 bits
+        uint64_t ch2     : 11; // 11 bits
+        uint64_t ch3     : 11; // 11 bits
+        uint64_t gear    : 2;  // 2 bits
+        uint64_t pause   : 1;  // 1 bit
+        uint64_t fn_l    : 1;  // 1 bit
+        uint64_t fn_r    : 1;  // 1 bit
+        uint64_t wheel   : 11; // 11 bits
+        uint64_t trigger : 1;  // 1 bit
 
         int16_t mouse_x;
         int16_t mouse_y;
         int16_t mouse_z;
-        uint8_t press_l;
-        uint8_t press_r;
+        uint8_t press_l : 2;
+        uint8_t press_r : 2;
+        uint8_t press_m : 2;
         uint16_t key_code;
-        uint16_t wheel;
 
-    } dr16_buf_t;
+        uint16_t crc;
 
-
+    } vt03_buf_t;
 
     /* Private Types - Control Data ------------------------------------------*/
     /**
@@ -75,54 +81,66 @@ class dr16_drv_t : public rc_drv_t
      */
 
   public:
-    enum dr16_sw_state_t
+    enum vt03_gear_state_t
     {
-        DR16_SW_UP   = 1,
-        DR16_SW_MID  = 3,
-        DR16_SW_DOWN = 2
+        VT03_GEAR_LEFT  = 0,
+        VT03_GEAR_MID   = 1,
+        VT03_GEAR_RIGHT = 2,
     };
-    enum dr16_sw_ctrl_t
+    enum vt03_gear_ctrl_t
     {
-        DR16_SW_NO_CHANGE   = 0,
-        DR16_SW_UP_TO_MID   = 1,
-        DR16_SW_MID_TO_DOWN = 2,
-        DR16_SW_DOWN_TO_MID = 3,
-        DR16_SW_MID_TO_UP   = 4,
+        VT03_GEAR_NO_CHANGE    = 0,
+        VT03_GEAR_LEFT_TO_MID  = 1,
+        VT03_GEAR_MID_TO_RIGHT = 2,
+        VT03_GEAR_RIGHT_TO_MID = 3,
+        VT03_GEAR_MID_TO_LEFT  = 4,
     };
-
-    enum dr16_sw_pos_t
+    enum vt03_channel_t
     {
-        DR16_SW_RIGHT = 0,
-        DR16_SW_LEFT  = 1,
+        VT03_CH_RIGHT_X = 0,
+        VT03_CH_RIGHT_Y = 1,
+        VT03_CH_LEFT_X  = 2,
+        VT03_CH_LEFT_Y  = 3,
     };
-    enum dr16_channel_t
+    enum key_ctrl_t
     {
-        DR16_CH_RIGHT_X = 0,
-        DR16_CH_RIGHT_Y = 1,
-        DR16_CH_LEFT_X  = 2,
-        DR16_CH_LEFT_Y  = 3,
+        KEY_RELEASED    = 0,
+        KEY_PRESSED     = 1,
+        KEY_HOLD        = 2
     };
-    typedef struct dr16_switch_t
+    typedef struct key_t
+    {
+        uint8_t ctrl;
+        uint32_t time;
+    }key_t;
+    typedef struct vt03_gear_t
     {
         uint8_t state;
         uint8_t ctrl;
-    } dr16_switch_t;
-    typedef struct dr16_ctrl_t
+    } vt03_gear_t;
+    typedef struct vt03_ctrl_t
     {
         struct
         {
-            float ch[4];        ///< Channel values scaled to [-660, 660]
-            dr16_switch_t s[2]; ///< Switch positions
-            float wheel;        ///< Wheel value scaled
+            float ch[4];
+            float wheel;
+            vt03_gear_t gear;
+            key_t fn_l;
+            key_t fn_r;
+            key_t pause;
+            key_t trigger;
         } rc;
+
         struct
         {
             float x;
             float y;
             float z;
-            uint8_t press_l; ///< Left mouse button (0 or 1)
-            uint8_t press_r; ///< Right mouse button (0 or 1)
+            uint8_t press_l;
+            uint8_t press_r;
+            uint8_t press_m;
         } mouse;
+
         struct
         {
             uint16_t w     : 1;
@@ -141,13 +159,13 @@ class dr16_drv_t : public rc_drv_t
             uint16_t c     : 1;
             uint16_t v     : 1;
             uint16_t b     : 1;
-        } key; ///< Keyboard key states (0 or 1)
-    } dr16_ctrl_t;
+        } key;
+    } vt03_ctrl_t;
     /* Public Members --------------------------------------------------------*/
 
     /* Public Methods - Construction and Lifecycle (Override)
      * ------------------*/
-    explicit dr16_drv_t(uart_drv_t *dr16_uart);
+    explicit vt03_drv_t(uart_drv_t *vt03_uart);
     status_t init() override;
     void enable() override;
     void disable() override;
@@ -159,8 +177,8 @@ class dr16_drv_t : public rc_drv_t
     void config_rc_cmd(const cmd_func &func) override;
 
   private:
-    dr16_ctrl_t _dr16_ctrl{}; ///< The latest decoded control data.
-    dr16_ctrl_t _dr16_last_ctrl{};
+    vt03_ctrl_t _vt03_ctrl{}; ///< The latest decoded control data.
+    vt03_ctrl_t _vt03_last_ctrl{};
     /* Private Methods - Overrides
      * ---------------------------------------------*/
     /**
@@ -173,10 +191,12 @@ class dr16_drv_t : public rc_drv_t
 
     /* Private Methods - Processing
      * --------------------------------------------*/
-    static status_t error_check(const dr16_buf_t *dr16_buf);
-    static dr16_switch_t check_sw_ctrl(const dr16_switch_t &dr16_switch,
-                                       uint8_t state);
-    void unpack(const dr16_buf_t *dr16_buf);
+    static status_t error_check(const vt03_buf_t *vt03_buf);
+    static vt03_gear_t check_gear_ctrl(const vt03_gear_t &vt03_switch,
+                                            uint8_t state);
+    static key_t check_key_ctrl(const key_t &key,
+                                    uint8_t state);
+    void unpack(const vt03_buf_t *vt03_buf);
 };
 
 } // namespace pyro
