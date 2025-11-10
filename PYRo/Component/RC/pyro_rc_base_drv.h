@@ -17,11 +17,10 @@
 #define __PYRO_RC_BASE_DRV_H__
 
 /* Includes ------------------------------------------------------------------*/
-#include "pyro_uart_drv.h"  // Dependency on the UART driver
+#include "pyro_uart_drv.h" // Dependency on the UART driver
 #include "message_buffer.h" // FreeRTOS Message Buffer definitions
-#include "semphr.h"         // FreeRTOS Semaphore definitions
-#include "task.h"           // FreeRTOS Task definitions
 #include "pyro_rw_lock.h"
+#include "task.h"          // FreeRTOS Task definitions
 
 namespace pyro
 {
@@ -36,7 +35,8 @@ namespace pyro
 class rc_drv_t
 {
   public:
-    using cmd_func                = std::function<void(rc_drv_t *)>;
+    using cmd_func =
+        std::function<void(void const *rc_ctrl)>;
     inline static uint8_t sequence = 0x80;
 
     /* Public Methods - Construction and Lifecycle
@@ -46,13 +46,11 @@ class rc_drv_t
 
     /* Public Methods - Pure Virtual Interface
      * ---------------------------------*/
-    virtual status_t init()                                       = 0;
-    virtual void enable()                                         = 0;
-    virtual void disable()                                        = 0;
-    virtual void thread()                                         = 0;
-    virtual void config_rc_cmd(const cmd_func &func)              = 0;
-    virtual void *get_p_ctrl()                                    = 0;
-    virtual void *get_p_last_ctrl()                               = 0;
+    virtual status_t init()                          = 0;
+    virtual void enable()                            = 0;
+    virtual void disable()                           = 0;
+    virtual void thread()                            = 0;
+    virtual void config_rc_cmd(const cmd_func &func) = 0;
     rw_lock &get_lock() const;
 
     /**
@@ -86,6 +84,7 @@ class rc_drv_t
     ///< Handle for the FreeRTOS processing task.
     uart_drv_t *_rc_uart; ///< Pointer to the underlying UART driver instance.
     uint8_t _priority{};  ///< Priority of the associated FreeRTOS task.
+
 };
 } // namespace pyro
 

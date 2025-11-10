@@ -41,7 +41,7 @@ public:
     }
     
     void set_continuous_mode_delay(uint16_t delay);
-    void dr16_cmd();
+    void dr16_cmd(void const *rc_ctrl);
     void vt03_cmd();
     virtual void set_fric_speed(float target_speed);
     virtual void update_feedback();
