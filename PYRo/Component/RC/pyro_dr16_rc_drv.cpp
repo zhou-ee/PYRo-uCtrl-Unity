@@ -23,7 +23,9 @@ extern "C" void dr16_task(void *argument);
 
 namespace pyro
 {
-
+static constexpr uint16_t DR16_CH_VALUE_MIN    = 364;
+static constexpr uint16_t DR16_CH_VALUE_MAX    = 1684;
+static constexpr uint16_t DR16_CH_VALUE_OFFSET = 1024;
 /* Constructor ---------------------------------------------------------------*/
 /**
  * @brief Constructor for the DR16 driver.

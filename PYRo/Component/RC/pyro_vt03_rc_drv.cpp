@@ -24,7 +24,9 @@ extern "C" void vt03_task(void *argument);
 
 namespace pyro
 {
-
+static constexpr uint16_t VT03_CH_VALUE_MIN    = 364;
+static constexpr uint16_t VT03_CH_VALUE_MAX    = 1684;
+static constexpr uint16_t VT03_CH_VALUE_OFFSET = 1024;
 /* Constructor ---------------------------------------------------------------*/
 /**
  * @brief Constructor for the VT03 driver.

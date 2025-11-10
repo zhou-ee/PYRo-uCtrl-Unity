@@ -20,10 +20,7 @@
 #include "pyro_rc_base_drv.h"
 
 /* Defines -------------------------------------------------------------------*/
-// DR16 RC Channel Value Range
-#define DR16_CH_VALUE_MIN    ((uint16_t)364)
-#define DR16_CH_VALUE_OFFSET ((uint16_t)1024)
-#define DR16_CH_VALUE_MAX    ((uint16_t)1684)
+
 
 namespace pyro
 {
@@ -63,6 +60,8 @@ class dr16_drv_t : public rc_drv_t
         uint16_t wheel;
 
     } dr16_buf_t;
+
+
 
     /* Private Types - Control Data ------------------------------------------*/
     /**
@@ -112,9 +111,9 @@ class dr16_drv_t : public rc_drv_t
     {
         struct
         {
-            float ch[4]; ///< Channel values scaled to [-660, 660]
-            dr16_switch_t s[2];  ///< Switch positions
-            float wheel; ///< Wheel value scaled
+            float ch[4];        ///< Channel values scaled to [-660, 660]
+            dr16_switch_t s[2]; ///< Switch positions
+            float wheel;        ///< Wheel value scaled
         } rc;
         struct
         {
@@ -176,7 +175,7 @@ class dr16_drv_t : public rc_drv_t
      * --------------------------------------------*/
     static status_t error_check(const dr16_buf_t *dr16_buf);
     static dr16_switch_t check_sw_ctrl(const dr16_switch_t &dr16_switch,
-                                uint8_t state);
+                                       uint8_t state);
     void unpack(const dr16_buf_t *dr16_buf);
 };
 

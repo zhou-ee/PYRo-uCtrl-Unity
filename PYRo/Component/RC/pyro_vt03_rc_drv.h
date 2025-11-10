@@ -20,10 +20,6 @@
 #include "pyro_rc_base_drv.h"
 
 /* Defines -------------------------------------------------------------------*/
-// VT03 RC Channel Value Range
-#define VT03_CH_VALUE_MIN    ((uint16_t)364)
-#define VT03_CH_VALUE_OFFSET ((uint16_t)1024)
-#define VT03_CH_VALUE_MAX    ((uint16_t)1684)
 
 namespace pyro
 {
