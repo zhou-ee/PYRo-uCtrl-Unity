@@ -16,6 +16,7 @@
 #include "pyro_dr16_rc_drv.h"
 
 #include "message_buffer.h" // Needed for xMessageBuffer* calls
+#include "pyro_rw_lock.h"
 #include "task.h"           // Needed for xTaskCreate calls
 #include <cstring>
 
@@ -58,11 +59,7 @@ status_t dr16_drv_t::init()
     {
         return PYRO_ERROR;
     }
-    _rc_mutex = xSemaphoreCreateMutex();
-    if (_rc_mutex == nullptr)
-    {
-        return PYRO_ERROR;
-    }
+    _lock = new rw_lock;
     return PYRO_OK;
 }
 
@@ -147,31 +144,28 @@ void dr16_drv_t::unpack(const dr16_buf_t *dr16_buf)
             static_cast<int16_t>(dr16_buf->wheel - DR16_CH_VALUE_OFFSET);
 
         // Copy switch and mouse data
-        _dr16_ctrl.rc.s[0]       = dr16_buf->s1;
-        _dr16_ctrl.rc.s[1]       = dr16_buf->s2;
-        _dr16_ctrl.mouse.x       = dr16_buf->mouse_x;
-        _dr16_ctrl.mouse.y       = dr16_buf->mouse_y;
-        _dr16_ctrl.mouse.z       = dr16_buf->mouse_z;
-        _dr16_ctrl.mouse.press_l = dr16_buf->press_l & 0x01;
-        _dr16_ctrl.mouse.press_r = dr16_buf->press_r & 0x01;
+        _dr16_ctrl.rc.s[DR16_SW_RIGHT]      = dr16_buf->s1;
+        _dr16_ctrl.rc.s[DR16_SW_LEFT]       = dr16_buf->s2;
+        _dr16_ctrl.mouse.x                 = dr16_buf->mouse_x;
+        _dr16_ctrl.mouse.y                 = dr16_buf->mouse_y;
+        _dr16_ctrl.mouse.z                 = dr16_buf->mouse_z;
+        _dr16_ctrl.mouse.press_l           = dr16_buf->press_l & 0x01;
+        _dr16_ctrl.mouse.press_r           = dr16_buf->press_r & 0x01;
 
         // Copy key code into the key bitfield structure
         memcpy(&_dr16_ctrl.key, &dr16_buf->key_code,
                sizeof(dr16_buf->key_code));
 
         // Execute the registered consumer callback with the decoded data
-        if (xSemaphoreTake(_rc_mutex, portMAX_DELAY) == pdTRUE)
+        write_scope_lock rc_write_lock(get_lock());
+        // Critical section - safely update shared control data
+        // (No other thread can access vt03_ctrl during this time)
+        for (auto &rc_to_cmd : _cmd_funcs)
         {
-            // Critical section - safely update shared control data
-            // (No other thread can access vt03_ctrl during this time)
-            for (auto &get_mode : modes)
+            if (rc_to_cmd)
             {
-                if (get_mode)
-                {
-                    get_mode(this);
-                }
+                rc_to_cmd(this);
             }
-            xSemaphoreGive(_rc_mutex);
         }
     }
 }
@@ -253,9 +247,9 @@ void *dr16_drv_t::get_p_last_ctrl()
 /**
  * @brief Sets the callback function that receives the decoded control data.
  */
-void dr16_drv_t::set_get_mode(const mode_func &func)
+void dr16_drv_t::config_rc_cmd(const cmd_func &func)
 {
-    modes.push_back(func);
+    _cmd_funcs.push_back(func);
 }
 
 } // namespace pyro

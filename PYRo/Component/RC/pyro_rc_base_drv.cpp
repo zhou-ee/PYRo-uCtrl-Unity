@@ -1,5 +1,5 @@
 /**
-* @file PYRo_rc_drv.cpp
+* @file pyro_rc_base_drv.cpp
  * @brief Implementation file for the PYRO Remote Control (RC) Driver base class.
  *
  * This file implements the constructor and destructor for the abstract base
@@ -37,6 +37,12 @@ rc_drv_t::rc_drv_t(uart_drv_t *uart)
     _rc_uart = uart;
     sequence = 0x80;
 }
+
+rw_lock& rc_drv_t::get_lock() const
+{
+    return *_lock;
+}
+
 
 /* Destructor ----------------------------------------------------------------*/
 /**

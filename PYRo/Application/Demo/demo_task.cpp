@@ -21,11 +21,13 @@ extern void pyro_vofa_demo(void *arg);
 extern void pyro_engineer_chassis_demo(void *arg);
 extern void pyro_engineer_arm_demo(void *arg);
 extern void init_task(void *arg);
+extern void IMU_task(void * argument);
 void start_demo_task(void const *argument)
 {
 
      xTaskCreate(init_task, "init_task", 256, nullptr,
                  configMAX_PRIORITIES - 2, nullptr);
+ //变成IMU_TASK 之后自己写一个demo
 #if DEMO_MODE
 
 #if RC_DEMO_EN
@@ -40,16 +42,26 @@ void start_demo_task(void const *argument)
      xTaskCreate(pyro_wheel_demo, "pyro_wheel_demo", 512, nullptr,
                  configMAX_PRIORITIES - 2, nullptr);
 #endif
+#if CONTROL_DEMO_EN
+     xTaskCreate(pyro_control_demo, "pyro_control_demo", 512, nullptr,
+                 configMAX_PRIORITIES - 2, nullptr);
+#endif
+
 
 #if CONTROLLER_DEMO_EN
      xTaskCreate(pyro_controller_demo, "pyro_controller_demo", 512, nullptr,
                  configMAX_PRIORITIES - 2, nullptr);
 #endif
 
-#if VOFA_DEMO_EN
-     xTaskCreate(pyro_vofa_demo, "pyro_vofa_demo", 512, nullptr,
+#if SHOOT_DEMO_EN
+     xTaskCreate(pyro_shoot_demo, "pyro_shoot_demo", 512, nullptr,
                  configMAX_PRIORITIES - 2, nullptr);
 #endif
+#if IMU_DEMO_EN
+     xTaskCreate(IMU_task, "IMU_task", 512, nullptr,
+                 configMAX_PRIORITIES - 2, nullptr);
+#endif
+
 
 #if ENGINEER_CHASSIS_DEMO_EN
      xTaskCreate(pyro_engineer_chassis_demo, "pyro_engineer_chassis_demo", 512, nullptr,

@@ -30,11 +30,7 @@
 
 namespace pyro
 {
-enum which_uart
-{
-    uart1,
-    uart5,
-};
+
 class uart_drv_t;
 /* Class Definition ----------------------------------------------------------*/
 /**
@@ -46,6 +42,7 @@ class uart_drv_t;
  */
 class uart_drv_t
 {
+
     /* Private Types ---------------------------------------------------------*/
     /**
      * @brief Type alias for the RX event callback signature (for ISR context).
@@ -77,7 +74,13 @@ class uart_drv_t
     } state_t;
 
   public:
-
+    enum which_uart
+    {
+        uart1,
+        uart5,
+        uart7,
+        uart10,
+    };
     /* Public Methods - Initialization and De-initialization
      * -------------------*/
     explicit uart_drv_t(UART_HandleTypeDef *huart, uint16_t buf_length);
