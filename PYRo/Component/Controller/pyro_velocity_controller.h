@@ -11,7 +11,7 @@ class velocity_controller_t : public closed_controller_t
 {
     public:
         velocity_controller_t(motor_base_t* motor, pid_ctrl_t* spd_pid);
-        void set_target(float target) override;
+        float set_target(float target) override;
         virtual void update() override;
         void control(float dt) override;
     protected:

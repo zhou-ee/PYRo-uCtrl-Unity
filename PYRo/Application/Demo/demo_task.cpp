@@ -19,8 +19,13 @@ extern void pyro_wheel_demo(void *arg);
 extern void pyro_controller_demo(void *arg);
 extern void pyro_vofa_demo(void *arg);
 extern void pyro_engineer_chassis_demo(void *arg);
+extern void pyro_engineer_arm_demo(void *arg);
+extern void init_task(void *arg);
 void start_demo_task(void const *argument)
 {
+
+     xTaskCreate(init_task, "init_task", 256, nullptr,
+                 configMAX_PRIORITIES - 2, nullptr);
 #if DEMO_MODE
 
 #if RC_DEMO_EN
@@ -51,8 +56,48 @@ void start_demo_task(void const *argument)
                  configMAX_PRIORITIES - 2, nullptr);
 #endif
 
+#if ENGINEER_ARM_DEMO_EN
+     xTaskCreate(pyro_engineer_arm_demo, "pyro_engineer_arm_demo", 512, nullptr,
+                 configMAX_PRIORITIES - 2, nullptr);
+#endif
+
 #endif
     vTaskDelete(nullptr);
 }
 
+}
+
+#include "pyro_can_drv.h"
+#include "pyro_uart_drv.h"
+
+pyro::can_drv_t *can1_drv;
+pyro::can_drv_t *can2_drv;
+pyro::can_drv_t *can3_drv;
+void init_task(void *arg)
+{
+     TaskHandle_t chassis_handle,arm_handle;
+
+     vTaskDelay(500);
+     while(xTaskGetHandle("pyro_engineer_chassis_demo") == NULL);
+     while(xTaskGetHandle("pyro_engineer_arm_demo") == NULL);
+     chassis_handle = xTaskGetHandle("pyro_engineer_chassis_demo");
+     arm_handle = xTaskGetHandle("pyro_engineer_arm_demo");
+
+     pyro::uart_drv_t::get_instance(pyro::uart5)->enable_rx_dma();
+
+     pyro::can_hub_t::get_instance();
+     can1_drv = new pyro::can_drv_t(&hfdcan1);
+     can2_drv = new pyro::can_drv_t(&hfdcan2);
+     can3_drv = new pyro::can_drv_t(&hfdcan3);
+
+     can1_drv->init();
+     can2_drv->init();
+     can3_drv->init();
+     can1_drv->start();
+     can2_drv->start();  
+     can3_drv->start();
+
+     vTaskResume(chassis_handle);
+     vTaskResume(arm_handle);
+     vTaskDelete(nullptr);
 }

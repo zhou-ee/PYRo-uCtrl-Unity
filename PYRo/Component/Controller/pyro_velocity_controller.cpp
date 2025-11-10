@@ -9,9 +9,10 @@ namespace pyro
         _feedback_spd = 0.0f;
         _control_value = 0.0f;
     }
-    void velocity_controller_t::set_target(float target)
+    float velocity_controller_t::set_target(float target)
     {
         _target_spd = target;
+        return _target_spd;
     }
 
     void velocity_controller_t::update()
