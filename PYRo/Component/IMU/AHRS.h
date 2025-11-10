@@ -8,6 +8,9 @@ typedef float float32_t;
 #define KP2	(2.0f * 0.5f)	//AHRS算法的PI控制器系数
 #define KI2	(2.0f * 0.0f)	//AHRS算法的PI控制器系数
 
+#ifdef __cplusplus  
+extern "C" {        
+#endif
 /// @brief IMU初始化
 /// @param quat 四元数
 /// @param accel 三轴加速度计数据
@@ -27,6 +30,9 @@ extern void AHRS_update(float32_t quat[4], float32_t gyro[3], float32_t accel[3]
 /// @param pitch pitch轴角度
 /// @param roll roll轴角度
 extern void AHRS_get(float32_t q[4], float32_t *yaw, float32_t *pitch, float32_t *roll);
+#ifdef __cplusplus
+}  
+#endif
 
 /// @brief AHRS算法
 /// @param q 四元数

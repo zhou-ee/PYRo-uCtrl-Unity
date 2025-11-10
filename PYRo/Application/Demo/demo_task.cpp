@@ -18,6 +18,7 @@ extern void pyro_motor_demo(void *arg);
 extern void pyro_wheel_demo(void *arg);
 extern void pyro_controller_demo(void *arg);
 extern void pyro_vofa_demo(void *arg);
+extern void pyro_gimbal_demo(void *arg);
 extern void IMU_task(void * argument);
 void start_demo_task(void const *argument)
 {
@@ -51,11 +52,16 @@ void start_demo_task(void const *argument)
      xTaskCreate(pyro_shoot_demo, "pyro_shoot_demo", 512, nullptr,
                  configMAX_PRIORITIES - 2, nullptr);
 #endif
+
 #if IMU_DEMO_EN
      xTaskCreate(IMU_task, "IMU_task", 512, nullptr,
-                 configMAX_PRIORITIES - 2, nullptr);
+                 configMAX_PRIORITIES - 1, nullptr);
 #endif
 
+#if GIMBAL_DEMO_EN
+     xTaskCreate(pyro_gimbal_demo, "pyro_gimbal_demo", 512, nullptr,
+                 configMAX_PRIORITIES - 2, nullptr);
+#endif
 
 #endif
     vTaskDelete(nullptr);

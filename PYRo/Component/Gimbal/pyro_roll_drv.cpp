@@ -1,8 +1,8 @@
-#include "pyro_yaw_drv.h"
+#include "pyro_roll_drv.h"
 
 namespace pyro
 {
-yaw_drv_t::yaw_drv_t(motor_base_t *motor_base,
+roll_drv_t::roll_drv_t(motor_base_t *motor_base,
                      const pid_ctrl_t &speed_pid,
                      const pid_ctrl_t &position_pid) 
     : _motor_base(motor_base),
@@ -11,42 +11,44 @@ yaw_drv_t::yaw_drv_t(motor_base_t *motor_base,
 { 
 };
 
-void yaw_drv_t::set_radian(float target_radian)
+void roll_drv_t::set_radian(float target_radian)
 { 
     _target_radian = target_radian;
 }
 
-void yaw_drv_t::set_dt(float dt)
+void roll_drv_t::set_dt(float dt)
 { 
     _dt = dt;
 }
 
-float yaw_drv_t::get_current_radian()
+float roll_drv_t::get_current_radian()
 { 
     return _current_radian;
 }
 
-float yaw_drv_t::get_current_rotate()
+float roll_drv_t::get_current_rotate()
 { 
     return _current_rotate;
 }
 
-void yaw_drv_t::zero_force()
+void roll_drv_t::zero_force()
 { 
     _motor_base->send_torque(0.0f);
 }
 
-void yaw_drv_t::update_feedback()
+void roll_drv_t::update_feedback()
 {
     _motor_base->update_feedback();
     _current_radian = _motor_base->get_current_position(); 
     _current_rotate = _motor_base->get_current_rotate();
 }
 
-void yaw_drv_t::set_torque(float torque)
+void roll_drv_t::set_torque(float torque)
 { 
     _motor_base->send_torque(torque);
 }
+
+
 
 
 }

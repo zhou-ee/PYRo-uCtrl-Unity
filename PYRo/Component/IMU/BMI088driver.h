@@ -46,13 +46,15 @@
 #define BMI088_GYRO_125_SEN 0.000066579027251980956150958662738366f
 
 
-typedef __packed struct BMI088_RAW_DATA
+typedef struct BMI088_RAW_DATA
 {
     uint8_t status;
     int16_t accel[3];
     int16_t temp;
     int16_t gyro[3];
 } bmi088_raw_data_t;
+#pragma pack()
+
 
 typedef struct BMI088_REAL_DATA
 {
@@ -89,12 +91,21 @@ enum
 
 
 
+#ifdef __cplusplus  
+extern "C" {        
+#endif
 
 extern uint8_t BMI088_init(void);
+extern void BMI088_read(float gyro[3], float accel[3], float *temperate);
+
+
+#ifdef __cplusplus
+}  
+#endif
+
 extern uint8_t bmi088_accel_init(void);
 extern uint8_t bmi088_gyro_init(void);
 
-extern void BMI088_read(float gyro[3], float accel[3], float *temperate);
 
 
 

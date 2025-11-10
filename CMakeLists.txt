@@ -63,6 +63,7 @@ add_executable(${CMAKE_PROJECT_NAME}
         PYRo/Component/IMU/IMU_Ext.c
         PYRo/Component/IMU/MATH_LIB.c
         PYRo/Component/IMU/PID.c
+        
         PYRo/Component/Pid/pyro_pid_ctrl.cpp
         PYRo/Component/Controller/pyro_velocity_controller.cpp
         PYRo/Component/Controller/pyro_position_controller.cpp
@@ -71,6 +72,11 @@ add_executable(${CMAKE_PROJECT_NAME}
         PYRo/Component/Shoot/pyro_trigger_drv.cpp
         PYRo/Component/Shoot/pyro_shoot_base.cpp
         PYRo/Component/Shoot/pyro_shoot_17mm_control.cpp
+
+        PYRo/Component/Gimbal/pyro_pitch_drv.cpp
+        PYRo/Component/Gimbal/pyro_yaw_drv.cpp
+        PYRo/Component/Gimbal/pyro_roll_drv.cpp
+        PYRo/Component/Gimbal/pyro_gimbal_drv.cpp
         
         PYRo/Application/Demo/pyro_rc_demo.cpp
         PYRo/Application/Demo/demo_task.cpp
@@ -79,6 +85,8 @@ add_executable(${CMAKE_PROJECT_NAME}
         PYRo/Application/Demo/pyro_control_demo.cpp
         PYRo/Application/Demo/pyro_controller_demo.cpp
         PYRo/Application/Demo/pyro_shoot_demo.cpp
+        PYRo/Application/Demo/pyro_drone_gimbal_demo.cpp
+        PYRo/Application/Demo/pyro_imu_demo.cpp
 
         PYRo/Debug/Debug_task.cpp
         PYRo/Debug/VOFA/pyro_vofa.cpp

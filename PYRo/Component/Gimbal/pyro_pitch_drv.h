@@ -1,19 +1,20 @@
-#ifndef __PYRO_YAW_DRV_H__
-#define __PYRO_YAW_DRV_H__
+#ifndef __PYRO_PITCH_DRV_H__
+#define __PYRO_PITCH_DRV_H__ 
 
-#include "pyro_dji_motor_drv.h"
+#include "pyro_dm_motor_drv.h"
 #include "pyro_pid_ctrl.h"
 
 namespace pyro
-{
-class yaw_drv_t
+{ 
+
+class pitch_drv_t
 {
 public:
-    yaw_drv_t(motor_base_t *motor_base,
-              const pid_ctrl_t &speed_pid,
-              const pid_ctrl_t &position_pid
-            );
-    ~yaw_drv_t()
+    pitch_drv_t(motor_base_t *motor_base,
+                const pid_ctrl_t &speed_pid,
+                const pid_ctrl_t &position_pid
+               );
+    ~pitch_drv_t()
     {
     }
 
@@ -27,22 +28,17 @@ public:
     pid_ctrl_t speed_pid{};
     pid_ctrl_t position_pid{};
 
+
 private:
     motor_base_t *_motor_base{};
     float _current_radian{};
     float _target_radian{};
     float _current_rotate{};
     float _dt = 0.001f;
-    
 };
+}
 
-
-
-
-
-
-
-} // namespace pyro
 
 
 #endif
+

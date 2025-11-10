@@ -1,6 +1,8 @@
 #ifndef __IMU_CONTROL_H__
 #define __IMU_CONTROL_H__
 
+#include"BMI088driver.h"
+#include"AHRS.h"
 #include <stdint.h>
 
 #define CALI_MODE 0
@@ -23,7 +25,6 @@
 #define IMU_PITCH_ADDRESS_OFFSET  1
 //Roll轴角度相对于头的偏移量
 #define IMU_ROLL_ADDRESS_OFFSET   2
-#define PI 3.1415926535
 typedef enum
 {
 	CALI_ON=1,
@@ -44,17 +45,38 @@ typedef struct imu
 	float yaw;
 	
 	//method
-	void (*Update)(struct imu* this);
-	float (*Get_Roll)(struct imu* this);
-	float (*Get_Pitch)(struct imu* this);
-	float (*Get_Yaw)(struct imu* this);
+	void (*Update)(struct imu* _this);
+	float (*Get_Roll)(struct imu* _this);
+	float (*Get_Pitch)(struct imu* _this);
+	float (*Get_Yaw)(struct imu* _this);
 }IMU_obj;
 
-void IMU_Base_Update(IMU_obj* this);
-float IMU_Base_Get_Roll(IMU_obj* this);
-float IMU_Base_Get_Pitch(IMU_obj* this);
-float IMU_Base_Get_Yaw(IMU_obj* this);
+void IMU_Base_Update(IMU_obj* _this);
+float IMU_Base_Get_Roll(IMU_obj* _this);
+float IMU_Base_Get_Pitch(IMU_obj* _this);
+float IMU_Base_Get_Yaw(IMU_obj* _this);
 
-IMU_obj* IMU_Base_Factory_Function(void);
+#ifdef __cplusplus  
+extern "C" {        
+#endif
+
+extern IMU_obj* IMU_Base_Factory_Function(void);
+void imu_slove(float gyro[3], float accel[3], bmi088_real_data_t *bmi088);
+
+#ifdef __cplusplus
+}  
+#endif
+
+
+extern bmi088_real_data_t bmi088_real_data;
+extern float imu_gyro[3];
+extern float imu_accel[3];
+extern float imu_quat[4];
+extern float32_t accel_fliter_1[3];
+extern float32_t accel_fliter_2[3];
+extern float32_t accel_fliter_3[3];
+extern const float32_t fliter_num[3];
+extern float imu_rad[3]; 
+extern float imu_angle[3];
 
 #endif
