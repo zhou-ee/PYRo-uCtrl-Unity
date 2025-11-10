@@ -97,14 +97,14 @@ void vofa_drv_t::send()
 // Application zone
 extern "C"
 {
-    extern wheel_drv_t *wheel_drv_1;
-    extern wheel_drv_t *wheel_drv_2;
+    // extern wheel_drv_t *wheel_drv_1;
+    // extern wheel_drv_t *wheel_drv_2;
 }
 
 void vofa_drv_t::thread()
 {
-    add_data(wheel_drv_2->get_p_target_speed());
-    add_data(wheel_drv_2->get_p_current_speed());
+    // add_data(wheel_drv_2->get_p_target_speed());
+    // add_data(wheel_drv_2->get_p_current_speed());
 
     while (true)
     {

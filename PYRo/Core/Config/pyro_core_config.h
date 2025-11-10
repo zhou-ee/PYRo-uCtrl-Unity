@@ -15,7 +15,7 @@
 #define ENGINEER_ARM_DEMO_EN 1
 
 #define CONTROL_DEMO_EN 0
-#define IMU_DEMO_EN 1
+#define IMU_DEMO_EN 0
 
 #endif
 

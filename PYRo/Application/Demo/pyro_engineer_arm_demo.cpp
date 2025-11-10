@@ -14,6 +14,7 @@
 #include "pyro_dr16_rc_drv.h"
 #include "pyro_rc_base_drv.h"
 #include "pyro_uart_drv.h"
+#include "pyro_rc_hub.h"
 
 extern "C"
 {
@@ -31,17 +32,17 @@ float d_axis2_angle = 0.0f;
 float d_axis3_angle = 0.0f;
 float d_axis4_angle = 0.0f;
 
-static pyro::rc_drv_t *dr16_drv;
+pyro::rc_drv_t *arm_rc_drv;
 void arm_get_mode(pyro::rc_drv_t *rc_drv)
 {
-    static auto *p_ctrl = static_cast<pyro::dr16_drv_t::dr16_ctrl_t *>(dr16_drv->get_p_ctrl());
-    static auto *p_last_ctrl = static_cast<pyro::dr16_drv_t::dr16_ctrl_t *>(dr16_drv->get_p_last_ctrl());
+    static auto *p_ctrl = static_cast<pyro::dr16_drv_t::dr16_ctrl_t *>(arm_rc_drv->get_p_ctrl());
+    static auto *p_last_ctrl = static_cast<pyro::dr16_drv_t::dr16_ctrl_t *>(arm_rc_drv->get_p_last_ctrl());
 
-    if(RC_SW_UP == p_ctrl->rc.s[0])
+    if(pyro::dr16_drv_t::DR16_SW_DOWN != p_ctrl->rc.s[0])
     {
         mode = ZERO_FORCE;
     }
-    else if(RC_SW_UP != p_ctrl->rc.s[0])
+    else if(pyro::dr16_drv_t::DR16_SW_DOWN == p_ctrl->rc.s[0])
     {
         mode = RC_CONTROL;
     }
@@ -85,11 +86,12 @@ void pyro_engineer_arm_demo(void *arg)
 {
         vTaskSuspend(nullptr);
         //pyro::get_uart5().enable_rx_dma();
-        dr16_drv = new pyro::dr16_drv_t(pyro::uart_drv_t::get_instance(pyro::uart5));
-        dr16_drv->init();
-        dr16_drv->enable();
+        // dr16_drv = new pyro::dr16_drv_t(pyro::uart_drv_t::get_instance(pyro::uart_drv_t::uart5));
+        // dr16_drv->init();
+        // dr16_drv->enable();
+        arm_rc_drv = pyro::rc_hub_t::get_instance(pyro::rc_hub_t::DR16);
 
-        dr16_drv->set_get_mode(arm_get_mode);
+        arm_rc_drv->config_rc_cmd(arm_get_mode);
 
 
         

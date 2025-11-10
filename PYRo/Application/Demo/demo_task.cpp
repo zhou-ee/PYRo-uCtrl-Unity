@@ -81,6 +81,7 @@ void start_demo_task(void const *argument)
 
 #include "pyro_can_drv.h"
 #include "pyro_uart_drv.h"
+#include "pyro_rc_hub.h"
 
 pyro::can_drv_t *can1_drv;
 pyro::can_drv_t *can2_drv;
@@ -90,12 +91,19 @@ void init_task(void *arg)
      TaskHandle_t chassis_handle,arm_handle;
 
      vTaskDelay(500);
+     #if ENGINEER_CHASSIS_DEMO_EN
      while(xTaskGetHandle("pyro_engineer_chassis_demo") == NULL);
-     while(xTaskGetHandle("pyro_engineer_arm_demo") == NULL);
      chassis_handle = xTaskGetHandle("pyro_engineer_chassis_demo");
+     #endif
+     #if ENGINEER_ARM_DEMO_EN
+     while(xTaskGetHandle("pyro_engineer_arm_demo") == NULL);
      arm_handle = xTaskGetHandle("pyro_engineer_arm_demo");
+     #endif
 
-     pyro::uart_drv_t::get_instance(pyro::uart5)->enable_rx_dma();
+     pyro::uart_drv_t::get_instance(pyro::uart_drv_t::uart5)->enable_rx_dma();
+
+     pyro::rc_hub_t::get_instance(pyro::rc_hub_t::DR16)->init();
+     pyro::rc_hub_t::get_instance(pyro::rc_hub_t::DR16)->enable();
 
      pyro::can_hub_t::get_instance();
      can1_drv = new pyro::can_drv_t(&hfdcan1);
@@ -109,7 +117,11 @@ void init_task(void *arg)
      can2_drv->start();  
      can3_drv->start();
 
+     #if ENGINEER_CHASSIS_DEMO_EN
      vTaskResume(chassis_handle);
+     #endif
+     #if ENGINEER_ARM_DEMO_EN
      vTaskResume(arm_handle);
+     #endif
      vTaskDelete(nullptr);
 }
