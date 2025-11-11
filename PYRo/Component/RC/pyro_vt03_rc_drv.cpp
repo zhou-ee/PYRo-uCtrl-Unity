@@ -116,43 +116,41 @@ status_t vt03_drv_t::error_check(const vt03_buf_t *vt03_buf)
     {
         return PYRO_ERROR;
     }
-    if (!verify_crc16_check_sum((uint8_t *)vt03_buf, sizeof(vt03_buf_t)))
+    if (!verify_crc16_check_sum(reinterpret_cast<uint8_t const*>(vt03_buf), sizeof(vt03_buf_t)))
     {
         return PYRO_ERROR;
     }
     return PYRO_OK;
 }
 
-vt03_drv_t::vt03_gear_t
-vt03_drv_t::check_gear_ctrl(const vt03_gear_t &vt03_switch, const uint8_t state)
+void vt03_drv_t::check_ctrl(vt03_gear_t &vt03_gear, const uint8_t state)
 {
     vt03_gear_t gear = {};
-    if (vt03_switch.state == state)
+    if (vt03_gear.state == state)
     {
         gear.ctrl = VT03_GEAR_NO_CHANGE;
-        return gear;
     }
-    if (VT03_GEAR_LEFT == vt03_switch.state && VT03_GEAR_MID == state)
+    if (VT03_GEAR_LEFT == vt03_gear.state && VT03_GEAR_MID == state)
     {
         gear.ctrl = VT03_GEAR_LEFT_TO_MID;
     }
-    else if (VT03_GEAR_MID == vt03_switch.state && VT03_GEAR_LEFT == state)
+    else if (VT03_GEAR_MID == vt03_gear.state && VT03_GEAR_LEFT == state)
     {
         gear.ctrl = VT03_GEAR_MID_TO_LEFT;
     }
-    else if (VT03_GEAR_MID == vt03_switch.state && VT03_GEAR_RIGHT == state)
+    else if (VT03_GEAR_MID == vt03_gear.state && VT03_GEAR_RIGHT == state)
     {
         gear.ctrl = VT03_GEAR_MID_TO_RIGHT;
     }
-    else if (VT03_GEAR_RIGHT == vt03_switch.state && VT03_GEAR_MID == state)
+    else if (VT03_GEAR_RIGHT == vt03_gear.state && VT03_GEAR_MID == state)
     {
         gear.ctrl = VT03_GEAR_RIGHT_TO_MID;
     }
     gear.state = state;
-    return gear;
+    vt03_gear  = gear;
 }
 
-vt03_drv_t::key_t vt03_drv_t::check_key_ctrl(const key_t &key, uint8_t state)
+void vt03_drv_t::check_ctrl(key_t &key, const uint8_t state)
 {
     key_t temp_key = {};
     if (KEY_RELEASED == state)
@@ -164,20 +162,23 @@ vt03_drv_t::key_t vt03_drv_t::check_key_ctrl(const key_t &key, uint8_t state)
     {
         if (KEY_RELEASED == key.ctrl)
         {
-            temp_key.ctrl = KEY_PRESSED;
-            temp_key.time = 0;
+            temp_key.time = key.time + 14;
+            if (temp_key.time > 40)
+            {
+                temp_key.ctrl = KEY_PRESSED;
+            }
         }
         else if (KEY_PRESSED == key.ctrl)
         {
             temp_key.time = key.time + 14;
-            if (temp_key.time > 120)
+            if (temp_key.time > 160)
             {
                 temp_key.ctrl = KEY_HOLD;
                 temp_key.time = 0;
             }
         }
     }
-    return temp_key;
+    key = temp_key;
 }
 
 /* Data Processing - Unpack --------------------------------------------------*/
@@ -206,21 +207,27 @@ void vt03_drv_t::unpack(const vt03_buf_t *vt03_buf)
             static_cast<float>(vt03_buf->wheel - VT03_CH_VALUE_OFFSET) / 660.0f;
 
         // Copy switch and mouse data
-        check_gear_ctrl(_vt03_ctrl.rc.gear, vt03_buf->gear);
-        check_key_ctrl(_vt03_ctrl.rc.fn_l, vt03_buf->fn_l);
-        check_key_ctrl(_vt03_ctrl.rc.fn_r, vt03_buf->fn_r);
-        check_key_ctrl(_vt03_ctrl.rc.pause, vt03_buf->pause);
-        check_key_ctrl(_vt03_ctrl.rc.trigger, vt03_buf->trigger);
+        check_ctrl(_vt03_ctrl.rc.gear, vt03_buf->gear);
+        check_ctrl(_vt03_ctrl.rc.fn_l, vt03_buf->fn_l);
+        check_ctrl(_vt03_ctrl.rc.fn_r, vt03_buf->fn_r);
+        check_ctrl(_vt03_ctrl.rc.pause, vt03_buf->pause);
+        check_ctrl(_vt03_ctrl.rc.trigger, vt03_buf->trigger);
 
         _vt03_ctrl.mouse.x = static_cast<float>(vt03_buf->mouse_x) / 32768.0f;
         _vt03_ctrl.mouse.y = static_cast<float>(vt03_buf->mouse_y) / 32768.0f;
         _vt03_ctrl.mouse.z = static_cast<float>(vt03_buf->mouse_z) / 32768.0f;
-        _vt03_ctrl.mouse.press_l = vt03_buf->press_l & 0x01;
-        _vt03_ctrl.mouse.press_r = vt03_buf->press_r & 0x01;
+        check_ctrl(_vt03_ctrl.mouse.press_l, vt03_buf->press_l);
+        check_ctrl(_vt03_ctrl.mouse.press_r, vt03_buf->press_r);
+        check_ctrl(_vt03_ctrl.mouse.press_m, vt03_buf->press_m);
+
+        for (int i = 0; i < 16; ++i)
+        {
+            check_ctrl(*(reinterpret_cast<key_t *>(&_vt03_ctrl.key) + i),
+                       (vt03_buf->key_code >> i) & 0x01);
+        }
 
         // Copy key code into the key bitfield structure
-        memcpy(&_vt03_ctrl.key, &vt03_buf->key_code,
-               sizeof(vt03_buf->key_code));
+
 
         // Execute the registered consumer callback with the decoded data
         write_scope_lock rc_write_lock(get_lock());

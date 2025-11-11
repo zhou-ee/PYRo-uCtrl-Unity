@@ -3,7 +3,7 @@
 #include "pyro_crc.h"
 
 
-static uint16_t get_crc16_check_sum(uint8_t *p_msg, uint16_t len,
+static uint16_t get_crc16_check_sum(uint8_t const*p_msg, uint16_t len,
                                     uint16_t crc16);
 
 static uint16_t crc16_init           = 0xffff;
@@ -46,7 +46,7 @@ static const uint16_t crc16_tab[256] = {
  * @param crc16 Crc16 initialized checksum
  * @return crc16 Crc16 checksum
  */
-static uint16_t get_crc16_check_sum(uint8_t *p_msg, uint16_t len,
+static uint16_t get_crc16_check_sum(uint8_t const *p_msg, uint16_t len,
                                     uint16_t crc16)
 {
     uint8_t data;
@@ -73,7 +73,7 @@ static uint16_t get_crc16_check_sum(uint8_t *p_msg, uint16_t len,
  * @param len Stream length=data+checksum
  * @return bool Crc16 check result
  */
-bool verify_crc16_check_sum(uint8_t *p_msg, uint16_t len)
+bool verify_crc16_check_sum(uint8_t const *p_msg, uint16_t len)
 {
     uint16_t w_expected = 0;
 
