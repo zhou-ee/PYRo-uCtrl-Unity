@@ -22,10 +22,16 @@ extern void pyro_engineer_chassis_demo(void *arg);
 extern void pyro_engineer_arm_demo(void *arg);
 extern void init_task(void *arg);
 extern void IMU_task(void * argument);
+extern void OS_monitor_task(void * argument);
+extern void self_control_com_task(void* argument);
 void start_demo_task(void const *argument)
 {
 
      xTaskCreate(init_task, "init_task", 256, nullptr,
+                 configMAX_PRIORITIES - 2, nullptr);
+     // xTaskCreate(OS_monitor_task, "OS_monitor_task", 128, nullptr,
+     //             configMAX_PRIORITIES - 2, nullptr);
+     xTaskCreate(self_control_com_task, "self_control_com_task", 512, nullptr,
                  configMAX_PRIORITIES - 2, nullptr);
  //变成IMU_TASK 之后自己写一个demo
 #if DEMO_MODE
@@ -101,6 +107,7 @@ void init_task(void *arg)
      #endif
 
      pyro::uart_drv_t::get_instance(pyro::uart_drv_t::uart5)->enable_rx_dma();
+     pyro::uart_drv_t::get_instance(pyro::uart_drv_t::uart7)->enable_rx_dma();
 
      pyro::rc_hub_t::get_instance(pyro::rc_hub_t::DR16)->init();
      pyro::rc_hub_t::get_instance(pyro::rc_hub_t::DR16)->enable();
@@ -124,4 +131,18 @@ void init_task(void *arg)
      vTaskResume(arm_handle);
      #endif
      vTaskDelete(nullptr);
+}
+
+
+#include "cmsis_os.h"
+
+uint32_t heap_free=0;
+void OS_monitor_task(void * argument)
+{
+
+    while(1)
+    {
+       heap_free=xPortGetFreeHeapSize();
+       vTaskDelay(1);
+    }
 }

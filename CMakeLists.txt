@@ -84,6 +84,7 @@ add_executable(${CMAKE_PROJECT_NAME}
         PYRo/Application/Demo/engineer_chassis_demo.cpp
         PYRo/Application/Demo/pyro_engineer_arm_demo.cpp
         PYRo/Application/Demo/pyro_shoot_demo.cpp
+        PYRo/Application/Demo/self_control_com_demo.cpp
 
         PYRo/Debug/Debug_task.cpp
         PYRo/Debug/VOFA/pyro_vofa.cpp

@@ -19,6 +19,13 @@
 extern "C"
 {
 
+extern float recv_axis1_angle;
+extern float recv_axis2_angle;
+extern float recv_axis3_angle;
+extern float recv_axis4_angle;
+extern float recv_axis5_angle;
+extern float recv_axis6_angle;
+
 typedef enum 
 {
     ZERO_FORCE,
@@ -26,7 +33,18 @@ typedef enum
 }
 mode_t;
 
+typedef enum
+{
+    MANUAL_CONTROL,
+    RESET_POSE,
+    SELF_CONTROL_MIRROR
+}
+arm_work_mode_t;
+
 static mode_t mode = ZERO_FORCE;
+static arm_work_mode_t arm_work_mode = MANUAL_CONTROL;
+static uint8_t reset = 0;
+
 float d_axis1_angle = 0.0f;
 float d_axis2_angle = 0.0f;
 float d_axis3_angle = 0.0f;
@@ -45,6 +63,25 @@ void arm_get_mode(pyro::rc_drv_t *rc_drv)
     else if(pyro::dr16_drv_t::DR16_SW_DOWN == p_ctrl->rc.s[0])
     {
         mode = RC_CONTROL;
+    }
+
+    if(p_ctrl->rc.s[1] != p_last_ctrl->rc.s[1])
+    {
+        reset = 1;
+    }
+
+    switch(p_ctrl->rc.s[1])
+    {
+        case pyro::dr16_drv_t::DR16_SW_UP: 
+            arm_work_mode = MANUAL_CONTROL;
+            break;
+        case pyro::dr16_drv_t::DR16_SW_MID:
+            arm_work_mode = RESET_POSE;
+            break;
+        case pyro::dr16_drv_t::DR16_SW_DOWN:
+            arm_work_mode = SELF_CONTROL_MIRROR;
+            break;
+        
     }
 
     d_axis1_angle = static_cast<float>(p_ctrl->rc.ch[0]) / 660.0f * 0.001;
@@ -201,12 +238,36 @@ void pyro_engineer_arm_demo(void *arg)
         vTaskDelay(1);
         for(;;)
         {
-
+            if(reset)
+            {
+                reset = 0;
+                axis1_angle = 0.0f;
+                axis2_angle = 0.0f;
+                axis3_angle = 0.0f;
+                axis4_angle = 0.0f;
+            }
             
-            axis1_angle+=d_axis1_angle;
-            axis2_angle+=d_axis2_angle;
-            axis3_angle+=d_axis3_angle;
-            axis4_angle+=d_axis4_angle;
+            if(arm_work_mode == MANUAL_CONTROL)
+            {
+                axis1_angle+=d_axis1_angle;
+                axis2_angle+=d_axis2_angle;
+                axis3_angle+=d_axis3_angle;
+                axis4_angle+=d_axis4_angle;
+            }
+            else if(arm_work_mode == RESET_POSE)
+            {
+                axis1_angle = 0.0f;
+                axis2_angle = 0.0f;
+                axis3_angle = 0.0f;
+                axis4_angle = 0.0f;
+            }
+            else if(arm_work_mode == SELF_CONTROL_MIRROR)
+            {
+                axis1_angle = recv_axis1_angle;
+                axis2_angle = recv_axis2_angle;
+                axis3_angle = recv_axis3_angle;
+                axis4_angle = recv_axis4_angle;
+            }
 
             if(axis1_angle>pyro::PI)
                 axis1_angle-=pyro::PI*2;

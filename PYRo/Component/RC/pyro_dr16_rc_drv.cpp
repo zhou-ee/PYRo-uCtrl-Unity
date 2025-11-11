@@ -126,7 +126,7 @@ status_t dr16_drv_t::error_check(const dr16_buf_t *dr16_buf)
  * If the error check passes, it scales RC channels (center-aligned), copies
  * mouse data, and maps the key_code to the keyboard bitfield structure.
  */
-void dr16_drv_t::unpack(const dr16_buf_t *dr16_buf)
+void dr16_drv_t::unpack(const dr16_buf_t *dr16_buf) 
 {
     if (PYRO_OK == error_check(dr16_buf))
     {
