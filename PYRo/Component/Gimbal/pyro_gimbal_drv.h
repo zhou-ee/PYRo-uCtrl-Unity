@@ -31,7 +31,7 @@ public:
     void update_feedback();
     void zero_force();
     void dr16_cmd(void const *rc_ctrl);
-    void vt03_cmd();
+    void vt03_cmd(void const *rc_ctrl);
     void set_control();
     void control();
 
