@@ -25,9 +25,9 @@ void chassis_drv_t::dr16_cmd(void const *rc_ctrl)
 {
     static auto *p_ctrl =
         static_cast<pyro::dr16_drv_t::dr16_ctrl_t const *>(rc_ctrl);
-    _vy      = static_cast<float>(p_ctrl->rc.ch[3]) / 660.0f * 2.0f;
-    _vx      = static_cast<float>(p_ctrl->rc.ch[2]) / 660.0f * 2.0f;
-    _wz      = static_cast<float>(p_ctrl->rc.ch[0]) / 660.0f;
+    _vy      = static_cast<float>(p_ctrl->rc.ch[3]) * 2.0f;
+    _vx      = static_cast<float>(p_ctrl->rc.ch[2]) * 2.0f;
+    _wz      = static_cast<float>(p_ctrl->rc.ch[0]);
     _s_right = p_ctrl->rc.s[dr16_drv_t::DR16_SW_RIGHT].state;
 }
 

@@ -30,7 +30,7 @@ public:
     void set_dt(float dt);
     void update_feedback();
     void zero_force();
-    void dr16_cmd();
+    void dr16_cmd(void const *rc_ctrl);
     void vt03_cmd();
     void set_control();
     void control();
@@ -42,19 +42,18 @@ private:
     IMU_obj *_imu{};
     total_mode_t _total_mode;
     float _dt = 0.001f;
-    float _current_pitch_radian{};
-    float _current_pitch_imu_radian{};
-    float _target_pitch_diff{};
-    float _target_pitch_radian{};
+    bool _is_init = true;
 
-    float _current_yaw_motor_radian{};
+    float _imu_yaw_offset_radian{};
+    float _target_yaw_imu_radian{};
     float _current_yaw_imu_radian{};
-    float _target_yaw_radian{};
 
-    float _target_roll_radian{};
-    float _current_roll_radian{};
+    float _target_pitch_imu_radian{};
+    float _current_pitch_imu_radian{};
+
     float _current_roll_imu_radian{};
-
+    
+    float _yaw_speed_cmd{};
     float _yaw_cmd_torque{};
     float _pitch_cmd_torque{};
     float _roll_cmd_torque{};

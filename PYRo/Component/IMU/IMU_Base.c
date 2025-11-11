@@ -12,7 +12,7 @@ void spi2_DMA_enable(uint32_t tx_buf, uint32_t rx_buf, uint16_t ndtr);
 void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin);
 static void imu_cmd_spi_dma(void);
 void IMU_Stream1_IRQHandler(void);
-static void gyro_cali(float32_t gyro[3]);
+void gyro_cali(float32_t gyro[3]);
 void imu_slove(float gyro[3], float accel[3], bmi088_real_data_t *bmi088);
 static void imu_temp_control(float32_t temp);
 static void imu_temp_pwm(uint16_t pwm);
@@ -45,10 +45,10 @@ uint32_t cali_time = 0;
 //校准值
 float32_t cali_offset[3] = {0, 0, 0};
 //理论校准值
-float32_t manual_offset[3] = {0.00224608323, -0.00273885322, 0.00141656748};
+float32_t manual_offset[3] = {-0.00520456877, 0.00210196408, -0.000137845083};
 
 //陀螺仪校准
-static void gyro_cali(float32_t gyro[3])
+void gyro_cali(float32_t gyro[3])
 {
 	uint8_t i = 0;
 	//在校准模式下
@@ -318,9 +318,9 @@ void IMU_Base_Update(IMU_obj* this)
 	memcpy(this->gyro,imu_gyro,sizeof(float)*3);
 	memcpy(this->accel,imu_accel,sizeof(float)*3);
 	memcpy(this->quaternion,imu_quat,sizeof(float)*4);
-	this->roll=imu_angle[2];
-	this->pitch=imu_angle[1];
-	this->yaw=imu_angle[0];
+	this->roll=imu_rad[2];
+	this->pitch=imu_rad[1];
+	this->yaw=imu_rad[0];
 }
 
 //IMU获取Roll默认实现

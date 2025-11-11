@@ -14,7 +14,7 @@
 extern "C"
 {
 
-IMU_obj imu;
+extern IMU_obj Imu;
 
 uint8_t temp_ctrl=0;
     
@@ -43,7 +43,10 @@ void IMU_task(void * argument)
     accel_fliter_1[2] = accel_fliter_2[2] = accel_fliter_3[2] = imu_accel[2];
     while (1)
     {	
-		__HAL_TIM_SetCompare(&htim3,TIM_CHANNEL_4,temp_ctrl);
+		#if CALI_MODE
+		gyro_cali(imu_gyro);
+		#endif
+		// __HAL_TIM_SetCompare(&htim3,TIM_CHANNEL_4,temp_ctrl);
 				
 		BMI088_read(bmi088_real_data.gyro, bmi088_real_data.accel, &bmi088_real_data.temp);
 		//计算角速度与加速度
@@ -65,6 +68,7 @@ void IMU_task(void * argument)
 		{
 			imu_angle[i] = imu_rad[i]/ PI * 180.0f;
 		}
+		Imu.Update(&Imu);
 		vTaskDelay(1);
 				
 				

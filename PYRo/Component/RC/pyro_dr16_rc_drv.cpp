@@ -173,8 +173,8 @@ void dr16_drv_t::unpack(const dr16_buf_t *dr16_buf)
             static_cast<float>(dr16_buf->wheel - DR16_CH_VALUE_OFFSET) / 660.0f;
 
         // Copy switch and mouse data
-        check_sw_ctrl(_dr16_ctrl.rc.s[DR16_SW_RIGHT], dr16_buf->s1);
-        check_sw_ctrl(_dr16_ctrl.rc.s[DR16_SW_LEFT], dr16_buf->s2);
+        _dr16_ctrl.rc.s[DR16_SW_RIGHT] = check_sw_ctrl(_dr16_ctrl.rc.s[DR16_SW_RIGHT], dr16_buf->s1);
+        _dr16_ctrl.rc.s[DR16_SW_LEFT] = check_sw_ctrl(_dr16_ctrl.rc.s[DR16_SW_LEFT], dr16_buf->s2);
         _dr16_ctrl.mouse.x = static_cast<float>(dr16_buf->mouse_x) / 32768.0f;
         _dr16_ctrl.mouse.y = static_cast<float>(dr16_buf->mouse_y) / 32768.0f;
         _dr16_ctrl.mouse.z = static_cast<float>(dr16_buf->mouse_z) / 32768.0f;

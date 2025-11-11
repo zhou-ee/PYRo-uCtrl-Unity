@@ -29,12 +29,12 @@ extern "C"
     extern IMU_obj Imu;
     void pyro_gimbal_demo(void *arg)
     {
-        pitch_speed_pid = new pyro::pid_ctrl_t(1.0f, 0.0f, 0.0f);
-        pitch_position_pid = new pyro::pid_ctrl_t(1.0f, 0.0f, 0.0f);
-        roll_speed_pid = new pyro::pid_ctrl_t(1.0f, 0.0f, 0.0f);
-        roll_position_pid = new pyro::pid_ctrl_t(1.0f, 0.0f, 0.0f);
-        yaw_speed_pid = new pyro::pid_ctrl_t(0.6f, 0.0f, 0.0f);
-        yaw_position_pid = new pyro::pid_ctrl_t(10.0f, 0.0f, 0.0f);
+        pitch_speed_pid = new pyro::pid_ctrl_t(0.6f, 0.0f, 0.0f);
+        pitch_position_pid = new pyro::pid_ctrl_t(10.0f, 0.0f, 0.0f);
+        roll_speed_pid = new pyro::pid_ctrl_t(0.4f, 0.0f, 0.0f);
+        roll_position_pid = new pyro::pid_ctrl_t(10.0f, 0.0f, 0.0f);
+        yaw_speed_pid = new pyro::pid_ctrl_t(0.4f, 0.0f, 0.0f);
+        yaw_position_pid = new pyro::pid_ctrl_t(15.0f, 0.0f, 0.0f);
 
         pitch_speed_pid->set_output_limits(10.0f);
         pitch_position_pid->set_output_limits(10.0f);
@@ -76,6 +76,8 @@ extern "C"
         gimbal_drv->set_dt(0.001);
 
         gimbal_drv = new pyro::gimbal_drv_t(pitch_drv, roll_drv, yaw_drv, &Imu);
+        gimbal_drv->update_feedback();
+        gimbal_drv->zero_force();
 
         while (true)
         {

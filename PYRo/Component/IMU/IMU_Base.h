@@ -14,7 +14,7 @@
 //开始校准时间
 #define START_CALI_TIME 5000
 //最大校准时间
-#define MAX_CALI_TIME 300000
+#define MAX_CALI_TIME 10000
 //陀螺仪接受补偿
 #define BMI088_GYRO_RX_BUF_DATA_OFFSET  1
 //加速度计接收补偿
@@ -62,7 +62,7 @@ extern "C" {
 
 extern IMU_obj* IMU_Base_Factory_Function(void);
 void imu_slove(float gyro[3], float accel[3], bmi088_real_data_t *bmi088);
-
+void gyro_cali(float32_t gyro[3]);
 #ifdef __cplusplus
 }  
 #endif
