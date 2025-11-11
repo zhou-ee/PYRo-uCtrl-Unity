@@ -2,6 +2,8 @@
 #define __PYRO_RC_HUB_H__
 
 #include "pyro_dr16_rc_drv.h"
+#include "pyro_vt03_rc_drv.h"
+
 
 namespace pyro
 {
@@ -13,7 +15,7 @@ public:
 
     enum which_rc_t
     {
-        VTO3 = 0,
+        VT03 = 0,
         DR16 = 1,
     };
 
