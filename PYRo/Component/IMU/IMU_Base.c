@@ -1,19 +1,19 @@
-#include"BMI088driver.h"
 #include"PID.h"
-#include"AHRS.h"
 #include "cmsis_os.h"
 #include "main.h"
 #include "tim.h"
 #include <string.h>
+#include "MATH_LIB.h"
 #include"IMU_Base.h"
+
 //#include "Debug\VOFA/pyro_vofa.h"
 void spi2_DMA_init(uint32_t tx_buf, uint32_t rx_buf, uint16_t num);
 void spi2_DMA_enable(uint32_t tx_buf, uint32_t rx_buf, uint16_t ndtr);
 void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin);
 static void imu_cmd_spi_dma(void);
 void IMU_Stream1_IRQHandler(void);
-static void gyro_cali(float32_t gyro[3]);
-static void imu_slove(float gyro[3], float accel[3], bmi088_real_data_t *bmi088);
+void gyro_cali(float32_t gyro[3]);
+void imu_slove(float gyro[3], float accel[3], bmi088_real_data_t *bmi088);
 static void imu_temp_control(float32_t temp);
 static void imu_temp_pwm(uint16_t pwm);
 
@@ -45,10 +45,10 @@ uint32_t cali_time = 0;
 //校准值
 float32_t cali_offset[3] = {0, 0, 0};
 //理论校准值
-float32_t manual_offset[3] = {0.00224608323, -0.00273885322, 0.00141656748};
+float32_t manual_offset[3] = {-0.00520456877, 0.00210196408, -0.000137845083};
 
 //陀螺仪校准
-static void gyro_cali(float32_t gyro[3])
+void gyro_cali(float32_t gyro[3])
 {
 	uint8_t i = 0;
 	//在校准模式下
@@ -97,7 +97,7 @@ float32_t accel_offset[3];
 float32_t accel_cali_offset[3];
 
 //IMU数据处理
-static void imu_slove(float gyro[3], float accel[3], bmi088_real_data_t *bmi088)
+void imu_slove(float gyro[3], float accel[3], bmi088_real_data_t *bmi088)
 {
 	uint8_t i = 0;
     for (i = 0; i < 3; i++)
@@ -181,7 +181,7 @@ static void imu_temp_pwm(uint16_t pwm)
  float32_t accel_fliter_2[3] = {0.0f, 0.0f, 0.0f};
  float32_t accel_fliter_3[3] = {0.0f, 0.0f, 0.0f};
 //滤波器权重
-static const float32_t fliter_num[3] = {0.1251596093291,   0.5834061966847,   0.2914341939862};
+const float32_t fliter_num[3] = {0.1251596093291,   0.5834061966847,   0.2914341939862};
 
 //陀螺仪数据
 float imu_gyro[3] = {0.0f, 0.0f, 0.0f};
@@ -238,79 +238,79 @@ void yaw_cali(void)
 	}
 }
 
-uint8_t temp_ctrl=0;
+// uint8_t temp_ctrl=0;
 
-void IMU_task(void * argument)
-{
-	//等待陀螺仪启动
-	//vTaskDelay
-	//gyro_cali(imu_gyro);
-	//vTaskDelay(20);
-	IMU_Base_Factory_Function();
-	osDelay(500);
-	osDelay(IMU_TASK_INIT_TIME);
-	HAL_TIM_PWM_Start(&htim3,TIM_CHANNEL_4);
-    while(BMI088_init())
-    {
-        ;
-    }
-	//SPI读取数据
-    BMI088_read(bmi088_real_data.gyro, bmi088_real_data.accel, &bmi088_real_data.temp);
-    //计算零漂
-    imu_slove(imu_gyro, imu_accel, &bmi088_real_data);
-	//控温PID初始化
-    //PID_Init(&imu_temp_pid,TEMP_PID_K[0],TEMP_PID_K[1],TEMP_PID_K[2],TEMP_PID_IMAX,TEMP_PID_MAXOUT,	0,0,0,	0,0,0,		0,		0,0);
-	//四元数初始化
-	AHRS_init(imu_quat);
-	//低通滤波器启动
-    accel_fliter_1[0] = accel_fliter_2[0] = accel_fliter_3[0] = imu_accel[0];
-    accel_fliter_1[1] = accel_fliter_2[1] = accel_fliter_3[1] = imu_accel[1];
-    accel_fliter_1[2] = accel_fliter_2[2] = accel_fliter_3[2] = imu_accel[2];
-   //imu_task_local_handler = xTaskGetHandle(pcTaskGetName(NULL));
-    while (1)
-    {	
-		//while (ulTaskNotifyTake(pdTRUE, portMAX_DELAY) != pdPASS)
-        //{
-        //}
-		__HAL_TIM_SetCompare(&htim3,TIM_CHANNEL_4,temp_ctrl);
+// void IMU_task(void * argument)
+// {
+// 	//等待陀螺仪启动
+// 	//vTaskDelay
+// 	//gyro_cali(imu_gyro);
+// 	//vTaskDelay(20);
+// 	IMU_Base_Factory_Function();
+// 	osDelay(500);
+// 	osDelay(IMU_TASK_INIT_TIME);
+// 	HAL_TIM_PWM_Start(&htim3,TIM_CHANNEL_4);
+//     while(BMI088_init())
+//     {
+//         ;
+//     }
+// 	//SPI读取数据
+//     BMI088_read(bmi088_real_data.gyro, bmi088_real_data.accel, &bmi088_real_data.temp);
+//     //计算零漂
+//     imu_slove(imu_gyro, imu_accel, &bmi088_real_data);
+// 	//控温PID初始化
+//     //PID_Init(&imu_temp_pid,TEMP_PID_K[0],TEMP_PID_K[1],TEMP_PID_K[2],TEMP_PID_IMAX,TEMP_PID_MAXOUT,	0,0,0,	0,0,0,		0,		0,0);
+// 	//四元数初始化
+// 	AHRS_init(imu_quat);
+// 	//低通滤波器启动
+//     accel_fliter_1[0] = accel_fliter_2[0] = accel_fliter_3[0] = imu_accel[0];
+//     accel_fliter_1[1] = accel_fliter_2[1] = accel_fliter_3[1] = imu_accel[1];
+//     accel_fliter_1[2] = accel_fliter_2[2] = accel_fliter_3[2] = imu_accel[2];
+//    //imu_task_local_handler = xTaskGetHandle(pcTaskGetName(NULL));
+//     while (1)
+//     {	
+// 		//while (ulTaskNotifyTake(pdTRUE, portMAX_DELAY) != pdPASS)
+//         //{
+//         //}
+// 		__HAL_TIM_SetCompare(&htim3,TIM_CHANNEL_4,temp_ctrl);
 				
-		BMI088_read(bmi088_real_data.gyro, bmi088_real_data.accel, &bmi088_real_data.temp);
-		//计算角速度与加速度
-        imu_slove(imu_gyro, imu_accel, &bmi088_real_data);
-        //加速度计低通滤波
-        accel_fliter_1[0] = accel_fliter_2[0];
-        accel_fliter_2[0] = accel_fliter_3[0];
-        accel_fliter_3[0] = accel_fliter_2[0] * fliter_num[0] + accel_fliter_1[0] * fliter_num[1] + imu_accel[0] * fliter_num[2];
-        accel_fliter_1[1] = accel_fliter_2[1];
-        accel_fliter_2[1] = accel_fliter_3[1];
-        accel_fliter_3[1] = accel_fliter_2[1] * fliter_num[0] + accel_fliter_1[1] * fliter_num[1] + imu_accel[1] * fliter_num[2];
-        accel_fliter_1[2] = accel_fliter_2[2];
-        accel_fliter_2[2] = accel_fliter_3[2];
-        accel_fliter_3[2] = accel_fliter_2[2] * fliter_num[0] + accel_fliter_1[2] * fliter_num[1] + imu_accel[2] * fliter_num[2];
-		//四元数更新
-		AHRS_update(imu_quat, imu_gyro, accel_fliter_3);
-		AHRS_get(imu_quat, imu_rad + IMU_YAW_ADDRESS_OFFSET, imu_rad + IMU_PITCH_ADDRESS_OFFSET, imu_rad + IMU_ROLL_ADDRESS_OFFSET);
-		for(int i=0;i<3;i++)
-		{
-			imu_angle[i]=imu_rad[i]/PI*180.0f;
-		}
-		//imu_angle[0]-=minor_diff;
-//		Justfloat_Send
-//		(
-//		imu_gyro[0],imu_gyro[1],imu_gyro[2],
-//		imu_accel[0],imu_accel[1],imu_accel[2],
-//		accel_fliter_3[0],accel_fliter_3[1],accel_fliter_3[2],
-//		imu_angle[0],imu_angle[1],imu_angle[2]
-//		);
-		//yaw_cali();
-		vTaskDelay(1);
+// 		BMI088_read(bmi088_real_data.gyro, bmi088_real_data.accel, &bmi088_real_data.temp);
+// 		//计算角速度与加速度
+//         imu_slove(imu_gyro, imu_accel, &bmi088_real_data);
+//         //加速度计低通滤波
+//         accel_fliter_1[0] = accel_fliter_2[0];
+//         accel_fliter_2[0] = accel_fliter_3[0];
+//         accel_fliter_3[0] = accel_fliter_2[0] * fliter_num[0] + accel_fliter_1[0] * fliter_num[1] + imu_accel[0] * fliter_num[2];
+//         accel_fliter_1[1] = accel_fliter_2[1];
+//         accel_fliter_2[1] = accel_fliter_3[1];
+//         accel_fliter_3[1] = accel_fliter_2[1] * fliter_num[0] + accel_fliter_1[1] * fliter_num[1] + imu_accel[1] * fliter_num[2];
+//         accel_fliter_1[2] = accel_fliter_2[2];
+//         accel_fliter_2[2] = accel_fliter_3[2];
+//         accel_fliter_3[2] = accel_fliter_2[2] * fliter_num[0] + accel_fliter_1[2] * fliter_num[1] + imu_accel[2] * fliter_num[2];
+// 		//四元数更新
+// 		AHRS_update(imu_quat, imu_gyro, accel_fliter_3);
+// 		AHRS_get(imu_quat, imu_rad + IMU_YAW_ADDRESS_OFFSET, imu_rad + IMU_PITCH_ADDRESS_OFFSET, imu_rad + IMU_ROLL_ADDRESS_OFFSET);
+// 		for(int i=0;i<3;i++)
+// 		{
+// 			imu_angle[i] = imu_rad[i]/ PI * 180.0f;
+// 		}
+// 		//imu_angle[0]-=minor_diff;
+// //		Justfloat_Send
+// //		(
+// //		imu_gyro[0],imu_gyro[1],imu_gyro[2],
+// //		imu_accel[0],imu_accel[1],imu_accel[2],
+// //		accel_fliter_3[0],accel_fliter_3[1],accel_fliter_3[2],
+// //		imu_angle[0],imu_angle[1],imu_angle[2]
+// //		);
+// 		//yaw_cali();
+// 		vTaskDelay(1);
 				
 				
-		#if CALI_MODE
-				gyro_cali(imu_gyro);
-		#endif
-	}
-}
+// 		#if CALI_MODE
+// 				gyro_cali(imu_gyro);
+// 		#endif
+// 	}
+// }
 
 //IMUUpdate默认实现
 void IMU_Base_Update(IMU_obj* this)
@@ -318,9 +318,9 @@ void IMU_Base_Update(IMU_obj* this)
 	memcpy(this->gyro,imu_gyro,sizeof(float)*3);
 	memcpy(this->accel,imu_accel,sizeof(float)*3);
 	memcpy(this->quaternion,imu_quat,sizeof(float)*4);
-	this->roll=imu_angle[2];
-	this->pitch=imu_angle[1];
-	this->yaw=imu_angle[0];
+	this->roll=imu_rad[2];
+	this->pitch=imu_rad[1];
+	this->yaw=imu_rad[0];
 }
 
 //IMU获取Roll默认实现

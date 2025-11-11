@@ -4,7 +4,6 @@
 #include "pyro_dr16_rc_drv.h"
 #include "pyro_vt03_rc_drv.h"
 
-
 namespace pyro
 {
 class rc_hub_t
