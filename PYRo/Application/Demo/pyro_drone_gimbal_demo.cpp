@@ -47,13 +47,11 @@ extern "C"
         dm_drv_pitch->set_position_range(-pyro::PI, pyro::PI);
         dm_drv_pitch->set_rotate_range(-20, 20);
         dm_drv_pitch->set_torque_range(-10, 10);
-        dm_drv_pitch->enable();
 
         dm_drv_roll = new pyro::dm_motor_drv_t(0x01, 0x00, pyro::can_hub_t::can1);
         dm_drv_roll->set_position_range(-pyro::PI, pyro::PI);
         dm_drv_roll->set_rotate_range(-20, 20);
         dm_drv_roll->set_torque_range(-10, 10);
-        dm_drv_roll->enable();
 
         gm6020_drv = new pyro::dji_gm_6020_motor_drv_t(
             pyro::dji_motor_tx_frame_t::id_1, pyro::can_hub_t::can1);
@@ -76,6 +74,10 @@ extern "C"
         gimbal_drv->set_dt(0.001);
 
         gimbal_drv = new pyro::gimbal_drv_t(pitch_drv, roll_drv, yaw_drv, &Imu);
+
+        vTaskDelay(5000);
+        dm_drv_pitch->enable();
+        dm_drv_roll->enable();
         gimbal_drv->update_feedback();
         gimbal_drv->zero_force();
 

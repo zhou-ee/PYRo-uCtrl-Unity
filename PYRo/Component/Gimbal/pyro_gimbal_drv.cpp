@@ -122,51 +122,53 @@ void gimbal_drv_t::vt03_cmd(void const *rc_ctrl)
         _total_mode = AUTO_AIM_CONTROL;
     }
 
-    if(0 == p_ctrl->rc.ch[vt03_drv_t::VT03_CH_RIGHT_Y] && 0 == p_ctrl->rc.ch[vt03_drv_t::VT03_CH_RIGHT_X])
+    if(RC_CONTROL == _total_mode)
     { 
-        _target_yaw_imu_radian -= static_cast<float>(p_ctrl->mouse.y) * 0.1f;
-        if(_target_yaw_imu_radian > -2.2f)
-        {
-            _target_yaw_imu_radian = -2.2f;
-        }
-        else if(_target_yaw_imu_radian < -5.8f)
-        {
-            _target_yaw_imu_radian = -5.8f;
-        }
+        if(0 == p_ctrl->rc.ch[vt03_drv_t::VT03_CH_RIGHT_Y] && 0 == p_ctrl->rc.ch[vt03_drv_t::VT03_CH_RIGHT_X])
+        { 
+            _target_yaw_imu_radian -= static_cast<float>(p_ctrl->mouse.y) * 0.1f;
+            if(_target_yaw_imu_radian > -2.2f)
+            {
+                _target_yaw_imu_radian = -2.2f;
+            }
+            else if(_target_yaw_imu_radian < -5.8f)
+            {
+                _target_yaw_imu_radian = -5.8f;
+            }
 
-        _target_pitch_imu_radian += static_cast<float>(p_ctrl->mouse.x) * 0.1f;
-        if(_target_pitch_imu_radian < -0.5f)
-        {
-            _target_pitch_imu_radian = -0.5f;
+            _target_pitch_imu_radian += static_cast<float>(p_ctrl->mouse.x) * 0.1f;
+            if(_target_pitch_imu_radian < -0.5f)
+            {
+                _target_pitch_imu_radian = -0.5f;
+            }
+            else if(_target_pitch_imu_radian > 0.13f)
+            {
+                _target_pitch_imu_radian = 0.13f;
+            }
         }
-        else if(_target_pitch_imu_radian > 0.13f)
+        else
         {
-            _target_pitch_imu_radian = 0.13f;
+            _target_yaw_imu_radian -= static_cast<float>(p_ctrl->rc.ch[vt03_drv_t::VT03_CH_RIGHT_X]) * 0.1f;
+            if(_target_yaw_imu_radian > -2.2f)
+            {
+                _target_yaw_imu_radian = -2.2f;
+            }
+            else if(_target_yaw_imu_radian < -5.8f)
+            {
+                _target_yaw_imu_radian = -5.8f;
+            }
+
+            _target_pitch_imu_radian += static_cast<float>(p_ctrl->rc.ch[vt03_drv_t::VT03_CH_RIGHT_Y]) * 0.1f;
+            if(_target_pitch_imu_radian < -0.5f)
+            {
+                _target_pitch_imu_radian = -0.5f;
+            }
+            else if(_target_pitch_imu_radian > 0.13f)
+            {
+                _target_pitch_imu_radian = 0.13f;
+            }
         }
     }
-    else
-    {
-        _target_yaw_imu_radian -= static_cast<float>(p_ctrl->rc.ch[vt03_drv_t::VT03_CH_RIGHT_X]) * 0.1f;
-        if(_target_yaw_imu_radian > -2.2f)
-        {
-            _target_yaw_imu_radian = -2.2f;
-        }
-        else if(_target_yaw_imu_radian < -5.8f)
-        {
-            _target_yaw_imu_radian = -5.8f;
-        }
-
-        _target_pitch_imu_radian += static_cast<float>(p_ctrl->rc.ch[vt03_drv_t::VT03_CH_RIGHT_Y]) * 0.1f;
-        if(_target_pitch_imu_radian < -0.5f)
-        {
-            _target_pitch_imu_radian = -0.5f;
-        }
-        else if(_target_pitch_imu_radian > 0.13f)
-        {
-            _target_pitch_imu_radian = 0.13f;
-        }
-    }
-    
 
 }
 
