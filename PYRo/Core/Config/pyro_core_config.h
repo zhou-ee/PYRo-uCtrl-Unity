@@ -11,8 +11,7 @@
 #define WHEEL_DEMO_EN 0
 #define CONTROLLER_DEMO_EN 0
 #define CONTROL_DEMO_EN 0
-#define IMU_DEMO_EN 0
-
+#define IMU_DEMO_EN 1
 #endif
 
 #if DEBUG_MODE

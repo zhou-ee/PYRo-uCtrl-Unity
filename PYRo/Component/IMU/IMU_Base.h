@@ -5,7 +5,7 @@
 #include"AHRS.h"
 #include <stdint.h>
 
-#define CALI_MODE 0
+#define CALI_MODE 1
 
 //任务开始延时
 #define IMU_TASK_INIT_TIME 3
@@ -14,7 +14,7 @@
 //开始校准时间
 #define START_CALI_TIME 5000
 //最大校准时间
-#define MAX_CALI_TIME 10000
+#define MAX_CALI_TIME 30000
 //陀螺仪接受补偿
 #define BMI088_GYRO_RX_BUF_DATA_OFFSET  1
 //加速度计接收补偿

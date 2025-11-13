@@ -6,7 +6,6 @@
 #include "cmsis_os.h"
 #include "main.h"
 #include "tim.h"
-#include <string.h>
 #include "MATH_LIB.h"
 #include"IMU_Base.h"
 
@@ -42,10 +41,7 @@ void IMU_task(void * argument)
     accel_fliter_1[1] = accel_fliter_2[1] = accel_fliter_3[1] = imu_accel[1];
     accel_fliter_1[2] = accel_fliter_2[2] = accel_fliter_3[2] = imu_accel[2];
     while (1)
-    {	
-		#if CALI_MODE
-		gyro_cali(imu_gyro);
-		#endif
+    {
 		// __HAL_TIM_SetCompare(&htim3,TIM_CHANNEL_4,temp_ctrl);
 				
 		BMI088_read(bmi088_real_data.gyro, bmi088_real_data.accel, &bmi088_real_data.temp);

@@ -89,7 +89,9 @@ add_executable(${CMAKE_PROJECT_NAME}
 
         PYRo/Application/Mission/pyro_init_thread.cpp
         PYRo/Application/Mission/pyro_mission_planer.cpp
-
+        PYRo/Application/Demo/pyro_3508_pitch_demo.cpp
+        PYRo/Application/Demo/pyro_imu_demo.cpp
+        PYRo/Component/Gimbal/pyro_pitch_drv.cpp
 
 
 )

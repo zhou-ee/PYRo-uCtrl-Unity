@@ -18,6 +18,7 @@ static void imu_temp_control(float32_t temp);
 static void imu_temp_pwm(uint16_t pwm);
 
 TaskHandle_t imu_task_local_handler;
+IMU_obj Imu;
 
 ///////////////////////板级支持包///////////////////////////////////
 extern SPI_HandleTypeDef hspi2;
@@ -194,7 +195,7 @@ float imu_rad[3] = {0.0f, 0.0f, 0.0f};
 //欧拉角 角度制
 float imu_angle[3]={0.0f,0.0f,0.0f};
 
-IMU_obj Imu;
+
 
 int total_cali_time=300;
 int cali_count=-1;
