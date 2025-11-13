@@ -92,6 +92,9 @@ add_executable(${CMAKE_PROJECT_NAME}
         PYRo/Application/Demo/pyro_3508_pitch_demo.cpp
         PYRo/Application/Demo/pyro_imu_demo.cpp
         PYRo/Component/Gimbal/pyro_pitch_drv.cpp
+        PYRo/Algorithm/OLS/pyro_algo_ols.cpp
+        PYRo/Peripheral/DWT/pyro_dwt_drv.cpp
+        PYRo/Algorithm/PID/pyro_algo_pid.cpp
 
 
 )
@@ -118,8 +121,14 @@ target_include_directories(${CMAKE_PROJECT_NAME} PUBLIC
     PYRo/Core/Config
     PYRo/Core/ETL
     PYRo/Core/Lock
+
     PYRo/Peripheral/UART
     PYRo/Peripheral/CAN
+    PYRo/Peripheral/DWT
+
+    PYRo/Algorithm/OLS
+    PYRo/Algorithm/PID
+
     PYRo/Component/RC
     PYRo/Component/Motor
     PYRo/Component/Pid
@@ -128,9 +137,10 @@ target_include_directories(${CMAKE_PROJECT_NAME} PUBLIC
     PYRo/Component/Gimbal
     PYRo/Component/Controller
     PYRo/Component/Shoot
+    PYRo/Component/IMU
     PYRo/Application/Demo
     PYRo/Debug/VOFA
-    PYRo/Component/IMU
+
 )
 
 # Add project symbols (macros)
