@@ -14,10 +14,8 @@
 
 /* Includes ------------------------------------------------------------------*/
 #include "pyro_dr16_rc_drv.h"
-
-#include "message_buffer.h" // Needed for xMessageBuffer* calls
 #include "pyro_rw_lock.h"
-#include "task.h"           // Needed for xTaskCreate calls
+#include "task.h" // Needed for xTaskCreate calls
 #include <cstring>
 
 // External FreeRTOS task entry point
@@ -25,7 +23,9 @@ extern "C" void dr16_task(void *argument);
 
 namespace pyro
 {
-
+static constexpr uint16_t DR16_CH_VALUE_MIN    = 364;
+static constexpr uint16_t DR16_CH_VALUE_MAX    = 1684;
+static constexpr uint16_t DR16_CH_VALUE_OFFSET = 1024;
 /* Constructor ---------------------------------------------------------------*/
 /**
  * @brief Constructor for the DR16 driver.
@@ -118,6 +118,65 @@ status_t dr16_drv_t::error_check(const dr16_buf_t *dr16_buf)
     return PYRO_OK;
 }
 
+void
+dr16_drv_t::check_ctrl(dr16_switch_t &dr16_switch, const uint8_t state)
+{
+    dr16_switch_t switch_ = {};
+    if (dr16_switch.state == state)
+    {
+        switch_.ctrl = DR16_SW_NO_CHANGE;;
+    }
+    if (DR16_SW_UP == dr16_switch.state && DR16_SW_MID == state)
+    {
+        switch_.ctrl = DR16_SW_UP_TO_MID;
+    }
+    else if (DR16_SW_MID == dr16_switch.state && DR16_SW_DOWN == state)
+    {
+        switch_.ctrl = DR16_SW_MID_TO_DOWN;
+    }
+    else if (DR16_SW_DOWN == dr16_switch.state && DR16_SW_MID == state)
+    {
+        switch_.ctrl = DR16_SW_DOWN_TO_MID;
+    }
+    else if (DR16_SW_MID == dr16_switch.state && DR16_SW_UP == state)
+    {
+        switch_.ctrl = DR16_SW_MID_TO_UP;
+    }
+    switch_.state = state;
+    dr16_switch = switch_;
+}
+
+void dr16_drv_t::check_ctrl(key_t &key, const uint8_t state)
+{
+    key_t temp_key = {};
+    if (KEY_RELEASED == state)
+    {
+        temp_key.ctrl = KEY_RELEASED;
+        temp_key.time = 0;
+    }
+    else if (KEY_PRESSED == state)
+    {
+        if (KEY_RELEASED == key.ctrl)
+        {
+            temp_key.time = key.time + 14;
+            if (temp_key.time > 40)
+            {
+                temp_key.ctrl = KEY_PRESSED;
+            }
+        }
+        else if (KEY_PRESSED == key.ctrl)
+        {
+            temp_key.time = key.time + 14;
+            if (temp_key.time > 160)
+            {
+                temp_key.ctrl = KEY_HOLD;
+                temp_key.time = 0;
+            }
+        }
+    }
+    key = temp_key;
+}
+
 /* Data Processing - Unpack --------------------------------------------------*/
 /**
  * @brief Unpacks the raw DR16 buffer into the consumer-friendly control
@@ -133,28 +192,29 @@ void dr16_drv_t::unpack(const dr16_buf_t *dr16_buf)
         _dr16_last_ctrl = _dr16_ctrl; // Save last state
         // Scale and center RC channels
         _dr16_ctrl.rc.ch[0] =
-            static_cast<int16_t>(dr16_buf->ch0 - DR16_CH_VALUE_OFFSET);
+            static_cast<float>(dr16_buf->ch0 - DR16_CH_VALUE_OFFSET) / 660.0f;
         _dr16_ctrl.rc.ch[1] =
-            static_cast<int16_t>(dr16_buf->ch1 - DR16_CH_VALUE_OFFSET);
+            static_cast<float>(dr16_buf->ch1 - DR16_CH_VALUE_OFFSET) / 660.0f;
         _dr16_ctrl.rc.ch[2] =
-            static_cast<int16_t>(dr16_buf->ch2 - DR16_CH_VALUE_OFFSET);
+            static_cast<float>(dr16_buf->ch2 - DR16_CH_VALUE_OFFSET) / 660.0f;
         _dr16_ctrl.rc.ch[3] =
-            static_cast<int16_t>(dr16_buf->ch3 - DR16_CH_VALUE_OFFSET);
+            static_cast<float>(dr16_buf->ch3 - DR16_CH_VALUE_OFFSET) / 660.0f;
         _dr16_ctrl.rc.wheel =
-            static_cast<int16_t>(dr16_buf->wheel - DR16_CH_VALUE_OFFSET);
+            static_cast<float>(dr16_buf->wheel - DR16_CH_VALUE_OFFSET) / 660.0f;
 
         // Copy switch and mouse data
-        _dr16_ctrl.rc.s[DR16_SW_RIGHT]      = dr16_buf->s1;
-        _dr16_ctrl.rc.s[DR16_SW_LEFT]       = dr16_buf->s2;
-        _dr16_ctrl.mouse.x                 = dr16_buf->mouse_x;
-        _dr16_ctrl.mouse.y                 = dr16_buf->mouse_y;
-        _dr16_ctrl.mouse.z                 = dr16_buf->mouse_z;
-        _dr16_ctrl.mouse.press_l           = dr16_buf->press_l & 0x01;
-        _dr16_ctrl.mouse.press_r           = dr16_buf->press_r & 0x01;
-
-        // Copy key code into the key bitfield structure
-        memcpy(&_dr16_ctrl.key, &dr16_buf->key_code,
-               sizeof(dr16_buf->key_code));
+        check_ctrl(_dr16_ctrl.rc.s[DR16_SW_RIGHT], dr16_buf->s1);
+        check_ctrl(_dr16_ctrl.rc.s[DR16_SW_LEFT], dr16_buf->s2);
+        _dr16_ctrl.mouse.x = static_cast<float>(dr16_buf->mouse_x) / 32768.0f;
+        _dr16_ctrl.mouse.y = static_cast<float>(dr16_buf->mouse_y) / 32768.0f;
+        _dr16_ctrl.mouse.z = static_cast<float>(dr16_buf->mouse_z) / 32768.0f;
+        check_ctrl(_dr16_ctrl.mouse.press_l, dr16_buf->press_l);
+        check_ctrl(_dr16_ctrl.mouse.press_r, dr16_buf->press_r);
+        for (int i = 0; i < 16; ++i)
+        {
+            check_ctrl(*(reinterpret_cast<key_t *>(&_dr16_ctrl.key) + i),
+                       (dr16_buf->key_code >> i) & 0x01);
+        }
 
         // Execute the registered consumer callback with the decoded data
         write_scope_lock rc_write_lock(get_lock());
@@ -164,7 +224,7 @@ void dr16_drv_t::unpack(const dr16_buf_t *dr16_buf)
         {
             if (rc_to_cmd)
             {
-                rc_to_cmd(this);
+                rc_to_cmd(&_dr16_ctrl);
             }
         }
     }
@@ -232,14 +292,6 @@ void dr16_drv_t::thread()
             sequence &= ~(1 << _priority);
         }
     }
-}
-void *dr16_drv_t::get_p_ctrl()
-{
-    return &_dr16_ctrl;
-}
-void *dr16_drv_t::get_p_last_ctrl()
-{
-    return &_dr16_last_ctrl;
 }
 
 

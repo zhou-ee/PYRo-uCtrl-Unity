@@ -6,6 +6,8 @@
 #include "pyro_chassis_drv.h"
 #include "pyro_rc_hub.h"
 #include "pyro_yaw_drv.h"
+#include "pyro_rw_lock.h"
+#include "pyro_rc_hub.h"
 
 #ifdef __cplusplus
 

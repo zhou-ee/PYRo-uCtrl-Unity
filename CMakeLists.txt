@@ -44,6 +44,7 @@ add_executable(${CMAKE_PROJECT_NAME}
         PYRo/Peripheral/UART/pyro_uart_drv.cpp
 
         PYRo/Component/RC/pyro_rc_base_drv.cpp
+        PYRo/Component/RC/pyro_vt03_rc_drv.cpp
         PYRo/Component/RC/pyro_dr16_rc_drv.cpp
         PYRo/Component/RC/pyro_rc_hub.cpp
 
@@ -55,6 +56,16 @@ add_executable(${CMAKE_PROJECT_NAME}
         PYRo/Component/Chassis/pyro_chassis_drv.cpp
         PYRo/Component/Gimbal/pyro_gimbal_drv.cpp
         PYRo/Component/Gimbal/pyro_yaw_drv.cpp
+
+        PYRo/Component/CRC/PYRo_crc.cpp
+
+        PYRo/Component/IMU/AHRS.c
+        PYRo/Component/IMU/BMI088driver.c
+        PYRo/Component/IMU/BMI088Middleware.c
+        PYRo/Component/IMU/IMU_Base.c
+        PYRo/Component/IMU/IMU_Ext.c
+        PYRo/Component/IMU/MATH_LIB.c
+        PYRo/Component/IMU/PID.c
         PYRo/Component/Pid/pyro_pid_ctrl.cpp
         PYRo/Component/Controller/pyro_velocity_controller.cpp
         PYRo/Component/Controller/pyro_position_controller.cpp
@@ -62,6 +73,7 @@ add_executable(${CMAKE_PROJECT_NAME}
         PYRo/Component/Shoot/pyro_fric_drv.cpp
         PYRo/Component/Shoot/pyro_trigger_drv.cpp
         PYRo/Component/Shoot/pyro_shoot_base.cpp
+        PYRo/Component/Shoot/pyro_shoot_17mm_control.cpp
         
         PYRo/Application/Demo/pyro_rc_demo.cpp
         PYRo/Application/Demo/demo_task.cpp
@@ -73,7 +85,6 @@ add_executable(${CMAKE_PROJECT_NAME}
 
         PYRo/Debug/Debug_task.cpp
         PYRo/Debug/VOFA/pyro_vofa.cpp
-        
         PYRo/Debug/JCOM/pyro_jcom.cpp
         PYRo/Application/mission/pyro_init_thread.cpp
         PYRo/Application/mission/misssion_planer.cpp
@@ -107,12 +118,14 @@ target_include_directories(${CMAKE_PROJECT_NAME} PUBLIC
     PYRo/Component/RC
     PYRo/Component/Motor
     PYRo/Component/Pid
+    PYRo/Component/CRC
     PYRo/Component/Chassis
     PYRo/Component/Gimbal
     PYRo/Component/Controller
     PYRo/Component/Shoot
     PYRo/Application/Demo
     PYRo/Debug/VOFA
+    PYRo/Component/IMU
 )
 
 # Add project symbols (macros)

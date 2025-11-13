@@ -1,4 +1,5 @@
 #include "pyro_chassis_drv.h"
+#include "pyro_rc_hub.h"
 
 #include <cmath>
 
@@ -35,14 +36,14 @@ chassis_drv_t::chassis_drv_t(steering_wheel_drv_t *steering_wheel_drv_1,
     rc_drv->config_rc_cmd([this](rc_drv_t *rc_drv) -> void { get_mode(rc_drv); });
 }
 
-void chassis_drv_t::get_mode(rc_drv_t *rc_drv)
+void chassis_drv_t::dr16_cmd(void const *rc_ctrl)
 {
-    static auto *p_ctrl = static_cast<pyro::dr16_drv_t::dr16_ctrl_t *>(
-            rc_drv->get_p_ctrl());
-    _vy = static_cast<float>(p_ctrl->rc.ch[3]) / 660.0f * 2.0f;
-    _vx = static_cast<float>(p_ctrl->rc.ch[2]) / 660.0f * 2.0f;
-    _wz = static_cast<float>(p_ctrl->rc.ch[0]) / 660.0f;
-    _s_right = static_cast<uint8_t>(p_ctrl->rc.s[0]);
+    static auto *p_ctrl =
+        static_cast<pyro::dr16_drv_t::dr16_ctrl_t const *>(rc_ctrl);
+    _vy      = static_cast<float>(p_ctrl->rc.ch[3]) / 660.0f * 2.0f;
+    _vx      = static_cast<float>(p_ctrl->rc.ch[2]) / 660.0f * 2.0f;
+    _wz      = static_cast<float>(p_ctrl->rc.ch[0]) / 660.0f;
+    _s_right = p_ctrl->rc.s[dr16_drv_t::DR16_SW_RIGHT].state;
 }
 
 void chassis_drv_t::update_feedback()
@@ -103,7 +104,6 @@ void chassis_drv_t::chassis_control(float yaw_err)
 
 
 
-
         _steering_wheel_drv_1->set_radian(atan2f(chassis_vx + chassis_wz * Sx, chassis_vy + chassis_wz * Sy));
         _steering_wheel_drv_2->set_radian(atan2f(chassis_vx - chassis_wz * Sx, chassis_vy + chassis_wz * Sy));
         _steering_wheel_drv_3->set_radian(atan2f(chassis_vx - chassis_wz * Sx, chassis_vy - chassis_wz * Sy));
@@ -125,4 +125,4 @@ void chassis_drv_t::chassis_control(float yaw_err)
 }
 
 
-}
+} // namespace pyro

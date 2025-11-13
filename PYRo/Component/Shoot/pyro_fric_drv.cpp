@@ -6,7 +6,7 @@ fric_drv_t::fric_drv_t(motor_base_t *motor_base,
                        const pid_ctrl_t &speed_pid, 
                        float radius,
                        rotate_direction_t direction)
-    : _motor_base(_motor_base),
+    : _motor_base(motor_base),
       _speed_pid(speed_pid),
       _radius(radius),
       _direction(direction)
@@ -38,6 +38,11 @@ void fric_drv_t::zero_force()
 float fric_drv_t::get_speed()
 {
     return _current_speed;
+}
+
+float fric_drv_t::get_target_speed()
+{
+    return _target_speed;
 }
 
 void fric_drv_t::update_feedback()

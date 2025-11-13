@@ -2,7 +2,6 @@
 #define __PYRO_CHASSIS_DRV_H__
 
 #include "pyro_steering_wheel_drv.h"
-#include "pyro_dr16_rc_drv.h"
 
 namespace pyro
 {
@@ -25,7 +24,7 @@ class chassis_drv_t
     {
     }
     
-    void get_mode(rc_drv_t *rc_drv);
+    void dr16_cmd(void const *rc_ctrl);
     void update_feedback();
     void zero_force();
     void chassis_control(float yaw_err);
