@@ -12,6 +12,7 @@
 #define CONTROLLER_DEMO_EN 0
 #define CONTROL_DEMO_EN 0
 #define IMU_DEMO_EN 0
+#define referee_DEMO_EN 1
 
 #endif
 

@@ -93,6 +93,11 @@ add_executable(${CMAKE_PROJECT_NAME}
 
         PYRo/Application/Mission/pyro_mission_planer.cpp
         PYRo/Application/Mission/pyro_init_thread.cpp
+        PYRo/Component/Referee/CRC8_CRC16.c
+        PYRo/Component/Referee/fifo.c
+        PYRo/Component/Referee/referee.c
+        PYRo/Component/Referee/referee_drv.cpp
+        PYRo/Component/Referee/referee_usart_task.c
 )
 
 # Add STM32CubeMX generated sources
@@ -134,6 +139,7 @@ target_include_directories(${CMAKE_PROJECT_NAME} PUBLIC
     PYRo/Component/Controller
     PYRo/Component/Shoot
     PYRo/Component/IMU
+    PYRo/Component/Referee
 
     PYRo/Application/Demo
 
