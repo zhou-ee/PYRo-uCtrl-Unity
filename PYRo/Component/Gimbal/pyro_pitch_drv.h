@@ -2,7 +2,7 @@
 #define __PYRO_PITCH_DRV_H__
 
 #include "pyro_motor_base.h"
-#include "pyro_pid_ctrl.h"
+#include "pyro_algo_pid.h"
 
 namespace pyro
 {
@@ -10,8 +10,8 @@ class pitch_drv_t
 {
 public:
     pitch_drv_t(motor_base_t *motor_base,
-              const pid_ctrl_t &rotate_pid,
-              const pid_ctrl_t &position_pid);
+              pid_t rotate_pid,
+              pid_t position_pid);
     ~pitch_drv_t()
     {
     }
@@ -20,12 +20,12 @@ public:
     void update_target_radian(float diff_radian);
     void zero_force();
     void update_feedback(float real_angle, float real_speed);
-    void calculate_torque(float delta_time);
+    void calculate_torque();
     void output_torque() const;
     motor_base_t *motor_base;
 
-    pid_ctrl_t _pitch_rotate_pid;
-    pid_ctrl_t _pitch_position_pid;
+    pid_t _pitch_rotate_pid;
+    pid_t _pitch_position_pid;
     float _offset_radian{};
     float _target_radian{};
     float _current_radian{};

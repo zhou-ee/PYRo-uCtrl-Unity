@@ -1,4 +1,5 @@
 #include "pyro_can_drv.h"
+#include "pyro_dwt_drv.h"
 #include "pyro_rc_hub.h"
 
 extern "C"
@@ -9,6 +10,8 @@ extern "C"
 
     void pyro_init_thread(void *argument)
     {
+        pyro::dwt_drv_t::init(480);
+
         pyro::uart_drv_t::get_instance(pyro::uart_drv_t::uart1)
             ->enable_rx_dma();
         pyro::uart_drv_t::get_instance(pyro::uart_drv_t::uart5)
