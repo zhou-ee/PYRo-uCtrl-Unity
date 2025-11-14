@@ -55,11 +55,6 @@ add_executable(${CMAKE_PROJECT_NAME}
         PYRo/Component/Motor/pyro_dji_motor_drv.cpp
         PYRo/Component/Motor/pyro_dm_motor_drv.cpp
         PYRo/Component/Motor/pyro_motor_base.cpp
-        PYRo/Component/Chassis/pyro_wheel_drv.cpp
-        PYRo/Component/Chassis/pyro_steering_wheel_drv.cpp
-        PYRo/Component/Chassis/pyro_chassis_drv.cpp
-        PYRo/Component/Gimbal/pyro_gimbal_drv.cpp
-        PYRo/Component/Gimbal/pyro_yaw_drv.cpp
 
         PYRo/Component/CRC/PYRo_crc.cpp
 
@@ -70,9 +65,6 @@ add_executable(${CMAKE_PROJECT_NAME}
         PYRo/Component/IMU/IMU_Ext.c
         PYRo/Component/IMU/MATH_LIB.c
         PYRo/Component/IMU/PID.c
-        PYRo/Component/Pid/pyro_pid_ctrl.cpp
-        PYRo/Component/Controller/pyro_velocity_controller.cpp
-        PYRo/Component/Controller/pyro_position_controller.cpp
 
         PYRo/Component/Shoot/pyro_fric_drv.cpp
         PYRo/Component/Shoot/pyro_trigger_drv.cpp
@@ -132,11 +124,8 @@ target_include_directories(${CMAKE_PROJECT_NAME} PUBLIC
 
     PYRo/Component/RC
     PYRo/Component/Motor
-    PYRo/Component/Pid
+
     PYRo/Component/CRC
-    PYRo/Component/Chassis
-    PYRo/Component/Gimbal
-    PYRo/Component/Controller
     PYRo/Component/Shoot
     PYRo/Component/IMU
     PYRo/Component/Referee
