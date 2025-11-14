@@ -29,7 +29,7 @@ namespace pyro
  */
 class ols_t
 {
-public:
+  public:
     /**
      * @brief Constructs the OLS filter.
      * @param order The number of samples (window size) for regression.
@@ -69,7 +69,7 @@ public:
      */
     float get_mean_absolute_deviation() const;
 
-private:
+  private:
     // Member variables
     uint16_t _order;
     uint32_t _count;

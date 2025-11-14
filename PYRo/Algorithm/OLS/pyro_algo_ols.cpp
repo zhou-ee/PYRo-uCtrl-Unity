@@ -21,11 +21,7 @@ namespace pyro
  * @brief Constructor, replaces OLS_Init
  */
 ols_t::ols_t(uint16_t order)
-    : _order(order),
-      _count(0),
-      _k(0.0f),
-      _b(0.0f),
-      _deviation(0.0f)
+    : _order(order), _count(0), _k(0.0f), _b(0.0f), _deviation(0.0f)
 {
     // C++ way: use vector::resize for automatic memory management.
     // We need at least 2 points for linear regression.
@@ -60,7 +56,7 @@ void ols_t::update(float deltax, float y)
     }
 
     // 2. Recalculate statistical sums
-    float t[4] = {0.0f, 0.0f, 0.0f, 0.0f};
+    float t[4]                 = {0.0f, 0.0f, 0.0f, 0.0f};
 
     // Loop start index is consistent with C code
     const uint16_t start_index = _order - _count;
@@ -73,8 +69,7 @@ void ols_t::update(float deltax, float y)
     }
 
     // 3. Calculate k (slope) and b (intercept)
-    const float denominator =
-        (t[0] * static_cast<float>(_order) - t[1] * t[1]);
+    const float denominator = (t[0] * static_cast<float>(_order) - t[1] * t[1]);
 
     // **Safety Check**: Missing divide-by-zero protection in C code
     if (std::fabs(denominator) > 1e-9f)
