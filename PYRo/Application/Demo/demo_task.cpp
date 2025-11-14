@@ -34,10 +34,6 @@ extern "C"
         xTaskCreate(pyro_motor_demo, "pyro_motor_demo", 512, nullptr,
                     configMAX_PRIORITIES - 2, nullptr);
 #endif
-#if WHEEL_DEMO_EN
-        xTaskCreate(pyro_wheel_demo, "pyro_wheel_demo", 512, nullptr,
-                    configMAX_PRIORITIES - 2, nullptr);
-#endif
 #if CONTROL_DEMO_EN
         xTaskCreate(pyro_control_demo, "pyro_control_demo", 512, nullptr,
                     configMAX_PRIORITIES - 2, nullptr);
