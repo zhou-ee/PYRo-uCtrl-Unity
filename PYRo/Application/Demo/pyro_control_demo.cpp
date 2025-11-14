@@ -25,12 +25,6 @@ debug_t debug;
 
 extern "C"
 {
-    std::array<uint8_t, 8> can1_data;
-    std::array<uint8_t, 8> can2_data;
-
-    std::vector<uint8_t> can1_data_vec;
-    std::vector<uint8_t> can2_data_vec;
-
     pyro::dji_m3508_motor_drv_t *m3508_drv_1;
     pyro::dji_m3508_motor_drv_t *m3508_drv_2;
     pyro::dji_m3508_motor_drv_t *m3508_drv_3;
@@ -74,6 +68,8 @@ extern "C"
 
     pyro::pid_ctrl_t *yaw_rotate_pid_1;
     pyro::pid_ctrl_t *yaw_position_pid_1;
+
+    extern IMU_obj Imu;
 
     void pyro_control_demo(void *arg)
     {
@@ -122,9 +118,9 @@ extern "C"
         rudder_rotate_pid_3->set_output_limits(3.0f);
         rudder_rotate_pid_4->set_output_limits(3.0f);
 
-        yaw_position_pid_1 = new pyro::pid_ctrl_t(20.0f, 0.0f, 0.00f);
-        yaw_rotate_pid_1 = new pyro::pid_ctrl_t(0.1f, 0.0f, 0.00f);
-        yaw_position_pid_1->set_output_limits(1000.0f);
+        yaw_position_pid_1 = new pyro::pid_ctrl_t(13.0f, 0.0f, 0.00f);
+        yaw_rotate_pid_1 = new pyro::pid_ctrl_t(0.3f, 0.0f, 0.00f);
+        yaw_position_pid_1->set_output_limits(10.0f);
         yaw_rotate_pid_1->set_output_limits(3.0f);
 
         follow_yaw_pid->set_output_limits(10);
@@ -202,7 +198,8 @@ extern "C"
         yaw_drv_1 = new pyro::yaw_drv_t(
             gm6020_drv_5,
             *yaw_rotate_pid_1,
-            *yaw_position_pid_1);
+            *yaw_position_pid_1,
+            &Imu);
 
         steering_wheel_drv_1->set_offset_radian(1.76254392f);
         steering_wheel_drv_2->set_offset_radian(-1.817f);
@@ -219,8 +216,7 @@ extern "C"
             wheel_drv_2,
             wheel_drv_3,
             wheel_drv_4,
-            follow_yaw_pid,
-            dr16_drv);
+            follow_yaw_pid);
 
         while (true)
         {
@@ -229,12 +225,14 @@ extern "C"
 
             // 2. 更新Yaw数据
             yaw_drv_1->update_feedback();
+            yaw_drv_1->set_control();
+            yaw_drv_1->control();
 
-            // // 3. 更新3
-            // yaw_drv_1->set_radian(0);
-            debug.err = yaw_drv_1->get_radian();
+            // 3. 更新3
+            // debug.err = yaw_drv_1->get_radian();
 
-            chassis_drv->chassis_control(yaw_drv_1->get_radian());
+            chassis_drv->chassis_control(-yaw_drv_1->get_radian());
+            // chassis_drv->chassis_control(-0.0322136879f);
 
 
 

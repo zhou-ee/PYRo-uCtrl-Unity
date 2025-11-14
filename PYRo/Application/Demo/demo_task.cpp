@@ -20,12 +20,12 @@ extern void pyro_wheel_demo(void *arg);
 extern void pyro_controller_demo(void *arg);
 extern void pyro_vofa_demo(void *arg);
 extern void IMU_task(void * argument);
+extern void pyro_control_demo(void *arg);
+
 void start_demo_task(void const *argument)
 {
  //变成IMU_TASK 之后自己写一个demo
 #if DEMO_MODE
-
-    pyro_init_thread();
 
 #if RC_DEMO_EN
      xTaskCreate(pyro_rc_demo, "pyro_rc_demo", 128, nullptr,
@@ -55,16 +55,13 @@ void start_demo_task(void const *argument)
 #endif
 
 #if CONTROL_DEMO_EN
-    xTaskCreate(pyro_control_demo, "pyro_control_demo", 512, nullptr,
+    xTaskCreate(pyro_control_demo, "pyro_control_demo", 1024, nullptr,
         configMAX_PRIORITIES - 2, nullptr);
 
 
 #endif
-    while (1)
-    {
-        vTaskDelay(10);
-    }
-    vTaskDelete(nullptr);
+
+vTaskDelete(nullptr);
 
 #endif
 }

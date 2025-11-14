@@ -82,12 +82,13 @@ add_executable(${CMAKE_PROJECT_NAME}
         PYRo/Application/Demo/pyro_control_demo.cpp
         PYRo/Application/Demo/pyro_controller_demo.cpp
         PYRo/Application/Demo/pyro_shoot_demo.cpp
+        PYRo/Application/Demo/pyro_imu_demo.cpp
 
         PYRo/Debug/Debug_task.cpp
         PYRo/Debug/VOFA/pyro_vofa.cpp
         PYRo/Debug/JCOM/pyro_jcom.cpp
-        PYRo/Application/mission/pyro_init_thread.cpp
-        PYRo/Application/mission/misssion_planer.cpp
+        PYRo/Application/Mission/pyro_init_thread.cpp
+        PYRo/Application/Mission/pyro_mission_planer.cpp
 
 )
 

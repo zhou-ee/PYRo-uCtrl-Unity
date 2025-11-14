@@ -21,8 +21,7 @@ chassis_drv_t::chassis_drv_t(steering_wheel_drv_t *steering_wheel_drv_1,
                              wheel_drv_t *wheel_drv_2,
                              wheel_drv_t *wheel_drv_3,
                              wheel_drv_t *wheel_drv_4,
-                             pid_ctrl_t* yaw_pid,
-                             rc_drv_t *rc_drv)
+                             pid_ctrl_t* yaw_pid)
     : _steering_wheel_drv_1(steering_wheel_drv_1),
       _steering_wheel_drv_2(steering_wheel_drv_2),
       _steering_wheel_drv_3(steering_wheel_drv_3),
@@ -33,17 +32,29 @@ chassis_drv_t::chassis_drv_t(steering_wheel_drv_t *steering_wheel_drv_1,
       _wheel_drv_4(wheel_drv_4),
       _yaw_pid(yaw_pid)
 {
-    rc_drv->config_rc_cmd([this](rc_drv_t *rc_drv) -> void { get_mode(rc_drv); });
+    pyro::rc_hub_t::get_instance(
+        pyro::rc_hub_t::DR16)->config_rc_cmd([this](void const *rc_ctrl)->void{
+            return dr16_cmd(rc_ctrl);
+        });
+    pyro::rc_hub_t::get_instance(
+        pyro::rc_hub_t::VT03)->config_rc_cmd([this](void const *rc_ctrl)->void{
+            return vt03_cmd(rc_ctrl);
+        });
 }
 
 void chassis_drv_t::dr16_cmd(void const *rc_ctrl)
 {
     static auto *p_ctrl =
         static_cast<pyro::dr16_drv_t::dr16_ctrl_t const *>(rc_ctrl);
-    _vy      = static_cast<float>(p_ctrl->rc.ch[3]) / 660.0f * 2.0f;
-    _vx      = static_cast<float>(p_ctrl->rc.ch[2]) / 660.0f * 2.0f;
-    _wz      = static_cast<float>(p_ctrl->rc.ch[0]) / 660.0f;
+    _vy      = static_cast<float>(p_ctrl->rc.ch[dr16_drv_t::DR16_CH_LEFT_Y]) * 2.0f;
+    _vx      = static_cast<float>(p_ctrl->rc.ch[dr16_drv_t::DR16_CH_LEFT_X]) * 2.0f;
+    _wz      = static_cast<float>(p_ctrl->rc.ch[dr16_drv_t::DR16_CH_RIGHT_X]);
     _s_right = p_ctrl->rc.s[dr16_drv_t::DR16_SW_RIGHT].state;
+}
+
+void chassis_drv_t::vt03_cmd(void const *rc_ctrl)
+{
+
 }
 
 void chassis_drv_t::update_feedback()
@@ -62,8 +73,12 @@ void chassis_drv_t::zero_force()
 {
     _wheel_drv_1->zero_force();
     _wheel_drv_2->zero_force();
+    _wheel_drv_3->zero_force();
+    _wheel_drv_4->zero_force();
     _steering_wheel_drv_1->zero_force();
     _steering_wheel_drv_2->zero_force();
+    _steering_wheel_drv_3->zero_force();
+    _steering_wheel_drv_4->zero_force();
 }
 
 void chassis_drv_t::chassis_control(float yaw_err)
@@ -84,7 +99,7 @@ void chassis_drv_t::chassis_control(float yaw_err)
         {
             _vx = _vy = _wz = 0;
         }
-        if ( abs(yaw_err) < 0.2f)
+        if ( abs(yaw_err) < 0.05f)
         {
             yaw_err = 0;
         }
@@ -92,8 +107,8 @@ void chassis_drv_t::chassis_control(float yaw_err)
         if ( _s_right == 2 )
         {
             chassis_wz = 0.5f;
-            chassis_vx = _vx * cosf(yaw_err) - _vy * sinf(yaw_err);
-            chassis_vy = _vy * cosf(yaw_err) + _vx * sinf(yaw_err);
+            chassis_vx = _vx * cosf(-yaw_err) - _vy * sinf(-yaw_err);
+            chassis_vy = _vy * cosf(-yaw_err) + _vx * sinf(-yaw_err);
         }
         else
         {

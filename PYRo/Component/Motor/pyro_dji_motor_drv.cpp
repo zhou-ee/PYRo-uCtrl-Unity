@@ -246,7 +246,7 @@ dji_gm_6020_motor_drv_t::dji_gm_6020_motor_drv_t(
         case dji_motor_tx_frame_t::id_6:
         case dji_motor_tx_frame_t::id_7:
             // case dji_motor_tx_frame_t::id_8: for gm6020 id8 is unavailable
-            _tx_id = 0x2fe;
+            _tx_id = 0x2ff;
             _rx_id = 0x204 + id + 1;
             break;
         default:
