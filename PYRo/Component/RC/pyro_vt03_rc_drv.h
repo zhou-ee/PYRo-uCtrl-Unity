@@ -36,9 +36,9 @@ class vt03_drv_t : public rc_drv_t
 {
     /* Private Types - Raw Buffer --------------------------------------------*/
     /**
-     * @brief Raw structure of the 18-byte VT03 data packet.
+     * @brief Raw structure of the 21-byte VT03 data packet.
      *
-     * Uses bit-fields to extract 11-bit channel data and 2-bit switch data.
+     * Uses bit-fields to extract 11-bit channel data and switch data.
      * The `__packed` attribute is necessary for direct memory mapping.
      */
     typedef struct __packed
@@ -122,8 +122,8 @@ class vt03_drv_t : public rc_drv_t
     {
         struct
         {
-            float ch[4];
-            float wheel;
+            float ch[4];    ///< Channel values scaled to [-1.0, 1.0]
+            float wheel;    ///< Wheel value scaled to [-1.0, 1.0]
             vt03_gear_t gear;
             key_t fn_l;
             key_t fn_r;
@@ -191,9 +191,28 @@ class vt03_drv_t : public rc_drv_t
 
     /* Private Methods - Processing
      * --------------------------------------------*/
+    /**
+     * @brief Performs range checking and CRC on raw VT03 data.
+     * @param vt03_buf Pointer to the raw data buffer.
+     * @return PYRO_OK if data is valid, PYRO_ERROR otherwise.
+     */
     static status_t error_check(const vt03_buf_t *vt03_buf);
+    /**
+     * @brief Checks for gear (switch) state changes.
+     * @param vt03_gear The gear state object (to be updated).
+     * @param state The new raw state from the receiver.
+     */
     static void check_ctrl(vt03_gear_t &vt03_gear, uint8_t state);
+    /**
+     * @brief Checks for key state changes (PRESSED, HOLD, RELEASED).
+     * @param key The key state object (to be updated).
+     * @param state The new raw state (0 or 1) from the receiver.
+     */
     static void check_ctrl(key_t &key, uint8_t state);
+    /**
+     * @brief Unpacks raw VT03 data into the `vt03_ctrl_t` structure.
+     * @param vt03_buf Pointer to the raw data buffer to unpack.
+     */
     void unpack(const vt03_buf_t *vt03_buf);
 };
 

@@ -42,6 +42,10 @@ add_executable(${CMAKE_PROJECT_NAME}
 
         PYRo/Peripheral/CAN/pyro_can_drv.cpp
         PYRo/Peripheral/UART/pyro_uart_drv.cpp
+        PYRo/Peripheral/DWT/pyro_dwt_drv.cpp
+
+        PYRo/Algorithm/OLS/pyro_algo_ols.cpp
+        PYRo/Algorithm/PID/pyro_algo_pid.cpp
 
         PYRo/Component/RC/pyro_rc_base_drv.cpp
         PYRo/Component/RC/pyro_vt03_rc_drv.cpp
@@ -87,11 +91,8 @@ add_executable(${CMAKE_PROJECT_NAME}
         PYRo/Debug/VOFA/pyro_vofa.cpp
         PYRo/Debug/JCOM/pyro_jcom.cpp
 
-        PYRo/Application/Mission/pyro_init_thread.cpp
         PYRo/Application/Mission/pyro_mission_planer.cpp
-
-
-
+        PYRo/Application/Mission/pyro_init_thread.cpp
 )
 
 # Add STM32CubeMX generated sources
@@ -116,8 +117,14 @@ target_include_directories(${CMAKE_PROJECT_NAME} PUBLIC
     PYRo/Core/Config
     PYRo/Core/ETL
     PYRo/Core/Lock
+
     PYRo/Peripheral/UART
     PYRo/Peripheral/CAN
+    PYRo/Peripheral/DWT
+
+    PYRo/Algorithm/OLS
+    PYRo/Algorithm/PID
+
     PYRo/Component/RC
     PYRo/Component/Motor
     PYRo/Component/Pid
@@ -126,9 +133,11 @@ target_include_directories(${CMAKE_PROJECT_NAME} PUBLIC
     PYRo/Component/Gimbal
     PYRo/Component/Controller
     PYRo/Component/Shoot
-    PYRo/Application/Demo
-    PYRo/Debug/VOFA
     PYRo/Component/IMU
+
+    PYRo/Application/Demo
+
+    PYRo/Debug/VOFA
 )
 
 # Add project symbols (macros)

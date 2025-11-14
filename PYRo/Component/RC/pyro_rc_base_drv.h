@@ -37,6 +37,10 @@ class rc_drv_t
   public:
     using cmd_func =
         std::function<void(void const *rc_ctrl)>;
+    /**
+     * @brief Static sequence counter used for protocol state tracking
+     * (priority).
+     */
     inline static uint8_t sequence = 0x80;
 
     /* Public Methods - Construction and Lifecycle
@@ -72,9 +76,6 @@ class rc_drv_t
   protected:
     /* Protected Members - Resources and State
      * ---------------------------------*/
-    /**
-     * @brief Static sequence counter used for protocol state tracking.
-     */
 
     std::vector<cmd_func> _cmd_funcs;
     rw_lock *_lock{};

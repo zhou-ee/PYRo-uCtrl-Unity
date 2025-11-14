@@ -1,5 +1,5 @@
 /**
- * @file pyro_rc_base_drv.cpp
+* @file pyro_rc_base_drv.cpp
  * @brief Implementation file for the PYRO Remote Control (RC) Driver base
  * class.
  *
