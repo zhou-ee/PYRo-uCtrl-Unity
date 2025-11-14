@@ -73,8 +73,6 @@ status_t vt03_drv_t::init()
  */
 void vt03_drv_t::enable()
 {
-    // Set the priority bit in the base class static sequence variable
-    sequence |= (1 << _priority);
     // Register the local rc_callback method as the UART RX event handler
     _rc_uart->add_rx_event_callback(
         [this](uint8_t *buf, uint16_t len,
@@ -123,6 +121,11 @@ status_t vt03_drv_t::error_check(const vt03_buf_t *vt03_buf)
     return PYRO_OK;
 }
 
+/**
+ * @brief Checks for gear (switch) state changes.
+ * @param vt03_gear The gear state object (to be updated).
+ * @param state The new raw state from the receiver.
+ */
 void vt03_drv_t::check_ctrl(vt03_gear_t &vt03_gear, const uint8_t state)
 {
     vt03_gear_t gear = {};
@@ -150,6 +153,11 @@ void vt03_drv_t::check_ctrl(vt03_gear_t &vt03_gear, const uint8_t state)
     vt03_gear  = gear;
 }
 
+/**
+ * @brief Checks for key state changes (PRESSED, HOLD, RELEASED).
+ * @param key The key state object (to be updated).
+ * @param state The new raw state (0 or 1) from the receiver.
+ */
 void vt03_drv_t::check_ctrl(key_t &key, const uint8_t state)
 {
     key_t temp_key = {};
@@ -247,7 +255,7 @@ void vt03_drv_t::unpack(const vt03_buf_t *vt03_buf)
 /**
  * @brief Called by the UART driver upon an RX event (ISR context).
  *
- * If the length is correct (18 bytes for VT03), it checks the priority flag
+ * If the length matches the expected size, it checks the priority flag
  * and sends the raw buffer to the message buffer for deferred processing.
  * @return true if data was buffered and the UART buffer should switch.
  */

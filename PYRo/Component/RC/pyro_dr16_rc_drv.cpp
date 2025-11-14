@@ -72,8 +72,6 @@ status_t dr16_drv_t::init()
  */
 void dr16_drv_t::enable()
 {
-    // Set the priority bit in the base class static sequence variable
-    sequence |= (1 << _priority);
     // Register the local rc_callback method as the UART RX event handler
     _rc_uart->add_rx_event_callback(
         [this](uint8_t *buf, uint16_t len,
@@ -118,6 +116,11 @@ status_t dr16_drv_t::error_check(const dr16_buf_t *dr16_buf)
     return PYRO_OK;
 }
 
+/**
+ * @brief Checks for switch state changes (e.g., UP_TO_MID).
+ * @param dr16_switch The switch state object (to be updated).
+ * @param state The new raw state from the receiver.
+ */
 void
 dr16_drv_t::check_ctrl(dr16_switch_t &dr16_switch, const uint8_t state)
 {
@@ -146,6 +149,11 @@ dr16_drv_t::check_ctrl(dr16_switch_t &dr16_switch, const uint8_t state)
     dr16_switch = switch_;
 }
 
+/**
+ * @brief Checks for key state changes (PRESSED, HOLD, RELEASED).
+ * @param key The key state object (to be updated).
+ * @param state The new raw state (0 or 1) from the receiver.
+ */
 void dr16_drv_t::check_ctrl(key_t &key, const uint8_t state)
 {
     key_t temp_key = {};
@@ -219,7 +227,7 @@ void dr16_drv_t::unpack(const dr16_buf_t *dr16_buf)
         // Execute the registered consumer callback with the decoded data
         write_scope_lock rc_write_lock(get_lock());
         // Critical section - safely update shared control data
-        // (No other thread can access vt03_ctrl during this time)
+        // (No other thread can access _dr16_ctrl during this time)
         for (auto &rc_to_cmd : _cmd_funcs)
         {
             if (rc_to_cmd)

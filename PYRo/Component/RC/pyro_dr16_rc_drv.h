@@ -122,17 +122,17 @@ class dr16_drv_t : public rc_drv_t
     {
         struct
         {
-            float ch[4];        ///< Channel values scaled to [-660, 660]
+            float ch[4];        ///< Channel values scaled to [-1.0, 1.0]
             dr16_switch_t s[2]; ///< Switch positions
-            float wheel;        ///< Wheel value scaled
+            float wheel;        ///< Wheel value scaled to [-1.0, 1.0]
         } rc;
         struct
         {
             float x;
             float y;
             float z;
-            key_t press_l; ///< Left mouse button (0 or 1)
-            key_t press_r; ///< Right mouse button (0 or 1)
+            key_t press_l; ///< Left mouse button state
+            key_t press_r; ///< Right mouse button state
         } mouse;
         struct
         {
@@ -152,7 +152,7 @@ class dr16_drv_t : public rc_drv_t
             key_t c;
             key_t v;
             key_t b;
-        } key; ///< Keyboard key states (0 or 1)
+        } key; ///< Keyboard key states
     } dr16_ctrl_t;
     /* Public Members --------------------------------------------------------*/
 
@@ -184,9 +184,28 @@ class dr16_drv_t : public rc_drv_t
 
     /* Private Methods - Processing
      * --------------------------------------------*/
+    /**
+     * @brief Performs range checking on raw DR16 channel data.
+     * @param dr16_buf Pointer to the raw data buffer.
+     * @return PYRO_OK if data is valid, PYRO_ERROR otherwise.
+     */
     static status_t error_check(const dr16_buf_t *dr16_buf);
+    /**
+     * @brief Checks for switch state changes (e.g., UP_TO_MID).
+     * @param dr16_switch The switch state object (to be updated).
+     * @param state The new raw state from the receiver.
+     */
     static void check_ctrl(dr16_switch_t &dr16_switch, uint8_t state);
+    /**
+     * @brief Checks for key state changes (PRESSED, HOLD, RELEASED).
+     * @param key The key state object (to be updated).
+     * @param state The new raw state (0 or 1) from the receiver.
+     */
     static void check_ctrl(key_t &key, uint8_t state);
+    /**
+     * @brief Unpacks raw DR16 data into the `dr16_ctrl_t` structure.
+     * @param dr16_buf Pointer to the raw data buffer to unpack.
+     */
     void unpack(const dr16_buf_t *dr16_buf);
 };
 

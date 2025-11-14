@@ -2,7 +2,7 @@
 #define __PYRO_TRIGGER_DRV_H__ 
 
 #include "pyro_dji_motor_drv.h"
-#include "pyro_pid_ctrl.h"
+#include "pyro_algo_pid.h"
 #include "pyro_vofa.h"
 
 namespace pyro
@@ -17,8 +17,8 @@ public:
     };
 
     trigger_drv_t(motor_base_t *motor_base,
-                  const pid_ctrl_t &_rotate_pid, 
-                  const pid_ctrl_t &_position_pid,
+                  const pid_t &_rotate_pid,
+                  const pid_t &_position_pid,
                   float step_radian,
                   trigger_counter_direction_t direction
                 );
@@ -49,8 +49,8 @@ private:
 
     void _motor_to_trigger_radian();
 
-    pid_ctrl_t _rotate_pid{};
-    pid_ctrl_t _position_pid{};
+    pid_t _rotate_pid;
+    pid_t _position_pid;
     trigger_mode_t _mode{};
     float _dt = 0.001f;
     float _step_radian{};

@@ -9,8 +9,8 @@ namespace pyro
 {
 
 trigger_drv_t::trigger_drv_t(motor_base_t *motor_base,
-                             const pid_ctrl_t &_rotate_pid, 
-                             const pid_ctrl_t &_position_pid,
+                             const pid_t &_rotate_pid,
+                             const pid_t &_position_pid,
                              float step_radian,
                              trigger_counter_direction_t direction)
     : motor_base(motor_base),
@@ -37,8 +37,8 @@ void trigger_drv_t::set_rotate(float target_rotate)
 {
     if (POSITION == _mode)
     {
-        _rotate_pid.reset();
-        _position_pid.reset();
+        _rotate_pid.clear();
+        _position_pid.clear();
     }
     _mode = ROTATE;
     if(UP == _direction)
@@ -66,7 +66,7 @@ void trigger_drv_t::step_forward()
 {
     if (ROTATE == _mode)
     {
-        _rotate_pid.reset();
+        _rotate_pid.clear();
     }
     _mode = POSITION;
     _target_trigger_radian = _current_trigger_radian + _step_radian;
@@ -76,7 +76,7 @@ void trigger_drv_t::step_forward(float radian_diff)
 {
     if (ROTATE == _mode)
     {
-        _rotate_pid.reset();
+        _rotate_pid.clear();
     }
     _mode = POSITION;
     _target_trigger_radian = _current_trigger_radian + radian_diff;
@@ -127,7 +127,7 @@ void trigger_drv_t::control()
 {
     if(ROTATE == _mode)
     {
-        float torque_cmd = _rotate_pid.compute(_target_trigger_rotate, _current_trigger_rotate, _dt);
+        float torque_cmd = _rotate_pid.calculate(_target_trigger_rotate, _current_trigger_rotate);
         if(DOWN == _direction)
         {
             motor_base->send_torque(-torque_cmd);
@@ -144,15 +144,15 @@ void trigger_drv_t::control()
         float torque_cmd{};
         if(_target_trigger_radian < PI)
         {
-            rotate_cmd = _position_pid.compute(_target_trigger_radian, _current_trigger_radian, _dt);
-            torque_cmd = _rotate_pid.compute(rotate_cmd, _current_trigger_rotate, _dt);
+            rotate_cmd = _position_pid.calculate(_target_trigger_radian, _current_trigger_radian);
+            torque_cmd = _rotate_pid.calculate(rotate_cmd, _current_trigger_rotate);
         }
         else
         {
             if(_current_trigger_radian > 0.0f)
             {
-                rotate_cmd = _position_pid.compute(_target_trigger_radian, _current_trigger_radian, _dt);
-                torque_cmd = _rotate_pid.compute(rotate_cmd, _current_trigger_rotate, _dt);
+                rotate_cmd = _position_pid.calculate(_target_trigger_radian, _current_trigger_radian);
+                torque_cmd = _rotate_pid.calculate(rotate_cmd, _current_trigger_rotate);
             }
             else
             {
@@ -163,8 +163,8 @@ void trigger_drv_t::control()
         // {
         //     _target_trigger_radian -= 2 * PI;
         // }
-        // float rotate_cmd = _position_pid.compute(_target_trigger_radian, _current_trigger_radian, _dt);
-        // float torque_cmd = _rotate_pid.compute(rotate_cmd, _current_trigger_rotate, _dt);
+        // float rotate_cmd = _position_pid.calculate(_target_trigger_radian, _current_trigger_radian, _dt);
+        // float torque_cmd = _rotate_pid.calculate(rotate_cmd, _current_trigger_rotate, _dt);
         if(DOWN == _direction)
         {
             motor_base->send_torque(-torque_cmd);
