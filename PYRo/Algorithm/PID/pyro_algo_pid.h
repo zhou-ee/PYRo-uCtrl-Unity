@@ -7,8 +7,8 @@
  * It is a C++ refactor of the original C controller library.
  *
  * @author Wang Hongxi (Original C), Lucky (C++ Refactor)
- * @version 1.1.3
- * @date 2025-11-14
+ * @version 1.1.4
+ * @date 2025-11-16
  * @copyright [Copyright Information Here]
  */
 
@@ -92,13 +92,16 @@ class pid_t
      * @param kd Derivative gain.
      * @param integral_limit Max absolute value of the integral term.
      * @param max_out Max absolute value of the final output.
-     * @param output_lpf_rc RC constant for the output low-pass filter.
-     * @param derivative_lpf_rc RC constant for the derivative low-pass filter.
+     * @param output_cutoff_hz Cutoff frequency (Hz) for the output LPF.
+     * (Set to 0 to disable).
+     * @param derivative_cutoff_hz Cutoff frequency (Hz) for the derivative LPF.
+     * (Set to 0 to disable).
      * @param ols_order Order (sample count) for the OLS derivative.
      * @param improve Bitmask of improvement_t flags.
      */
     pid_t(float kp, float ki, float kd, float integral_limit, float max_out,
-          float output_lpf_rc, float derivative_lpf_rc, uint16_t ols_order,
+          float output_cutoff_hz, float derivative_cutoff_hz,
+          uint16_t ols_order,
           uint8_t improve = INTEGRAL_LIMIT | OUTPUT_FILTER | DERIVATIVE_FILTER);
 
     /**
@@ -112,8 +115,10 @@ class pid_t
      * @param kd Derivative gain.
      * @param A CoefA for ChangingIntegrationRate.
      * @param B CoefB for ChangingIntegrationRate.
-     * @param output_lpf_rc RC constant for the output low-pass filter.
-     * @param derivative_lpf_rc RC constant for the derivative low-pass filter.
+     * @param output_cutoff_hz Cutoff frequency (Hz) for the output LPF.
+     * (Set to 0 to disable).
+     * @param derivative_cutoff_hz Cutoff frequency (Hz) for the derivative LPF.
+     * (Set to 0 to disable).
      * @param ols_order Order (sample count) for the OLS derivative.
      * @param improve Bitmask of improvement_t flags.
      */
@@ -121,13 +126,13 @@ class pid_t
           float ki, float kd,
           float A, // CoefA for ChangingIntegrationRate
           float B, // CoefB for ChangingIntegrationRate
-          float output_lpf_rc, float derivative_lpf_rc, uint16_t ols_order,
-          uint8_t improve);
+          float output_cutoff_hz, float derivative_cutoff_hz,
+          uint16_t ols_order, uint8_t improve);
 
     /**
      * @brief Calculates the PID output.
-     * @param measure The current measured value.
      * @param ref The desired reference (setpoint) value.
+     * @param measure The current measured value.
      * @return The calculated PID output.
      */
     float calculate(float ref, float measure);
