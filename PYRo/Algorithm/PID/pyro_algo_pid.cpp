@@ -6,19 +6,19 @@
  * and the main PID calculation logic.
  *
  * @author Wang Hongxi (Original C), Lucky (C++ Refactor)
- * @version 1.1.3
- * @date 2025-11-14
+ * @version 1.1.4
+ * @date 2025-11-16
  * @copyright [Copyright Information Here]
  */
 
 /* Includes ------------------------------------------------------------------*/
 #include "pyro_algo_pid.h"
+#include "pyro_core_def.h"
 #include "pyro_dwt_drv.h" // For pyro::dwt_drv_t
 #include <cmath>          // For std::fabs
 
 namespace pyro
 {
-
 /* Constructor Implementation ------------------------------------------------*/
 
 /**
@@ -32,7 +32,7 @@ pid_t::pid_t(const float kp, const float ki, const float kd,
             0.0f,           // deadband
             kp, ki, kd,     // Kp, Ki, Kd
             0.0f, 0.0f,     // A, B (ChangingIntegrationRate)
-            0.0f, 0.0f,     // output_lpf_rc, derivative_lpf_rc
+            0.0f, 0.0f,     // output_cutoff_hz, derivative_cutoff_hz
             0,              // ols_order
             improve)        // improve
 {
@@ -44,7 +44,7 @@ pid_t::pid_t(const float kp, const float ki, const float kd,
  */
 pid_t::pid_t(const float kp, const float ki, const float kd,
              const float integral_limit, const float max_out,
-             const float output_lpf_rc, const float derivative_lpf_rc,
+             const float output_cutoff_hz, const float derivative_cutoff_hz,
              const uint16_t ols_order,
              const uint8_t improve)
     : pid_t(max_out,           // max_out
@@ -52,8 +52,8 @@ pid_t::pid_t(const float kp, const float ki, const float kd,
             0.0f,              // deadband
             kp, ki, kd,        // Kp, Ki, Kd
             0.0f, 0.0f,        // A, B (ChangingIntegrationRate)
-            output_lpf_rc,     // output_lpf_rc
-            derivative_lpf_rc, // derivative_lpf_rc
+            output_cutoff_hz,     // output_cutoff_hz
+            derivative_cutoff_hz, // derivative_cutoff_hz
             ols_order,         // ols_order
             improve)           // improve
 {
@@ -66,14 +66,23 @@ pid_t::pid_t(const float kp, const float ki, const float kd,
 pid_t::pid_t(const float max_out, const float integral_limit,
              const float deadband, const float kp, const float ki,
              const float kd, const float A, const float B,
-             const float output_lpf_rc, const float derivative_lpf_rc,
+             const float output_cutoff_hz, const float derivative_cutoff_hz,
              const uint16_t ols_order,
              const uint8_t improve)
     : // --- C++ Member Initializer List ---
       _kp(kp), _ki(ki), _kd(kd), _max_out(max_out),
       _integral_limit(integral_limit), _deadband(deadband), _coef_a(A),
-      _coef_b(B), _output_lpf_rc(output_lpf_rc),
-      _derivative_lpf_rc(derivative_lpf_rc), _ols_order(ols_order),
+      _coef_b(B),
+      // --- MODIFICATION: Calculate RC constant from Hz ---
+      // If cutoff_hz <= 0, set RC to 0.0f (disabling the filter)
+      _output_lpf_rc((output_cutoff_hz > 0.0f)
+                         ? (1.0f / (2.0f * PI * output_cutoff_hz))
+                         : 0.0f),
+      _derivative_lpf_rc((derivative_cutoff_hz > 0.0f)
+                             ? (1.0f / (2.0f * PI * derivative_cutoff_hz))
+                             : 0.0f),
+      // --- End Modification ---
+      _ols_order(ols_order),
       _improve(improve), _ols(ols_order) // OLS instance is constructed here
 {
     // Constructor body
@@ -319,6 +328,7 @@ void pid_t::limit_integral()
  */
 void pid_t::filter_derivative()
 {
+    // Note: _derivative_lpf_rc is 0.0f if cutoff_hz <= 0
     if (_derivative_lpf_rc > 0.0f)
     {
         _d_out = _d_out * _dt / (_derivative_lpf_rc + _dt) +
@@ -331,6 +341,7 @@ void pid_t::filter_derivative()
  */
 void pid_t::filter_output()
 {
+    // Note: _output_lpf_rc is 0.0f if cutoff_hz <= 0
     if (_output_lpf_rc > 0.0f)
     {
         _output = _output * _dt / (_output_lpf_rc + _dt) +
