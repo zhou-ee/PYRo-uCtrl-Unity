@@ -13,23 +13,12 @@ float vy;
 namespace pyro
 {
 
-chassis_drv_t::chassis_drv_t(steering_wheel_drv_t *steering_wheel_drv_1,
-                             steering_wheel_drv_t *steering_wheel_drv_2,
-                             steering_wheel_drv_t *steering_wheel_drv_3,
-                             steering_wheel_drv_t *steering_wheel_drv_4,
-                             wheel_drv_t *wheel_drv_1,
-                             wheel_drv_t *wheel_drv_2,
-                             wheel_drv_t *wheel_drv_3,
-                             wheel_drv_t *wheel_drv_4,
-                             pid_ctrl_t* yaw_pid)
-    : _steering_wheel_drv_1(steering_wheel_drv_1),
-      _steering_wheel_drv_2(steering_wheel_drv_2),
-      _steering_wheel_drv_3(steering_wheel_drv_3),
-      _steering_wheel_drv_4(steering_wheel_drv_4),
-      _wheel_drv_1(wheel_drv_1),
-      _wheel_drv_2(wheel_drv_2),
-      _wheel_drv_3(wheel_drv_3),
-      _wheel_drv_4(wheel_drv_4),
+chassis_drv_t::chassis_drv_t(steering_wheel_drv_t *drv1,
+                             steering_wheel_drv_t *drv2,
+                             steering_wheel_drv_t *drv3,
+                             steering_wheel_drv_t *drv4,
+                             pid_t* yaw_pid)
+    : _steering_wheel_drv{drv1, drv2, drv3, drv4},
       _yaw_pid(yaw_pid)
 {
     pyro::rc_hub_t::get_instance(
@@ -59,26 +48,39 @@ void chassis_drv_t::vt03_cmd(void const *rc_ctrl)
 
 void chassis_drv_t::update_feedback()
 {
-    _steering_wheel_drv_1->update_feedback();
-    _steering_wheel_drv_2->update_feedback();
-    _steering_wheel_drv_3->update_feedback();
-    _steering_wheel_drv_4->update_feedback();
-    _wheel_drv_1->update_feedback();
-    _wheel_drv_2->update_feedback();
-    _wheel_drv_3->update_feedback();
-    _wheel_drv_4->update_feedback();
+    for(int i = 0; i < 4; i++)
+    {
+        _steering_wheel_drv.at(i)->update_feedback();
+    }
 }
 
 void chassis_drv_t::zero_force()
 {
-    _wheel_drv_1->zero_force();
-    _wheel_drv_2->zero_force();
-    _wheel_drv_3->zero_force();
-    _wheel_drv_4->zero_force();
-    _steering_wheel_drv_1->zero_force();
-    _steering_wheel_drv_2->zero_force();
-    _steering_wheel_drv_3->zero_force();
-    _steering_wheel_drv_4->zero_force();
+    for(int i = 0; i < 4; i++)
+    {
+        _steering_wheel_drv.at(i)->zero_force();
+    }
+}
+
+void chassis_drv_t::chassis_power_control()
+{
+    _total_power = 0;
+    for(int i = 0; i < 4; i++)
+    {
+        _total_power += _steering_wheel_drv.at(i)->wheel_drv->power_control_drv.power_predict;
+    }
+
+	if (_total_power > POWER_LIMIT)
+	{
+		float power_zoom_factor = POWER_LIMIT / _total_power ;
+		float zoom_power[4];
+        for (uint8_t i = 0; i < 4; i++)
+		{
+			zoom_power[i] = _steering_wheel_drv.at(i)->wheel_drv->power_control_drv.power_predict * power_zoom_factor;
+			_steering_wheel_drv.at(i)->wheel_drv->power_control_drv.motor_power_restrict_torque(_steering_wheel_drv.at(i)->wheel_drv->torque_cmd, _steering_wheel_drv.at(i)->wheel_drv->get_current_motor_rotate() , zoom_power[i] );
+			_steering_wheel_drv.at(i)->wheel_drv->torque_cmd = _steering_wheel_drv.at(i)->wheel_drv->power_control_drv.restrict_torque;
+		}
+	}
 }
 
 void chassis_drv_t::chassis_control(float yaw_err)
@@ -99,41 +101,49 @@ void chassis_drv_t::chassis_control(float yaw_err)
         {
             _vx = _vy = _wz = 0;
         }
-        if ( abs(yaw_err) < 0.05f)
+        if ( abs(yaw_err) < 0.005f)
         {
             yaw_err = 0;
         }
 
         if ( _s_right == 2 )
         {
-            chassis_wz = 0.5f;
+            chassis_wz = 1.0f;
             chassis_vx = _vx * cosf(-yaw_err) - _vy * sinf(-yaw_err);
             chassis_vy = _vy * cosf(-yaw_err) + _vx * sinf(-yaw_err);
         }
         else
         {
-            chassis_wz = _yaw_pid->compute(0, yaw_err, 0.001);
+            chassis_wz = _yaw_pid->calculate(0, yaw_err);
             chassis_vx = _vx;
             chassis_vy = _vy;
         }
 
 
 
-        _steering_wheel_drv_1->set_radian(atan2f(chassis_vx + chassis_wz * Sx, chassis_vy + chassis_wz * Sy));
-        _steering_wheel_drv_2->set_radian(atan2f(chassis_vx - chassis_wz * Sx, chassis_vy + chassis_wz * Sy));
-        _steering_wheel_drv_3->set_radian(atan2f(chassis_vx - chassis_wz * Sx, chassis_vy - chassis_wz * Sy));
-        _steering_wheel_drv_4->set_radian(atan2f(chassis_vx + chassis_wz * Sx, chassis_vy - chassis_wz * Sy));
+        _steering_wheel_drv.at(0)->set_radian(atan2f(chassis_vx + chassis_wz * Sx, chassis_vy + chassis_wz * Sy));
+        _steering_wheel_drv.at(1)->set_radian(atan2f(chassis_vx - chassis_wz * Sx, chassis_vy + chassis_wz * Sy));
+        _steering_wheel_drv.at(2)->set_radian(atan2f(chassis_vx - chassis_wz * Sx, chassis_vy - chassis_wz * Sy));
+        _steering_wheel_drv.at(3)->set_radian(atan2f(chassis_vx + chassis_wz * Sx, chassis_vy - chassis_wz * Sy));
 
-
-        float steering_wheel_1_speed = hypotf(chassis_vx - chassis_wz * Sx, chassis_vy - chassis_wz * Sy);
-        float steering_wheel_2_speed = hypotf(chassis_vx - chassis_wz * Sx, chassis_vy + chassis_wz * Sy);
+        float steering_wheel_1_speed =  hypotf(chassis_vx - chassis_wz * Sx, chassis_vy - chassis_wz * Sy);
+        float steering_wheel_2_speed =  hypotf(chassis_vx - chassis_wz * Sx, chassis_vy + chassis_wz * Sy);
         float steering_wheel_3_speed = -hypotf(chassis_vx + chassis_wz * Sx, chassis_vy + chassis_wz * Sy);
         float steering_wheel_4_speed = -hypotf(chassis_vx + chassis_wz * Sx, chassis_vy - chassis_wz * Sy);
 
-        _steering_wheel_drv_1->wheel_drv->set_speed(_steering_wheel_drv_1->direction * steering_wheel_1_speed);
-        _steering_wheel_drv_2->wheel_drv->set_speed(_steering_wheel_drv_2->direction * steering_wheel_2_speed);
-        _steering_wheel_drv_3->wheel_drv->set_speed(_steering_wheel_drv_3->direction * steering_wheel_3_speed);
-        _steering_wheel_drv_4->wheel_drv->set_speed(_steering_wheel_drv_4->direction * steering_wheel_4_speed);
+        _steering_wheel_drv.at(0)->wheel_drv->set_speed(_steering_wheel_drv.at(0)->direction * steering_wheel_1_speed);
+        _steering_wheel_drv.at(1)->wheel_drv->set_speed(_steering_wheel_drv.at(1)->direction * steering_wheel_2_speed);
+        _steering_wheel_drv.at(2)->wheel_drv->set_speed(_steering_wheel_drv.at(2)->direction * steering_wheel_3_speed);
+        _steering_wheel_drv.at(3)->wheel_drv->set_speed(_steering_wheel_drv.at(3)->direction * steering_wheel_4_speed);
+
+        #ifdef POWER_CONTROL_USE
+        chassis_power_control();
+        #endif
+
+        _steering_wheel_drv.at(0)->wheel_drv->control();
+        _steering_wheel_drv.at(1)->wheel_drv->control();
+        _steering_wheel_drv.at(2)->wheel_drv->control();
+        _steering_wheel_drv.at(3)->wheel_drv->control();
     }
 
 

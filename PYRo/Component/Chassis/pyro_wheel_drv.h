@@ -1,8 +1,9 @@
 #ifndef __PYRO_WHEEL_DRV_H__
 #define __PYRO_WHEEL_DRV_H__
 
-#include "pyro_dji_motor_drv.h"
-#include "pyro_pid_ctrl.h"
+#include "pyro_motor_base.h"
+#include "pyro_algo_pid.h"
+#include "pyro_power_control_drv.h"
 
 namespace pyro
 {
@@ -10,8 +11,8 @@ class wheel_drv_t
 {
   public:
     wheel_drv_t(motor_base_t *motor_base,
-                     const pid_ctrl_t &speed_pid, float radius);
-    wheel_drv_t()
+                     const pid_t &speed_pid, float radius);
+    ~wheel_drv_t()
     {
     }
 
@@ -22,17 +23,22 @@ class wheel_drv_t
     float *get_p_target_speed();
     float get_current_speed();
     float *get_p_current_speed();
+    float get_current_motor_rotate();
     void update_feedback();
+    void control();
+
+    float torque_cmd;
 
     motor_base_t *motor_base;
+    power_control_drv_t power_control_drv;
+
 
   private:
-    pid_ctrl_t _speed_pid;
+    pid_t _speed_pid;
     float _radius;
     float _target_speed;
     float _current_speed;
     float _gear_ratio;
-
 };
 };
 

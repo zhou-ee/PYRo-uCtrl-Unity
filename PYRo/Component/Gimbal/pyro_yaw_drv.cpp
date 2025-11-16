@@ -3,8 +3,8 @@
 namespace pyro
 {
 yaw_drv_t::yaw_drv_t(motor_base_t *motor_base,
-                const pid_ctrl_t &rotate_pid,
-                const pid_ctrl_t &position_pid,
+                const pid_t &rotate_pid,
+                const pid_t &position_pid,
                 IMU_obj *imu)
     : motor_base(motor_base),
       _yaw_rotate_pid(rotate_pid),
@@ -51,9 +51,9 @@ void yaw_drv_t::set_radian(float target_radian)
     }
 
     float rotate_cmd =
-        _yaw_position_pid.compute(_current_radian + radian_diff, _current_radian, 0.001f);
+        _yaw_position_pid.calculate(_current_radian + radian_diff, _current_radian);
     float torque_cmd =
-        _yaw_rotate_pid.compute(rotate_cmd, motor_base->get_current_rotate(), 0.001f);
+        _yaw_rotate_pid.calculate(rotate_cmd, motor_base->get_current_rotate());
     motor_base->send_torque(torque_cmd);
 }
 
@@ -163,8 +163,8 @@ void yaw_drv_t::set_control()
     }
     else if(_total_mode == RC_CONTROL || _total_mode == AUTO_AIM_CONTROL)
     {
-        float _yaw_speed_cmd = _yaw_position_pid.compute(_target_yaw_imu_radian, _current_yaw_imu_radian, 0.001f);
-        _yaw_cmd_torque = _yaw_rotate_pid.compute(_yaw_speed_cmd, _current_rotate, 0.001f);
+        float _yaw_speed_cmd = _yaw_position_pid.calculate(_target_yaw_imu_radian, _current_yaw_imu_radian);
+        _yaw_cmd_torque = _yaw_rotate_pid.calculate(_yaw_speed_cmd, _current_rotate);
     }
     else
     {

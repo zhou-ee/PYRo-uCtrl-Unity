@@ -2,7 +2,7 @@
 #define __PYRO_YAW_DRV_H__
 
 #include "pyro_motor_base.h"
-#include "pyro_pid_ctrl.h"
+#include "pyro_algo_pid.h"
 #include "IMU_Base.h"
 #include "pyro_rc_hub.h"
 
@@ -18,8 +18,8 @@ class yaw_drv_t
         AUTO_AIM_CONTROL   = 0x02
       };
       yaw_drv_t(motor_base_t *motor_base,
-                const pid_ctrl_t &rotate_pid,
-                const pid_ctrl_t &position_pid,
+                const pid_t &rotate_pid,
+                const pid_t &position_pid,
                 IMU_obj *imu);
       ~yaw_drv_t()
       {
@@ -40,8 +40,8 @@ class yaw_drv_t
       motor_base_t *motor_base;
 
     private:
-      pid_ctrl_t _yaw_rotate_pid;
-      pid_ctrl_t _yaw_position_pid;
+      pid_t _yaw_rotate_pid;
+      pid_t _yaw_position_pid;
       IMU_obj *_imu{};
       total_mode_t _total_mode;
       float _current_rotate;

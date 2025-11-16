@@ -22,19 +22,19 @@ extern "C"
 
     pyro::trigger_drv_t *trigger_drv;
 
-    pyro::pid_ctrl_t *fric1_speed_pid;
-    pyro::pid_ctrl_t *fric2_speed_pid;
-    pyro::pid_ctrl_t *trigger_speed_pid;
-    pyro::pid_ctrl_t *trigger_positon_pid;
+    pyro::pid_t *fric1_speed_pid;
+    pyro::pid_t *fric2_speed_pid;
+    pyro::pid_t *trigger_speed_pid;
+    pyro::pid_t *trigger_positon_pid;
 
     pyro::shoot_17mm_control_t *shoot_drv;
 
     void pyro_shoot_demo(void *arg)
     { 
-        fric1_speed_pid = new pyro::pid_ctrl_t(12.0f, 0.0f, 0.0f);
-        fric2_speed_pid = new pyro::pid_ctrl_t(12.0f, 0.0f, 0.0f);
-        trigger_speed_pid = new pyro::pid_ctrl_t(6.0f, 80.0f, 0.0004f);
-        trigger_positon_pid = new pyro::pid_ctrl_t(7.0f, 0.0f, 0.0f);
+        fric1_speed_pid = new pyro::pid_t(12.0f, 0.0f, 0.0f);
+        fric2_speed_pid = new pyro::pid_t(12.0f, 0.0f, 0.0f);
+        trigger_speed_pid = new pyro::pid_t(6.0f, 80.0f, 0.0004f);
+        trigger_positon_pid = new pyro::pid_t(7.0f, 0.0f, 0.0f);
 
         trigger_speed_pid->set_integral_limits(0.01f);
         trigger_positon_pid->set_integral_limits(1000.0f);

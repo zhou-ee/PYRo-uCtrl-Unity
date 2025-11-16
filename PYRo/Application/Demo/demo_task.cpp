@@ -60,7 +60,7 @@ extern "C"
 vTaskDelete(nullptr);
 
 #endif
-}
+
 
 #if REFERENCE_DEMO_EN
         xTaskCreate(referee_task, "referee_task", 512, nullptr,
@@ -68,4 +68,5 @@ vTaskDelete(nullptr);
 
 #endif
         vTaskDelete(nullptr);
+}
 }

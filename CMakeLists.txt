@@ -70,6 +70,14 @@ add_executable(${CMAKE_PROJECT_NAME}
         PYRo/Component/Shoot/pyro_trigger_drv.cpp
         PYRo/Component/Shoot/pyro_shoot_base.cpp
         PYRo/Component/Shoot/pyro_shoot_17mm_control.cpp
+
+        PYRo/Component/Chassis/pyro_chassis_drv.cpp
+        PYRo/Component/Chassis/pyro_steering_wheel_drv.cpp
+        PYRo/Component/Chassis/pyro_wheel_drv.cpp
+        PYRo/Component/Chassis/pyro_power_control_drv.cpp
+
+        PYRo/Component/Gimbal/pyro_gimbal_drv.cpp
+        PYRo/Component/Gimbal/pyro_yaw_drv.cpp
         
         PYRo/Application/Demo/pyro_rc_demo.cpp
         PYRo/Application/Demo/demo_task.cpp
@@ -127,6 +135,8 @@ target_include_directories(${CMAKE_PROJECT_NAME} PUBLIC
 
     PYRo/Component/CRC
     PYRo/Component/Shoot
+    PYRo/Component/Chassis
+    PYRo/Component/Gimbal
     PYRo/Component/IMU
     PYRo/Component/Referee
 

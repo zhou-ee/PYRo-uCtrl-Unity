@@ -5,9 +5,6 @@ static inline float wrap_rad(float x)
     return atan2f(sinf(x), cosf(x));
 }
 
-
-
-
 namespace pyro
 {
 
@@ -20,11 +17,10 @@ float wrap_pi(float x)
 
 static float loop_float_constrain(float Input, float minValue, float maxValue);
 
-
 steering_wheel_drv_t::steering_wheel_drv_t(wheel_drv_t *wheel_drv,
                                            motor_base_t *rudder_motor_base,
-                                           const pid_ctrl_t &rudder_rotate_pid,
-                                           const pid_ctrl_t &rudder_position_pid)
+                                           const pid_t &rudder_rotate_pid,
+                                           const pid_t &rudder_position_pid)
     : wheel_drv(wheel_drv),
       rudder_motor_base(rudder_motor_base),
       _rudder_rotate_pid(rudder_rotate_pid),
@@ -87,8 +83,8 @@ void steering_wheel_drv_t::set_radian(float target_radian)
     float angle_error = wrap_pi(chosen_target - _current_radian);
 
     // 7. 控制律
-    float rotate_cmd = _rudder_position_pid.compute(angle_error + _current_radian, _current_radian, 0.001f);
-    float torque_cmd = _rudder_rotate_pid.compute(rotate_cmd, rudder_motor_base->get_current_rotate(), 0.001f);
+    float rotate_cmd = _rudder_position_pid.calculate(angle_error + _current_radian, _current_radian);
+    float torque_cmd = _rudder_rotate_pid.calculate(rotate_cmd, rudder_motor_base->get_current_rotate());
 
     rudder_motor_base->send_torque(torque_cmd);
 }
@@ -96,7 +92,7 @@ void steering_wheel_drv_t::set_radian(float target_radian)
 void steering_wheel_drv_t::zero_force()
 {
     rudder_motor_base->send_torque(0.0f);
-    wheel_drv->motor_base->send_torque(0.0f);
+    wheel_drv->zero_force();
 }
 
 void steering_wheel_drv_t::update_feedback()
@@ -116,7 +112,6 @@ float steering_wheel_drv_t::get_target_radian()
 {
     return _target_radian;
 }
-
 
 //循环限幅函数
 static float loop_float_constrain(float Input, float minValue, float maxValue)
