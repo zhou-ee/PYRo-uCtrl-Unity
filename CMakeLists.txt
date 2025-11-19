@@ -89,6 +89,9 @@ add_executable(${CMAKE_PROJECT_NAME}
         PYRo/Component/Referee/referee.c
         PYRo/Component/Referee/referee_drv.cpp
         PYRo/Component/Referee/referee_usart_task.c
+        PYRo/Moudle/Chassis/pyro_chassis_base.cpp
+        PYRo/Algorithm/Kinematics/pyro_kin_mec.cpp
+        PYRo/Algorithm/Kinematics/pyro_kin_mec.h
 )
 
 # Add STM32CubeMX generated sources
