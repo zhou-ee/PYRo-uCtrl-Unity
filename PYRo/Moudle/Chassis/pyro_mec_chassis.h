@@ -7,13 +7,17 @@ namespace pyro
 {
 class mec_chassis_t final : public chassis_base_t
 {
-public:
+  public:
     struct cmd_mec_t final : cmd_base_t
     {
-        cmd_mec_t() : cmd_base_t(type_t::MECANUM) {}
+        cmd_mec_t() : cmd_base_t(type_t::MECANUM)
+        {
+        }
         // Additional mecanum-specific command parameters can be added here
     };
-    mec_chassis_t();
+    mec_chassis_t() : chassis_base_t(type_t::MECANUM)
+    {
+    }
     ~mec_chassis_t() override;
 
     void set_command(const cmd_base_t &cmd) override;
@@ -23,8 +27,8 @@ public:
     void power_control() override;
     void send_motor_command() override;
 
-private:
+  private:
     // Add private members and methods as needed
 };
-}
+} // namespace pyro
 #endif
