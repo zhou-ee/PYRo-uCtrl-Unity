@@ -55,6 +55,7 @@ float wheel_drv_t::get_current_motor_rotate()
 void wheel_drv_t::update_feedback()
 {
     motor_base->update_feedback();
+    rotate = motor_base->get_current_rotate();
     _current_speed = motor_base->get_current_rotate() / _gear_ratio * _radius;
     power_control_drv.motor_power_predict(torque_cmd, motor_base->get_current_rotate());
 }

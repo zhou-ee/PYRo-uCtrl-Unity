@@ -98,6 +98,8 @@ add_executable(${CMAKE_PROJECT_NAME}
         PYRo/Component/Referee/referee.c
         PYRo/Component/Referee/referee_drv.cpp
         PYRo/Component/Referee/referee_usart_task.c
+
+        PYRo/Component/Powermeter/pyro_powermeter.cpp
 )
 
 # Add STM32CubeMX generated sources
@@ -139,6 +141,7 @@ target_include_directories(${CMAKE_PROJECT_NAME} PUBLIC
     PYRo/Component/Gimbal
     PYRo/Component/IMU
     PYRo/Component/Referee
+    PYRo/Component/Powermeter
 
     PYRo/Application/Demo
 

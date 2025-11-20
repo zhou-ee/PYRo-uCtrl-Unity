@@ -35,8 +35,8 @@ void chassis_drv_t::dr16_cmd(void const *rc_ctrl)
 {
     static auto *p_ctrl =
         static_cast<pyro::dr16_drv_t::dr16_ctrl_t const *>(rc_ctrl);
-    _vy      = static_cast<float>(p_ctrl->rc.ch[dr16_drv_t::DR16_CH_LEFT_Y]) * 2.0f;
-    _vx      = static_cast<float>(p_ctrl->rc.ch[dr16_drv_t::DR16_CH_LEFT_X]) * 2.0f;
+    _vy      = static_cast<float>(p_ctrl->rc.ch[dr16_drv_t::DR16_CH_LEFT_Y]) * 8.0f;
+    _vx      = static_cast<float>(p_ctrl->rc.ch[dr16_drv_t::DR16_CH_LEFT_X]) * 8.0f;
     _wz      = static_cast<float>(p_ctrl->rc.ch[dr16_drv_t::DR16_CH_RIGHT_X]);
     _s_right = p_ctrl->rc.s[dr16_drv_t::DR16_SW_RIGHT].state;
 }
@@ -77,7 +77,8 @@ void chassis_drv_t::chassis_power_control()
         for (uint8_t i = 0; i < 4; i++)
 		{
 			zoom_power[i] = _steering_wheel_drv.at(i)->wheel_drv->power_control_drv.power_predict * power_zoom_factor;
-			_steering_wheel_drv.at(i)->wheel_drv->power_control_drv.motor_power_restrict_torque(_steering_wheel_drv.at(i)->wheel_drv->torque_cmd, _steering_wheel_drv.at(i)->wheel_drv->get_current_motor_rotate() , zoom_power[i] );
+			_steering_wheel_drv.at(i)->wheel_drv->power_control_drv.motor_power_restrict_torque(_steering_wheel_drv.at(i)->wheel_drv->torque_cmd, 
+                    _steering_wheel_drv.at(i)->wheel_drv->get_current_motor_rotate() , zoom_power[i] );
 			_steering_wheel_drv.at(i)->wheel_drv->torque_cmd = _steering_wheel_drv.at(i)->wheel_drv->power_control_drv.restrict_torque;
 		}
 	}
@@ -101,7 +102,7 @@ void chassis_drv_t::chassis_control(float yaw_err)
         {
             _vx = _vy = _wz = 0;
         }
-        if ( abs(yaw_err) < 0.005f)
+        if ( abs(yaw_err) < 0.008f)
         {
             yaw_err = 0;
         }

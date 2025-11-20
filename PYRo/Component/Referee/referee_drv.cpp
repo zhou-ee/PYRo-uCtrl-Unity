@@ -10,12 +10,8 @@ extern "C" void referee_rx_handler(uint8_t *buf, uint16_t Size);
 bool referee_uart_callback(uint8_t *data, uint16_t size,
                            BaseType_t xHigherPriorityTaskWoken)
 {
-    if (0xA5 == data[0])
-    {
-        referee_rx_handler(data, size);
-        return true;
-    }
-    return false;
+    referee_rx_handler(data, size);
+    return true;
 }
 
 extern "C" void referee_init()

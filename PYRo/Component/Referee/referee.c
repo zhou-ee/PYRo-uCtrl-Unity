@@ -20,6 +20,8 @@ void init_referee_struct_data(void)
 uint8_t first_commit_flag=0;
 uint8_t armor_bullet_hurt_flag =0;
 
+uint32_t test = 0;
+uint32_t test_power = 0;
 void referee_data_solve(uint8_t *frame)
 {
     uint16_t cmd_id = 0;
@@ -77,6 +79,11 @@ void referee_data_solve(uint8_t *frame)
         case POWER_HEAT_DATA_CMD_ID:
         {
             memcpy(&referee_data.power_heat, frame + index, sizeof(referee_data.power_heat));
+            test_power = referee_data.power_heat.buffer_energy;
+            if(referee_data.power_heat.buffer_energy < 60)
+            {
+                test++;
+            }
         }
         break;
         case ROBOT_POS_CMD_ID:

@@ -5,8 +5,8 @@
 #include "pyro_rc_hub.h"
 #include <array>
 
-#define POWER_CONTROL_USE 1
-#define POWER_LIMIT 10
+#define POWER_CONTROL_USE 0
+#define POWER_LIMIT 60
 
 namespace pyro
 {

@@ -28,6 +28,7 @@ class wheel_drv_t
     void control();
 
     float torque_cmd;
+    float rotate;
 
     motor_base_t *motor_base;
     power_control_drv_t power_control_drv;

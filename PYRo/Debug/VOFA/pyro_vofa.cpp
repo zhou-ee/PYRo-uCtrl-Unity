@@ -5,6 +5,13 @@
 
 #include "cstring"
 
+#include "referee.h"
+#include "pyro_powermeter.h"
+#include "pyro_chassis_drv.h"
+
+
+extern pyro::powermeter_data power_data;
+extern pyro::wheel_drv_t *wheel_drv_4;
 
 namespace pyro
 {
@@ -26,7 +33,7 @@ vofa_drv_t::~vofa_drv_t()
 
 vofa_drv_t &vofa_drv_t::get_instance(uint8_t max_length)
 {
-    static vofa_drv_t instance(max_length, uart_drv_t::get_instance(uart_drv_t::uart1));
+    static vofa_drv_t instance(max_length, uart_drv_t::get_instance(uart_drv_t::uart10));
     return instance;
 }
 
@@ -92,10 +99,23 @@ void vofa_drv_t::send()
 }
 
 
+
 void vofa_drv_t::thread()
 {
+    // float buffer_energy = static_cast<float>(referee_data.power_heat.buffer_energy);
+    // add_data(&buffer_energy);
+    float *real_power = &power_data.power;
+    add_data(real_power);
+
+    float *tau = &wheel_drv_4->torque_cmd;
+    add_data(tau);
+
+    float *rotate = &wheel_drv_4->rotate;
+    add_data(rotate);
+
     while (true)
     {
+        // buffer_energy = static_cast<float>(referee_data.power_heat.buffer_energy);
         update_data();
         send();
         vTaskDelay(10);

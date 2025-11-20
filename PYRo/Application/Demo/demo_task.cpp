@@ -22,9 +22,9 @@ extern "C"
     extern void IMU_task(void *argument);
     extern void referee_task(void *arg);
     extern void pyro_control_demo(void *arg);
+    extern void start_debug_task(void *arg);
     void start_demo_task(void const *argument)
     {
-        // 变成IMU_TASK 之后自己写一个demo
 #if DEMO_MODE
 
 #if RC_DEMO_EN
@@ -57,14 +57,17 @@ extern "C"
 
 #endif
 
-vTaskDelete(nullptr);
+#if REFEREE_DEMO_EN
+        xTaskCreate(referee_task, "referee_task", 512, nullptr,
+                    configMAX_PRIORITIES - 2, nullptr);
 
 #endif
 
-
-#if REFERENCE_DEMO_EN
-        xTaskCreate(referee_task, "referee_task", 512, nullptr,
+#if DEBUG_MODE
+        xTaskCreate(start_debug_task, "start_debug_task", 512, nullptr,
                     configMAX_PRIORITIES - 2, nullptr);
+
+#endif
 
 #endif
         vTaskDelete(nullptr);
