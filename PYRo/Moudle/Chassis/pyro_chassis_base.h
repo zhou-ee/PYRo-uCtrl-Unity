@@ -3,6 +3,9 @@
 
 #include "cstdint"
 #include "pyro_mutex.h"
+#include "FreeRTOS.h"
+#include "task.h"
+
 
 namespace pyro
 {
@@ -52,6 +55,7 @@ class chassis_base_t
     virtual void chassis_control()                  = 0;
     virtual void power_control()                    = 0;
     virtual void send_motor_command()               = 0;
+    void thread();
     virtual ~chassis_base_t()                       = default;
     /**
      * @brief Get the chassis type
@@ -69,8 +73,11 @@ class chassis_base_t
 
   protected:
     mutex_t _mutex;
-    chassis_base_t() = default;
+    TaskHandle_t _chassis_task_handle{};
+    chassis_base_t();
     explicit chassis_base_t(type_t type);
+
+
     // Protected member variables (prefixed with _)
     type_t _type{};
 };
