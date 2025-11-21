@@ -20,12 +20,16 @@ chassis_base_t::chassis_base_t(type_t type)
 
 void chassis_base_t::thread()
 {
-    update_feedback();
-    kinematics_solve();
-    chassis_control();
-    power_control();
-    send_motor_command();
-};
+    init();
+    while (true)
+    {
+        update_feedback();
+        kinematics_solve();
+        chassis_control();
+        power_control();
+        send_motor_command();
+    }
+}
 
 } // namespace pyro
 
@@ -34,9 +38,6 @@ extern "C" void chassis_task(void *argument)
     auto *chassis = static_cast<pyro::chassis_base_t *>(argument);
     if (chassis)
     {
-        while (true)
-        {
-            chassis->thread();
-        }
+        chassis->thread();
     }
 }

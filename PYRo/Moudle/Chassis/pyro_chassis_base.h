@@ -1,9 +1,8 @@
 #ifndef __PYRO_CHASSIS_BASE_H__
 #define __PYRO_CHASSIS_BASE_H__
 
-#include "cstdint"
-#include "pyro_mutex.h"
 #include "FreeRTOS.h"
+#include "pyro_mutex.h"
 #include "task.h"
 
 
@@ -49,6 +48,7 @@ class chassis_base_t
         // Ensure virtual destructor for polymorphism
         virtual ~cmd_base_t() = default;
     };
+    virtual void init()                             = 0;
     virtual void set_command(const cmd_base_t &cmd) = 0;
     virtual void update_feedback()                  = 0;
     virtual void kinematics_solve()                 = 0;
@@ -56,7 +56,7 @@ class chassis_base_t
     virtual void power_control()                    = 0;
     virtual void send_motor_command()               = 0;
     void thread();
-    virtual ~chassis_base_t()                       = default;
+    virtual ~chassis_base_t() = default;
     /**
      * @brief Get the chassis type
      * @return type_e Current chassis type
