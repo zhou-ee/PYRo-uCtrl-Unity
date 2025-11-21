@@ -35,8 +35,8 @@ void chassis_drv_t::dr16_cmd(void const *rc_ctrl)
 {
     static auto *p_ctrl =
         static_cast<pyro::dr16_drv_t::dr16_ctrl_t const *>(rc_ctrl);
-    _vy      = static_cast<float>(p_ctrl->rc.ch[dr16_drv_t::DR16_CH_LEFT_Y]) * 8.0f;
-    _vx      = static_cast<float>(p_ctrl->rc.ch[dr16_drv_t::DR16_CH_LEFT_X]) * 8.0f;
+    _vy      = static_cast<float>(p_ctrl->rc.ch[dr16_drv_t::DR16_CH_LEFT_Y]) * 3.8f;
+    _vx      = static_cast<float>(p_ctrl->rc.ch[dr16_drv_t::DR16_CH_LEFT_X]) * 3.8f;
     _wz      = static_cast<float>(p_ctrl->rc.ch[dr16_drv_t::DR16_CH_RIGHT_X]);
     _s_right = p_ctrl->rc.s[dr16_drv_t::DR16_SW_RIGHT].state;
 }
@@ -64,7 +64,7 @@ void chassis_drv_t::zero_force()
 
 void chassis_drv_t::chassis_power_control()
 {
-    _total_power = 0;
+    _total_power = 8;
     for(int i = 0; i < 4; i++)
     {
         _total_power += _steering_wheel_drv.at(i)->wheel_drv->power_control_drv.power_predict;
@@ -132,12 +132,33 @@ void chassis_drv_t::chassis_control(float yaw_err)
         float steering_wheel_3_speed = -hypotf(chassis_vx + chassis_wz * Sx, chassis_vy + chassis_wz * Sy);
         float steering_wheel_4_speed = -hypotf(chassis_vx + chassis_wz * Sx, chassis_vy - chassis_wz * Sy);
 
+        // if(abs(steering_wheel_1_speed) < 0.01f)
+        // {
+        //     steering_wheel_1_speed = 0;
+        // }
+
+        // if(abs(steering_wheel_2_speed) < 0.01f)
+        // {
+        //     steering_wheel_2_speed = 0;
+        // }
+
+        // if(abs(steering_wheel_3_speed) < 0.01f)
+        // {
+        //     steering_wheel_3_speed = 0;
+        // }
+
+        // if(abs(steering_wheel_4_speed) < 0.01f)
+        // {
+        //     steering_wheel_4_speed = 0;
+        // }
+
+
         _steering_wheel_drv.at(0)->wheel_drv->set_speed(_steering_wheel_drv.at(0)->direction * steering_wheel_1_speed);
         _steering_wheel_drv.at(1)->wheel_drv->set_speed(_steering_wheel_drv.at(1)->direction * steering_wheel_2_speed);
         _steering_wheel_drv.at(2)->wheel_drv->set_speed(_steering_wheel_drv.at(2)->direction * steering_wheel_3_speed);
         _steering_wheel_drv.at(3)->wheel_drv->set_speed(_steering_wheel_drv.at(3)->direction * steering_wheel_4_speed);
 
-        #ifdef POWER_CONTROL_USE
+        #if POWER_CONTROL_USE
         chassis_power_control();
         #endif
 

@@ -19,6 +19,7 @@ void wheel_drv_t::set_gear_ratio(float gear_ratio)
 
 void wheel_drv_t::set_speed(float target_speed)
 {
+    _target_speed = target_speed;
     torque_cmd = _speed_pid.calculate(target_speed, _current_speed);
 }
 
@@ -57,7 +58,7 @@ void wheel_drv_t::update_feedback()
     motor_base->update_feedback();
     rotate = motor_base->get_current_rotate();
     _current_speed = motor_base->get_current_rotate() / _gear_ratio * _radius;
-    power_control_drv.motor_power_predict(torque_cmd, motor_base->get_current_rotate());
+    power_control_drv.motor_power_predict(torque_cmd, rotate);
 }
 
 void wheel_drv_t::control()

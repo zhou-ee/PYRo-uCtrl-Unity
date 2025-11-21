@@ -18,8 +18,8 @@ void power_control_drv_t::set_coefficient(float coefficient_k1, float coefficien
 
 void power_control_drv_t::motor_power_predict(float tau, float gyro)
 {
-    // power_predict = _coefficient_k1*tau*gyro + _coefficient_k2*fabs(gyro) + _coefficient_k3*tau*tau + _coefficient_k4;
-    power_predict = _coefficient_k1*fabs(tau)*fabs(gyro) + _coefficient_k2*fabs(gyro) + _coefficient_k3*tau*tau + _coefficient_k4;
+    power_predict = _coefficient_k1*tau*gyro + _coefficient_k2*fabs(gyro) + _coefficient_k3*tau*tau + _coefficient_k4;
+    // power_predict = _coefficient_k1*fabs(tau)*fabs(gyro) + _coefficient_k2*fabs(gyro) + _coefficient_k3*tau*tau + _coefficient_k4;
 }
 
 void power_control_drv_t::motor_power_restrict_torque(float origin_torque,float gyro, float restricted_power)

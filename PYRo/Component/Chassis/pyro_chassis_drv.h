@@ -5,8 +5,8 @@
 #include "pyro_rc_hub.h"
 #include <array>
 
-#define POWER_CONTROL_USE 0
-#define POWER_LIMIT 60
+#define POWER_CONTROL_USE 1
+#define POWER_LIMIT 30
 
 namespace pyro
 {
@@ -44,7 +44,7 @@ class chassis_drv_t
     float _vx, _vy, _wz; // The direction of the front of the vehicle represents the vy direction
     uint8_t _s_right;
 
-
+    friend class vofa_drv_t;
 };
 
 }

@@ -90,10 +90,10 @@ extern "C"
         /* ------ PID 初始化 -------------------------------------------------*/
 
         // 1. 系数
-        speed_pid_1 = new pyro::pid_t(24.0f, 0.0f, 0.00f, 0.00f, 20.0f);
-        speed_pid_2 = new pyro::pid_t(24.0f, 0.0f, 0.00f, 0.00f, 20.0f);
-        speed_pid_3 = new pyro::pid_t(24.0f, 0.0f, 0.00f, 0.00f, 20.0f);
-        speed_pid_4 = new pyro::pid_t(24.0f, 0.0f, 0.00f, 0.00f, 20.0f);
+        speed_pid_1 = new pyro::pid_t(24.0f, 0.1f, 0.00f, 1.00f, 20.0f);
+        speed_pid_2 = new pyro::pid_t(24.0f, 0.1f, 0.00f, 1.00f, 20.0f);
+        speed_pid_3 = new pyro::pid_t(24.0f, 0.1f, 0.00f, 1.00f, 20.0f);
+        speed_pid_4 = new pyro::pid_t(24.0f, 0.1f, 0.00f, 1.00f, 20.0f);
 
 
         rudder_position_pid_1 = new pyro::pid_t(15.0f, 0.0f, 0.00f, 0.0f, 10.0f);
@@ -158,10 +158,10 @@ extern "C"
         wheel_drv_3->set_gear_ratio(19.0f);
         wheel_drv_4->set_gear_ratio(19.0f);
 
-        wheel_drv_1->power_control_drv.set_coefficient(0.0319f, 0.0270f, 0.1711f, 0.1718f);     //0.0319, 0.0270, 0.1711, 0.1718
-        wheel_drv_2->power_control_drv.set_coefficient(0.0308f, 0.0286f, 0.1568f, 0.2717f);     //0.0308f, 0.0286f, 0.1568f, 0.2717f                                                                                                                                                                                               
-        wheel_drv_3->power_control_drv.set_coefficient(0.0295f, 0.0243f, 0.1428f, 0.4043f);     //0.0295f, 0.0243f, 0.1428f, 0.4043f
-        wheel_drv_4->power_control_drv.set_coefficient(0.0067f, 0.0719f, 0.0209f, 0.8996f);     //0.0293f, 0.0243f, 0.1021f, 1.0703f
+        wheel_drv_1->power_control_drv.set_coefficient(0.0118f, 0.0163f, 0.1945f, 0.6456f);     //大概准，差个位数
+        wheel_drv_2->power_control_drv.set_coefficient(0.0123f, 0.0218f, 0.1597f, 0.7248f);     //大概准，高速下差的有点大                                                                                                                                                                                              
+        wheel_drv_3->power_control_drv.set_coefficient(0.0127f, 0.0225f, 0.1455f, 0.2370f);     //准，高速下打滑
+        wheel_drv_4->power_control_drv.set_coefficient(0.0099f, 0.0094f, 0.1969f, 0.7185f);     //大概准，差个位数
 
         steering_wheel_drv_1 = new pyro::steering_wheel_drv_t(
             wheel_drv_1,
@@ -197,7 +197,7 @@ extern "C"
         steering_wheel_drv_2->set_offset_radian(-1.817f);
         steering_wheel_drv_3->set_offset_radian(0.753184557f);
         steering_wheel_drv_4->set_offset_radian(2.3554275f);
-        yaw_drv_1           ->set_offset_radian(-2.15217495f);
+        yaw_drv_1           ->set_offset_radian(-2.1675148f);
 
         chassis_drv = new pyro::chassis_drv_t(
             steering_wheel_drv_1,
@@ -220,10 +220,10 @@ extern "C"
             yaw_drv_1->set_control();
             yaw_drv_1->control();
 
-            power_meter->get_data(power_data);
+           power_meter->get_data(power_data);
 
-            //chassis_drv->chassis_control(-yaw_drv_1->get_radian());
             chassis_drv->chassis_control(-yaw_drv_1->get_radian());
+            // chassis_drv->chassis_control(0);
             // chassis_drv->chassis_control(-0.0322136879f);
 
 

@@ -40,6 +40,8 @@ class wheel_drv_t
     float _target_speed;
     float _current_speed;
     float _gear_ratio;
+
+    friend class vofa_drv_t;
 };
 };
 
