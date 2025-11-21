@@ -1,5 +1,5 @@
 #include "pyro_kin_mec.h"
-#include <cmath> // std::abs
+#include "arm_math.h"
 
 namespace pyro
 {
@@ -10,7 +10,7 @@ mecanum_kin_t::mecanum_kin_t(const float wheelbase, const float track_width)
     // a = wheelbase / 2
     // b = track_width / 2
     // Therefore k = (wheelbase + track_width) / 2
-    _k_geom = (std::abs(wheelbase) + std::abs(track_width)) / 2.0f;
+    _k_geom = (abs(wheelbase) + abs(track_width)) / 2.0f;
 }
 
 mecanum_kin_t::wheel_speeds_t

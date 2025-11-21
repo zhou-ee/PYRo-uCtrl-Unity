@@ -21,7 +21,7 @@ class chassis_base_t
         MECANUM,   // Mecanum wheel chassis
         WHEEL_LEG, // Wheel-legged robot
         OMNI,      // Omni wheel chassis
-        STEERING   // Steering wheel (Swerve) chassis
+        RUDDER     // Rudder wheel (Swerve) chassis
     };
 
     /**
@@ -36,6 +36,7 @@ class chassis_base_t
         float vx; // Linear velocity X (m/s)
         float vy; // Linear velocity Y (m/s)
         float wz; // Angular velocity Z (rad/s)
+        float yaw_err; // Yaw error for heading control (rad)
 
         /**
          * @brief Constructor with default initialization
@@ -71,9 +72,11 @@ class chassis_base_t
         return _mutex;
     }
 
+    TaskHandle_t _chassis_task_handle{};
+
   protected:
     mutex_t _mutex;
-    TaskHandle_t _chassis_task_handle{};
+    TaskHandle_t _chassis_init_handle{};
     chassis_base_t();
     explicit chassis_base_t(type_t type);
 

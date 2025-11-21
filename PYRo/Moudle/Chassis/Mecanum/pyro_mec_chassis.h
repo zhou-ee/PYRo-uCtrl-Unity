@@ -1,5 +1,5 @@
-#ifndef __PYRO_PYRO_MEC_CHASSIS_H__
-#define __PYRO_PYRO_MEC_CHASSIS_H__
+#ifndef __PYRO_MEC_CHASSIS_H__
+#define __PYRO_MEC_CHASSIS_H__
 
 #include "pyro_chassis_base.h"
 #include "pyro_motor_base.h"
