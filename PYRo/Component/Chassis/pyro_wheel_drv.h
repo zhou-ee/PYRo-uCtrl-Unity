@@ -29,10 +29,10 @@ class wheel_drv_t
 
     float torque_cmd;
     float rotate;
+    float last_torque;
 
     motor_base_t *motor_base;
     power_control_drv_t power_control_drv;
-
 
   private:
     pid_t _speed_pid;
@@ -40,6 +40,7 @@ class wheel_drv_t
     float _target_speed;
     float _current_speed;
     float _gear_ratio;
+
 
     friend class vofa_drv_t;
 };

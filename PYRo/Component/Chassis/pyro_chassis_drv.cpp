@@ -10,6 +10,9 @@
 
 float vx;
 float vy;
+
+float raw_torque;
+
 namespace pyro
 {
 
@@ -62,12 +65,36 @@ void chassis_drv_t::zero_force()
     }
 }
 
+
+
 void chassis_drv_t::chassis_power_control()
 {
+
+    raw_torque = _steering_wheel_drv.at(3)->wheel_drv->torque_cmd;
+
     _total_power = 8;
     for(int i = 0; i < 4; i++)
     {
         _total_power += _steering_wheel_drv.at(i)->wheel_drv->power_control_drv.power_predict;
+    }
+
+    float alpha;
+    const float POWER_THRESHOLD = POWER_LIMIT * 1.1f;
+
+    if (_total_power > POWER_THRESHOLD)
+    {
+        // 情况1：功率严重超限，需要快速响应
+        alpha = 0.8f; // 较大的 alpha，快速降低扭矩
+    }
+    else if (_total_power > POWER_LIMIT)
+    {
+        // 情况2：功率轻微超限，需要平滑调整
+        alpha = 0.10f; // 中等的 alpha，缓慢微调
+    }
+    else
+    {
+        // 情况3：功率在限制范围内，无需滤波，保证响应速度
+        alpha = 1.0f; // 无滤波，直接跟踪目标
     }
 
 	if (_total_power > POWER_LIMIT)
@@ -78,10 +105,20 @@ void chassis_drv_t::chassis_power_control()
 		{
 			zoom_power[i] = _steering_wheel_drv.at(i)->wheel_drv->power_control_drv.power_predict * power_zoom_factor;
 			_steering_wheel_drv.at(i)->wheel_drv->power_control_drv.motor_power_restrict_torque(_steering_wheel_drv.at(i)->wheel_drv->torque_cmd, 
-                    _steering_wheel_drv.at(i)->wheel_drv->get_current_motor_rotate() , zoom_power[i] );
+                    _steering_wheel_drv.at(i)->wheel_drv->get_current_motor_rotate() , zoom_power[i]);
 			_steering_wheel_drv.at(i)->wheel_drv->torque_cmd = _steering_wheel_drv.at(i)->wheel_drv->power_control_drv.restrict_torque;
 		}
 	}
+
+    for(int i = 0; i < 4; i++)
+    {
+        _steering_wheel_drv.at(i)->wheel_drv->torque_cmd = alpha * _steering_wheel_drv.at(i)->wheel_drv->torque_cmd + (1 - alpha) * _steering_wheel_drv.at(i)->wheel_drv->last_torque;
+    }
+
+    for(int i = 0; i < 4; i++)
+    {
+        _steering_wheel_drv.at(i)->wheel_drv->last_torque = _steering_wheel_drv.at(i)->wheel_drv->torque_cmd;
+    }
 }
 
 void chassis_drv_t::chassis_control(float yaw_err)

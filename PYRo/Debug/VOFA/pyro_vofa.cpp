@@ -16,6 +16,7 @@ extern pyro::wheel_drv_t *wheel_drv_3;
 extern pyro::wheel_drv_t *wheel_drv_2;
 extern pyro::wheel_drv_t *wheel_drv_1;
 extern pyro::chassis_drv_t *chassis_drv;
+extern float raw_torque;
 
 
 namespace pyro
@@ -105,30 +106,39 @@ void vofa_drv_t::send()
 
 void vofa_drv_t::thread()
 {
-    // float buffer_energy = static_cast<float>(referee_data.power_heat.buffer_energy);
-    // add_data(&buffer_energy);
-
-    // float *predict_power = &chassis_drv->_total_power;
-    // add_data(predict_power);
+    float buffer_energy = static_cast<float>(referee_data.power_heat.buffer_energy);
+    add_data(&buffer_energy);
 
     float *real_power = &power_data.power;
     add_data(real_power);
 
-    float *predict_power_1 = &wheel_drv_1->power_control_drv.power_predict;
-    add_data(predict_power_1);
-
-    float *predict_power_2 = &wheel_drv_2->power_control_drv.power_predict;
-    add_data(predict_power_2);
-
-    float *predict_power_3 = &wheel_drv_3->power_control_drv.power_predict;
-    add_data(predict_power_3);
+    float *predict_total_power = &chassis_drv->_total_power;
+    add_data(predict_total_power);
 
     float *predict_power_4 = &wheel_drv_4->power_control_drv.power_predict;
     add_data(predict_power_4);
 
+    // float *torque_4 = &wheel_drv_4->torque_cmd;
+    // add_data(torque_4);
+
+    // float *torque_without_predict = &raw_torque;
+    // add_data(torque_without_predict); 
+
+    // float *rotate = &wheel_drv_4->rotate;
+    // add_data(rotate);
+
+
+    // float *predict_power_1 = &wheel_drv_1->power_control_drv.power_predict;
+    // add_data(predict_power_1);
+
+    // float *predict_power_2 = &wheel_drv_2->power_control_drv.power_predict;
+    // add_data(predict_power_2);
+
+    // float *predict_power_3 = &wheel_drv_3->power_control_drv.power_predict;
+    // add_data(predict_power_3);
+
     // float *torque_1 = &wheel_drv_1->torque_cmd;
     // add_data(torque_1);
-
 
     // float *torque_2 = &wheel_drv_2->torque_cmd;
     // add_data(torque_2);
@@ -136,15 +146,8 @@ void vofa_drv_t::thread()
     // float *torque_3 = &wheel_drv_3->torque_cmd;
     // add_data(torque_3);
 
-    // float *torque_4 = &wheel_drv_4->torque_cmd;
-    // add_data(torque_4);
-
-
     // float *tau = &wheel_drv_4->torque_cmd;
     // add_data(tau);
-
-    // float *rotate = &wheel_drv_4->rotate;
-    // add_data(rotate);
 
     // float *current = &wheel_drv_2->_current_speed;
     // add_data(current);
@@ -154,7 +157,7 @@ void vofa_drv_t::thread()
 
     while (true)
     {
-        // buffer_energy = static_cast<float>(referee_data.power_heat.buffer_energy);
+        buffer_energy = static_cast<float>(referee_data.power_heat.buffer_energy);
         update_data();
         send();
         vTaskDelay(10);

@@ -6,7 +6,7 @@
 #include <array>
 
 #define POWER_CONTROL_USE 1
-#define POWER_LIMIT 30
+#define POWER_LIMIT 70
 
 namespace pyro
 {
