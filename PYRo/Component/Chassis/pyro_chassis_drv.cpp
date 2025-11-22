@@ -83,18 +83,15 @@ void chassis_drv_t::chassis_power_control()
 
     if (_total_power > POWER_THRESHOLD)
     {
-        // 情况1：功率严重超限，需要快速响应
-        alpha = 0.8f; // 较大的 alpha，快速降低扭矩
+        alpha = 0.8f;
     }
     else if (_total_power > POWER_LIMIT)
     {
-        // 情况2：功率轻微超限，需要平滑调整
-        alpha = 0.10f; // 中等的 alpha，缓慢微调
+        alpha = 0.10f;
     }
     else
     {
-        // 情况3：功率在限制范围内，无需滤波，保证响应速度
-        alpha = 1.0f; // 无滤波，直接跟踪目标
+        alpha = 1.0f;
     }
 
 	if (_total_power > POWER_LIMIT)
@@ -113,10 +110,6 @@ void chassis_drv_t::chassis_power_control()
     for(int i = 0; i < 4; i++)
     {
         _steering_wheel_drv.at(i)->wheel_drv->torque_cmd = alpha * _steering_wheel_drv.at(i)->wheel_drv->torque_cmd + (1 - alpha) * _steering_wheel_drv.at(i)->wheel_drv->last_torque;
-    }
-
-    for(int i = 0; i < 4; i++)
-    {
         _steering_wheel_drv.at(i)->wheel_drv->last_torque = _steering_wheel_drv.at(i)->wheel_drv->torque_cmd;
     }
 }
