@@ -86,7 +86,6 @@ extern "C"
         dr16_drv->init();
         dr16_drv->enable();
 
-
         /* ------ PID 初始化 -------------------------------------------------*/
 
         // 1. 系数
@@ -158,10 +157,10 @@ extern "C"
         wheel_drv_3->set_gear_ratio(19.0f);
         wheel_drv_4->set_gear_ratio(19.0f);
 
-        wheel_drv_1->power_control_drv.set_coefficient(0.0118f, 0.0163f, 0.1945f, 0.6456f);     //大概准，差个位数
-        wheel_drv_2->power_control_drv.set_coefficient(0.0123f, 0.0218f, 0.1597f, 0.7248f);     //大概准，高速下差的有点大                                                                                                                                                                                              
-        wheel_drv_3->power_control_drv.set_coefficient(0.0127f, 0.0225f, 0.1455f, 0.2370f);     //准，高速下打滑
-        wheel_drv_4->power_control_drv.set_coefficient(0.0099f, 0.0094f, 0.1969f, 0.7185f);     //大概准，差个位数
+        // wheel_drv_1->power_control_drv.set_coefficient(0.0118f, 0.0163f, 0.1945f, 0.6456f);     //大概准，差个位数
+        // wheel_drv_2->power_control_drv.set_coefficient(0.0123f, 0.0218f, 0.1597f, 0.7248f);     //大概准，高速下差的有点大                                                                                                                                                                                              
+        // wheel_drv_3->power_control_drv.set_coefficient(0.0127f, 0.0225f, 0.1455f, 0.2370f);     //准，高速下打滑
+        // wheel_drv_4->power_control_drv.set_coefficient(0.0099f, 0.0094f, 0.1969f, 0.7185f);     //大概准，差个位数
 
         steering_wheel_drv_1 = new pyro::steering_wheel_drv_t(
             wheel_drv_1,
@@ -204,7 +203,37 @@ extern "C"
             steering_wheel_drv_2,
             steering_wheel_drv_3,
             steering_wheel_drv_4,
-            follow_yaw_pid);
+            follow_yaw_pid,
+            4);
+
+        pyro::power_control_drv_t& power_controller = pyro::power_control_drv_t::get_instance();
+        pyro::power_control_drv_t::motor_coefficient_t coeff1;
+        coeff1.k1 = 0.0118f;
+        coeff1.k2 = 0.0163f;
+        coeff1.k3 = 0.1945f;
+        coeff1.k4 = 0.6456f;
+        power_controller.set_motor_coefficient(1, coeff1);
+
+        pyro::power_control_drv_t::motor_coefficient_t coeff2;
+        coeff2.k1 = 0.0123f;
+        coeff2.k2 = 0.0218f;
+        coeff2.k3 = 0.1597f;
+        coeff2.k4 = 0.7248f;
+        power_controller.set_motor_coefficient(2, coeff2);
+
+        pyro::power_control_drv_t::motor_coefficient_t coeff3;
+        coeff3.k1 = 0.0127f;
+        coeff3.k2 = 0.0225f;
+        coeff3.k3 = 0.1455f;
+        coeff3.k4 = 0.2370f;
+        power_controller.set_motor_coefficient(3, coeff3);
+
+        pyro::power_control_drv_t::motor_coefficient_t coeff4;
+        coeff4.k1 = 0.0099f;
+        coeff4.k2 = 0.0094f;
+        coeff4.k3 = 0.1969f;
+        coeff4.k4 = 0.7185f;
+        power_controller.set_motor_coefficient(4, coeff4);
 
         power_meter = new pyro::powermeter_drv_t(0x212 ,pyro::can_hub_t::can3);
 

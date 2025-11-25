@@ -1,6 +1,7 @@
 #include "pyro_can_drv.h"
 #include "pyro_rc_hub.h"
 #include "pyro_dwt_drv.h"
+#include "pyro_power_control_drv.h"
 
 extern "C"
 {

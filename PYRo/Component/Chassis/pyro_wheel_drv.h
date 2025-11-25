@@ -3,7 +3,6 @@
 
 #include "pyro_motor_base.h"
 #include "pyro_algo_pid.h"
-#include "pyro_power_control_drv.h"
 
 namespace pyro
 {
@@ -20,9 +19,7 @@ class wheel_drv_t
     void set_speed(float target_speed);
     void zero_force();
     float get_target_speed();
-    float *get_p_target_speed();
     float get_current_speed();
-    float *get_p_current_speed();
     float get_current_motor_rotate();
     void update_feedback();
     void control();
@@ -32,7 +29,6 @@ class wheel_drv_t
     float last_torque;
 
     motor_base_t *motor_base;
-    power_control_drv_t power_control_drv;
 
   private:
     pid_t _speed_pid;

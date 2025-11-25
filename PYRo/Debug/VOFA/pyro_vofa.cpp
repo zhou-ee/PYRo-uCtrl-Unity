@@ -106,23 +106,21 @@ void vofa_drv_t::send()
 
 void vofa_drv_t::thread()
 {
+    
     float buffer_energy = static_cast<float>(referee_data.power_heat.buffer_energy);
     add_data(&buffer_energy);
 
-    float *real_power = &power_data.power;
-    add_data(real_power);
+    // float *real_power = &power_data.power;
+    // add_data(real_power);
 
-    float *predict_total_power = &chassis_drv->_total_power;
-    add_data(predict_total_power);
-
-    float *predict_power_4 = &wheel_drv_4->power_control_drv.power_predict;
+    float *predict_power_4 = &chassis_drv->_wheel_data.at(3).power_predict;
     add_data(predict_power_4);
 
     // float *torque_4 = &wheel_drv_4->torque_cmd;
     // add_data(torque_4);
 
     // float *torque_without_predict = &raw_torque;
-    // add_data(torque_without_predict); 
+    // add_data(torque_without_predict);
 
     // float *rotate = &wheel_drv_4->rotate;
     // add_data(rotate);
