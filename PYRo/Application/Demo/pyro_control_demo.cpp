@@ -249,7 +249,7 @@ extern "C"
             yaw_drv_1->set_control();
             yaw_drv_1->control();
 
-           power_meter->get_data(power_data);
+            power_meter->get_data(power_data);
 
             chassis_drv->chassis_control(-yaw_drv_1->get_radian());
             // chassis_drv->chassis_control(0);
