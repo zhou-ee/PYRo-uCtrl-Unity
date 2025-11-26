@@ -4,7 +4,7 @@
 #include "pyro_steering_wheel_drv.h"
 #include "pyro_power_control_drv.h"
 #include "pyro_rc_hub.h"
-#include <array>
+
 
 #define POWER_CONTROL_USE 1
 #define POWER_LIMIT 70
@@ -44,7 +44,7 @@ class chassis_drv_t
     float _vx, _vy, _wz; // The direction of the front of the vehicle represents the vy direction
     uint8_t _s_right;
     uint8_t _powercontrol_num;
-    std::vector<power_control_drv_t::wheel_data_t> _wheel_data;
+    std::vector<power_control_drv_t::motor_data_t> _motor_data;
 
     friend class vofa_drv_t;
 };

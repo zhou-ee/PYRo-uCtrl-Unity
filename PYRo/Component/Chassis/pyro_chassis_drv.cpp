@@ -26,7 +26,7 @@ chassis_drv_t::chassis_drv_t(steering_wheel_drv_t *drv1,
     : _steering_wheel_drv{drv1, drv2, drv3, drv4},
       _yaw_pid(yaw_pid),
       _powercontrol_num(powercontrol_num),
-      _wheel_data(powercontrol_num)
+      _motor_data(powercontrol_num)
 
 {
     rc_hub_t::get_instance(
@@ -70,56 +70,6 @@ void chassis_drv_t::zero_force()
         _steering_wheel_drv.at(i)->zero_force();
     }
 }
-
-// void chassis_drv_t::chassis_power_control()
-// {
-//     power_control_drv_t& power_controller = power_control_drv_t::get_instance();
-
-//     float total_power = 8;
-
-//     for(int i = 0; i < _powercontrol_num; i++)
-//     {
-//         float tau = _steering_wheel_drv[i]->wheel_drv->torque_cmd;
-//         float gyro = _steering_wheel_drv[i]->wheel_drv->rotate;
-//         _wheel_powers[i] = power_controller.motor_power_predict(i, tau, gyro);
-//         total_power += _wheel_powers[i];
-//     }
-
-//     float alpha;
-//     const float POWER_THRESHOLD = POWER_LIMIT * 1.1f;
-//     if (total_power > POWER_THRESHOLD)
-//     {
-//         alpha = 0.8f;
-//     }
-//     else if (total_power > POWER_LIMIT)
-//     {
-//         alpha = 0.10f;
-//     }
-//     else
-//     {
-//         alpha = 1.0f;
-//     }
-
-// 	if (total_power > POWER_LIMIT)
-// 	{
-// 		float power_zoom_factor = POWER_LIMIT / total_power ;
-// 		float zoom_power[4];
-//         for (uint8_t i = 0; i < _powercontrol_num; i++)
-// 		{
-// 			zoom_power[i] = _steering_wheel_drv.at(i)->wheel_drv->power_control_drv.power_predict * power_zoom_factor;
-// 			_steering_wheel_drv.at(i)->wheel_drv->power_control_drv.motor_power_restrict_torque(_steering_wheel_drv.at(i)->wheel_drv->torque_cmd, 
-//                     _steering_wheel_drv.at(i)->wheel_drv->get_current_motor_rotate() , zoom_power[i]);
-// 			_steering_wheel_drv.at(i)->wheel_drv->torque_cmd = _steering_wheel_drv.at(i)->wheel_drv->power_control_drv.restrict_torque;
-// 		}
-// 	}
-
-//     for(int i = 0; i < 4; i++)
-//     {
-//         _steering_wheel_drv.at(i)->wheel_drv->torque_cmd = alpha * _steering_wheel_drv.at(i)->wheel_drv->torque_cmd + (1 - alpha) * _steering_wheel_drv.at(i)->wheel_drv->last_torque;
-//         _steering_wheel_drv.at(i)->wheel_drv->last_torque = _steering_wheel_drv.at(i)->wheel_drv->torque_cmd;
-//     }
-// }
-
 void chassis_drv_t::chassis_control(float yaw_err)
 {
     float chassis_vx;
@@ -178,18 +128,18 @@ void chassis_drv_t::chassis_control(float yaw_err)
         power_control_drv_t& power_controller = power_control_drv_t::get_instance();
         for(int i = 0; i < 4; i++)
         {
-            _wheel_data.at(i).gyro = _steering_wheel_drv.at(i)->wheel_drv->rotate;
-            _wheel_data.at(i).torque_cmd = _steering_wheel_drv.at(i)->wheel_drv->torque_cmd;
-            _wheel_data.at(i).power_predict = power_controller.motor_power_predict(i, 
-                    _wheel_data.at(i).torque_cmd, _wheel_data.at(i).gyro);
+            _motor_data.at(i).gyro = _steering_wheel_drv.at(i)->wheel_drv->rotate;
+            _motor_data.at(i).torque_cmd = _steering_wheel_drv.at(i)->wheel_drv->torque_cmd;
+            _motor_data.at(i).power_predict = power_controller.motor_power_predict(i, 
+                    _motor_data.at(i).torque_cmd, _motor_data.at(i).gyro);
         }
 
         // float custom_ratios[4] = {0.1f, 0.1f, 0.1f, 0.1f};
         // power_controller.calculate_restricted_torques(_wheel_data.data(), 4, POWER_LIMIT, custom_ratios);
-        power_controller.calculate_restricted_torques(_wheel_data.data(), 4, POWER_LIMIT);
+        power_controller.calculate_restricted_torques(_motor_data.data(), 4, POWER_LIMIT);
         for(int i = 0; i < 4; i++)
         {
-            _steering_wheel_drv.at(i)->wheel_drv->torque_cmd = _wheel_data.at(i).restricted_torque;
+            _steering_wheel_drv.at(i)->wheel_drv->torque_cmd = _motor_data.at(i).restricted_torque;
         }
 
         #endif

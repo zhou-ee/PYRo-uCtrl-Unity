@@ -157,11 +157,6 @@ extern "C"
         wheel_drv_3->set_gear_ratio(19.0f);
         wheel_drv_4->set_gear_ratio(19.0f);
 
-        // wheel_drv_1->power_control_drv.set_coefficient(0.0118f, 0.0163f, 0.1945f, 0.6456f);     //大概准，差个位数
-        // wheel_drv_2->power_control_drv.set_coefficient(0.0123f, 0.0218f, 0.1597f, 0.7248f);     //大概准，高速下差的有点大                                                                                                                                                                                              
-        // wheel_drv_3->power_control_drv.set_coefficient(0.0127f, 0.0225f, 0.1455f, 0.2370f);     //准，高速下打滑
-        // wheel_drv_4->power_control_drv.set_coefficient(0.0099f, 0.0094f, 0.1969f, 0.7185f);     //大概准，差个位数
-
         steering_wheel_drv_1 = new pyro::steering_wheel_drv_t(
             wheel_drv_1,
             gm6020_drv_1,

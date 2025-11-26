@@ -113,7 +113,7 @@ void vofa_drv_t::thread()
     // float *real_power = &power_data.power;
     // add_data(real_power);
 
-    float *predict_power_4 = &chassis_drv->_wheel_data.at(3).power_predict;
+    float *predict_power_4 = &chassis_drv->_motor_data.at(3).power_predict;
     add_data(predict_power_4);
 
     // float *torque_4 = &wheel_drv_4->torque_cmd;
