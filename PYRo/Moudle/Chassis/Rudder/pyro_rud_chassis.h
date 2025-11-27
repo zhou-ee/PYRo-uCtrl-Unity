@@ -35,13 +35,14 @@ class rud_chassis_t final : public chassis_base_t
     cmd_rud_t _cmd_rud;
     rudder_kin_t::rudder_states_t _target_states{};
     rudder_kin_t::rudder_states_t _current_states{};
-    rudder_kin_t
-        *_kinematics; // Example dimensions: 3m wheelbase, 3m track width
+    rudder_kin_t *_kinematics{};
     float _wheel_output[4]{};         // Wheel torque command output
     float _rudder_target_speed[4]{};  // Rudder speed target for angle control
     float _rudder_current_speed[4]{}; // Rudder current speed feedback
     float _rudder_output[4]{};        // Rudder torque command output
 
+    // Rudder angle offset calibration
+    float _rudder_offset[4] = {0.0f, 0.0f, 0.0f, 0.0f};
 
     motor_base_t *_wheel_motor[4]{};  // FL, FR, BL, BR
     motor_base_t *_rudder_motor[4]{}; // Rudder motor

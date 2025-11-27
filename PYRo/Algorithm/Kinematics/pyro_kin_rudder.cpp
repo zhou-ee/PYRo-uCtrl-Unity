@@ -41,20 +41,20 @@ rudder_kin_t::solve(const float vx, const float vy, const float wz,
     // 2. Superpose vectors and optimize (V_target = V_body + V_rot)
 
     // Front Left (Left X, Front Y)
-    _optimize_module(vx + rot_x_left, vy + rot_y_front, current_states.fl,
-                     target_states.fl);
+    _optimize_module(vx + rot_x_left, vy + rot_y_front, current_states.modules[FL],
+                     target_states.modules[FL]);
 
     // Front Right (Right X, Front Y)
-    _optimize_module(vx + rot_x_right, vy + rot_y_front, current_states.fr,
-                     target_states.fr);
+    _optimize_module(vx + rot_x_right, vy + rot_y_front, current_states.modules[FR],
+                     target_states.modules[FR]);
 
     // Back Left (Left X, Back Y)
-    _optimize_module(vx + rot_x_left, vy + rot_y_back, current_states.bl,
-                     target_states.bl);
+    _optimize_module(vx + rot_x_left, vy + rot_y_back, current_states.modules[BL],
+                     target_states.modules[BL]);
 
     // Back Right (Right X, Back Y)
-    _optimize_module(vx + rot_x_right, vy + rot_y_back, current_states.br,
-                     target_states.br);
+    _optimize_module(vx + rot_x_right, vy + rot_y_back, current_states.modules[BR],
+                     target_states.modules[BR]);
 
     return target_states;
 }
@@ -115,17 +115,17 @@ void rudder_kin_t::compute_odometry(const rudder_states_t &states,
     // Forward Kinematics: Project wheel velocities back to body frame
     // Using arm_dsp optimized trig functions (Lookup table + interpolation)
 
-    const float fl_vx = states.fl.speed * arm_cos_f32(states.fl.angle);
-    const float fl_vy = states.fl.speed * arm_sin_f32(states.fl.angle);
+    const float fl_vx = states.modules[FL].speed * arm_cos_f32(states.modules[FL].angle);
+    const float fl_vy = states.modules[FL].speed * arm_sin_f32(states.modules[FL].angle);
 
-    const float fr_vx = states.fr.speed * arm_cos_f32(states.fr.angle);
-    const float fr_vy = states.fr.speed * arm_sin_f32(states.fr.angle);
+    const float fr_vx = states.modules[FR].speed * arm_cos_f32(states.modules[FR].angle);
+    const float fr_vy = states.modules[FR].speed * arm_sin_f32(states.modules[FR].angle);
 
-    const float bl_vx = states.bl.speed * arm_cos_f32(states.bl.angle);
-    const float bl_vy = states.bl.speed * arm_sin_f32(states.bl.angle);
+    const float bl_vx = states.modules[BL].speed * arm_cos_f32(states.modules[BL].angle);
+    const float bl_vy = states.modules[BL].speed * arm_sin_f32(states.modules[BL].angle);
 
-    const float br_vx = states.br.speed * arm_cos_f32(states.br.angle);
-    const float br_vy = states.br.speed * arm_sin_f32(states.br.angle);
+    const float br_vx = states.modules[BR].speed * arm_cos_f32(states.modules[BR].angle);
+    const float br_vy = states.modules[BR].speed * arm_sin_f32(states.modules[BR].angle);
 
     // 1. Average linear velocities
     out_vx            = (fl_vx + fr_vx + bl_vx + br_vx) / 4.0f;

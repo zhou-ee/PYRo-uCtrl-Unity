@@ -6,13 +6,12 @@ extern "C" void chassis_init(void *argument);
 namespace pyro
 {
 
-chassis_base_t::chassis_base_t()
+chassis_base_t::chassis_base_t() : chassis_base_t(type_t::UNKNOWN)
 {
-    xTaskCreate(chassis_init, "chassis_init", 512, this, tskIDLE_PRIORITY + 1,
-                &_chassis_init_handle);
 }
-chassis_base_t::chassis_base_t(type_t type)
+chassis_base_t::chassis_base_t(const type_t type)
 {
+    _type = type;
     xTaskCreate(chassis_init, "chassis_init", 512, this, tskIDLE_PRIORITY + 1,
                 &_chassis_init_handle);
 }

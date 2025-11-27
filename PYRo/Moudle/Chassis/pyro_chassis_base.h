@@ -36,14 +36,17 @@ class chassis_base_t
         float vx; // Linear velocity X (m/s)
         float vy; // Linear velocity Y (m/s)
         float wz; // Angular velocity Z (rad/s)
-        float yaw_err; // Yaw error for heading control (rad)
+        // Yaw error for heading control (rad)
+        // if not followed gimbal yaw, set to 0
+        float yaw_err;
+
 
         /**
          * @brief Constructor with default initialization
          * @param t Specific chassis type
          */
         explicit cmd_base_t(const type_t t = type_t::UNKNOWN)
-            : type(t), timestamp(0), vx(0.0f), vy(0.0f), wz(0.0f)
+            : type(t), timestamp(0), vx(0.0f), vy(0.0f), wz(0.0f), yaw_err(0.0f)
         {
         }
         // Ensure virtual destructor for polymorphism

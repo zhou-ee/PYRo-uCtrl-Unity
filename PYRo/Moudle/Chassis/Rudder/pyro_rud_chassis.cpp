@@ -70,39 +70,22 @@ void rud_chassis_t::update_feedback()
         _wheel_motor[i]->update_feedback();
         _rudder_motor[i]->update_feedback();
     }
-    _current_states = {
-        {
-            _wheel_motor[0]->get_current_rotate() *
-                dji_m3508_motor_drv_t::reciprocal_reduction_ratio,
-            _rudder_motor[0]->get_current_position(),
-        },
-        {
-            _wheel_motor[1]->get_current_rotate() *
-                dji_m3508_motor_drv_t::reciprocal_reduction_ratio,
-            _rudder_motor[1]->get_current_position(),
-        },
-        {
-            _wheel_motor[2]->get_current_rotate() *
-                dji_m3508_motor_drv_t::reciprocal_reduction_ratio,
-            _rudder_motor[2]->get_current_position(),
-        },
-        {
-            _wheel_motor[3]->get_current_rotate() *
-                dji_m3508_motor_drv_t::reciprocal_reduction_ratio,
-            _rudder_motor[3]->get_current_position(),
-        },
-    };
     for (int i = 0; i < 4; ++i)
     {
+        _current_states.modules[i] = {
+            .speed = _wheel_motor[i]->get_current_rotate() *
+                     dji_m3508_motor_drv_t::reciprocal_reduction_ratio,
+            .angle =
+                _rudder_motor[i]->get_current_position() - _rudder_offset[i]};
         _rudder_current_speed[i] = _rudder_motor[i]->get_current_rotate();
     }
 }
 
 void rud_chassis_t::kinematics_solve()
 {
-    if (0 == _cmd_rud.wz)
+    if (0 != _cmd_rud.yaw_err)
     {
-        _cmd_rud.wz += _follow_angle_pid->calculate(0, _cmd_rud.yaw_err);
+        _cmd_rud.wz = _follow_angle_pid->calculate(0, _cmd_rud.yaw_err);
     }
     _target_states = _kinematics->solve(_cmd_rud.vx, _cmd_rud.vy, _cmd_rud.wz,
                                         _current_states);
@@ -111,37 +94,19 @@ void rud_chassis_t::kinematics_solve()
 
 void rud_chassis_t::chassis_control()
 {
-    _wheel_output[0] = _wheel_speed_pid[0]->calculate(_target_states.fl.speed,
-                                                      _current_states.fl.speed);
-    _wheel_output[1] = _wheel_speed_pid[1]->calculate(_target_states.fr.speed,
-                                                      _current_states.fr.speed);
-    _wheel_output[2] = _wheel_speed_pid[2]->calculate(_target_states.fl.speed,
-                                                      _current_states.bl.speed);
-    _wheel_output[3] = _wheel_speed_pid[3]->calculate(_target_states.br.speed,
-                                                      _current_states.br.speed);
-
-    _rudder_target_speed[0] = _rudder_angle_pid[0]->calculate(
-        _target_states.fl.angle, _current_states.fl.angle);
-    _rudder_target_speed[1] = _rudder_angle_pid[1]->calculate(
-        _target_states.fr.angle, _current_states.fr.angle);
-    _rudder_target_speed[2] = _rudder_angle_pid[2]->calculate(
-        _target_states.bl.angle, _current_states.bl.angle);
-    _rudder_target_speed[3] = _rudder_angle_pid[3]->calculate(
-        _target_states.br.angle, _current_states.br.angle);
-
-    _rudder_output[0] = _rudder_speed_pid[0]->calculate(
-        _rudder_target_speed[0], _rudder_current_speed[0]);
-    _rudder_output[1] = _rudder_speed_pid[1]->calculate(
-        _rudder_target_speed[1], _rudder_current_speed[1]);
-    _rudder_output[2] = _rudder_speed_pid[2]->calculate(
-        _rudder_target_speed[2], _rudder_current_speed[2]);
-    _rudder_output[3] = _rudder_speed_pid[3]->calculate(
-        _rudder_target_speed[3], _rudder_current_speed[3]);
+    for (int i = 0; i < 4; ++i)
+    {
+        _wheel_output[i] = _wheel_speed_pid[i]->calculate(
+            _target_states.modules[i].speed, _current_states.modules[i].speed);
+        _rudder_target_speed[i] = _rudder_angle_pid[i]->calculate(
+            _target_states.modules[i].angle, _current_states.modules[i].angle);
+        _rudder_output[i] = _rudder_speed_pid[i]->calculate(
+            _rudder_target_speed[i], _rudder_current_speed[i]);
+    }
 }
 
 void rud_chassis_t::power_control()
 {
-
 }
 
 void rud_chassis_t::send_motor_command()

@@ -109,6 +109,9 @@ add_executable(${CMAKE_PROJECT_NAME}
         PYRo/Core/Lock/pyro_mutex.cpp
         PYRo/Algorithm/Kinematics/pyro_kin_rudder.cpp
         PYRo/Moudle/Chassis/Rudder/pyro_rud_chassis.cpp
+        PYRo/Algorithm/Kinematics/pyro_kin_hybrid.cpp
+        PYRo/Moudle/Chassis/Hybrid/pyro_hybrid_chassis.cpp
+
 )
 
 # Add STM32CubeMX generated sources
@@ -157,6 +160,7 @@ target_include_directories(${CMAKE_PROJECT_NAME} PUBLIC
     PYRo/Moudle/Chassis
     PYRo/Moudle/Chassis/Mecanum
     PYRo/Moudle/Chassis/Rudder
+    PYRo/Moudle/Chassis/Hybrid
 
 )
 

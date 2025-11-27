@@ -10,6 +10,15 @@ namespace pyro
 class rudder_kin_t
 {
   public:
+    // Index enum for readable array access
+    enum wheel_index_e
+    {
+        FL = 0, // Front Left
+        FR = 1, // Front Right
+        BL = 2, // Back Left
+        BR = 3  // Back Right
+    };
+
     struct module_state_t
     {
         float speed; // Linear speed (m/s)
@@ -18,10 +27,7 @@ class rudder_kin_t
 
     struct rudder_states_t
     {
-        module_state_t fl; // Front Left
-        module_state_t fr; // Front Right
-        module_state_t bl; // Back Left
-        module_state_t br; // Back Right
+        module_state_t modules[4]; // Array storing state for all 4 modules
     };
 
     /**
