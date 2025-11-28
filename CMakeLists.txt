@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.22)
+zcmake_minimum_required(VERSION 3.22)
 
 #
 # This file is generated only once,
@@ -12,6 +12,20 @@ set(CMAKE_C_STANDARD 11)
 set(CMAKE_C_STANDARD_REQUIRED ON)
 set(CMAKE_C_EXTENSIONS ON)
 
+set(CPU_FLAGS
+    "-mcpu=cortex-m7"
+    "-mthumb"
+    "-mfpu=fpv5-d16"
+    "-mfloat-abi=hard"
+)
+
+add_compile_options(
+    ${CPU_FLAGS}
+    "-Ofast"
+    "-Wdouble-promotion"
+    "-funsafe-math-optimizations"
+    "-Wall"
+)
 
 # Define the build type
 if(NOT CMAKE_BUILD_TYPE)
@@ -100,6 +114,15 @@ add_executable(${CMAKE_PROJECT_NAME}
         PYRo/Component/Referee/referee_usart_task.c
 
         PYRo/Component/Powermeter/pyro_powermeter.cpp
+        PYRo/Moudle/Chassis/pyro_chassis_base.cpp
+        PYRo/Algorithm/Kinematics/pyro_kin_mec.cpp
+        PYRo/Moudle/Chassis/Mecanum/pyro_mec_chassis.cpp
+        PYRo/Core/Lock/pyro_mutex.cpp
+        PYRo/Algorithm/Kinematics/pyro_kin_rudder.cpp
+        PYRo/Moudle/Chassis/Rudder/pyro_rud_chassis.cpp
+        PYRo/Algorithm/Kinematics/pyro_kin_hybrid.cpp
+        PYRo/Moudle/Chassis/Hybrid/pyro_hybrid_chassis.cpp
+
 )
 
 # Add STM32CubeMX generated sources
@@ -131,6 +154,7 @@ target_include_directories(${CMAKE_PROJECT_NAME} PUBLIC
 
     PYRo/Algorithm/OLS
     PYRo/Algorithm/PID
+    PYRo/Algorithm/Kinematics
 
     PYRo/Component/RC
     PYRo/Component/Motor
@@ -146,6 +170,12 @@ target_include_directories(${CMAKE_PROJECT_NAME} PUBLIC
     PYRo/Application/Demo
 
     PYRo/Debug/VOFA
+
+    PYRo/Moudle/Chassis
+    PYRo/Moudle/Chassis/Mecanum
+    PYRo/Moudle/Chassis/Rudder
+    PYRo/Moudle/Chassis/Hybrid
+
 )
 
 # Add project symbols (macros)

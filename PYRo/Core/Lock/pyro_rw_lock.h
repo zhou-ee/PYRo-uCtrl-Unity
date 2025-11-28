@@ -121,7 +121,7 @@ class read_scope_lock
      * @brief 检查锁是否成功获取
      * @return true 如果锁被持有, false 如果超时
      */
-    bool is_locked() const
+    [[nodiscard]] bool is_locked() const
     {
         return _is_locked;
     }
@@ -173,7 +173,7 @@ class write_scope_lock
      * @brief 检查锁是否成功获取
      * @return true 如果锁被持有, false 如果超时
      */
-    bool is_locked() const
+    [[nodiscard]] bool is_locked() const
     {
         return _is_locked;
     }
