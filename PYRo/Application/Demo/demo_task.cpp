@@ -54,11 +54,11 @@ extern "C"
                     configMAX_PRIORITIES - 2, nullptr);
 #endif
 
-#if REFERENCE_DEMO_EN
-
-#endif
+#if REFEREE_DEMO_EN
         xTaskCreate(referee_task, "referee_task", 512, nullptr,
                     configMAX_PRIORITIES - 2, nullptr);
+#endif
+
 #endif
         vTaskDelete(nullptr);
     }

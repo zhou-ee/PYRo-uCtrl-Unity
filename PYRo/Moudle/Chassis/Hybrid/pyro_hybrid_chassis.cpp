@@ -6,7 +6,7 @@
 namespace pyro
 {
 
-hybrid_chassis_t::hybrid_chassis_t() : chassis_base_t(type_t::WHEEL_LEG)
+hybrid_chassis_t::hybrid_chassis_t() : chassis_base_t(type_t::HYBRID)
 {
 }
 
@@ -34,7 +34,7 @@ void hybrid_chassis_t::init()
     // 1. Initialize Kinematics
     // Params: Track Spacing (m), Mecanum Wheelbase (m), Mecanum Track Width (m)
     // Replace 0.4f, 0.3f, 0.35f with your actual robot dimensions
-    _kinematics       = new hybrid_kin_t(0.40f, 0.35f, 0.41f);
+    _kinematics       = new hybrid_kin_t(0.648f, 0.35f, 0.41f);
 
     // 2. Initialize Motors
     // Mecanum (DJI M3508)
@@ -47,16 +47,18 @@ void hybrid_chassis_t::init()
     _mecanum_motor[3] = new dji_m3508_motor_drv_t(dji_motor_tx_frame_t::id_4,
                                                   can_hub_t::can1); // BR
 
+    // NOLINTBEGIN(cppcoreguidelines-pro-type-static-cast-downcast)
+
     // Tracks (DM Motors) - Assuming control mode is set internally or defaults
     // to MIT/Velocity Note: You might need to set the control mode for DM
     // motors (Speed vs Position)
     _track_motor[0]   = new dm_motor_drv_t(0x11, 0x21, can_hub_t::can2);
     _track_motor[1]   = new dm_motor_drv_t(0x12, 0x22, can_hub_t::can2);
     static_cast<dm_motor_drv_t *>(_track_motor[0])->set_position_range(-PI, PI);
-    static_cast<dm_motor_drv_t *>(_track_motor[0])->set_rotate_range(-10, 10);
+    static_cast<dm_motor_drv_t *>(_track_motor[0])->set_rotate_range(-50, 50);
     static_cast<dm_motor_drv_t *>(_track_motor[0])->set_torque_range(-10, 10);
     static_cast<dm_motor_drv_t *>(_track_motor[1])->set_position_range(-PI, PI);
-    static_cast<dm_motor_drv_t *>(_track_motor[1])->set_rotate_range(-10, 10);
+    static_cast<dm_motor_drv_t *>(_track_motor[1])->set_rotate_range(-50, 50);
     static_cast<dm_motor_drv_t *>(_track_motor[1])->set_torque_range(-10, 10);
 
 
@@ -70,30 +72,32 @@ void hybrid_chassis_t::init()
     static_cast<dm_motor_drv_t *>(_leg_motor[1])->set_rotate_range(-10, 10);
     static_cast<dm_motor_drv_t *>(_leg_motor[1])->set_torque_range(-10, 10);
 
+    // NOLINTEND(cppcoreguidelines-pro-type-static-cast-downcast)
+
     // 3. Initialize PIDs
     // PID Params: MaxOut, IntergralLimit, Kp, Ki, Kd
 
     // Mecanum Speed Loop
     for (auto &i : _mecanum_speed_pid)
     {
-        i = new pid_t(16000.0f, 5000.0f, 50.0f, 0.5f, 10.0f);
+        i = new pid_t(0.45f, 0.001f, 0.0002f, 1.0f, 20.0f,30,10,4);
     }
 
     // Track Speed Loop
     for (auto &i : _track_speed_pid)
     {
-        i = new pid_t(10.0f, 2.0f, 1.0f, 0.0f, 0.1f);
+        i = new pid_t(0.045f, 0.0001f, 0.000005f, 0.5f, 10.0f,30,10,4);
     }
 
     // Leg Position Loop (Inner loop)
     for (auto &i : _leg_position_pid)
     {
-        i = new pid_t(10.0f, 1.0f, 8.0f, 0.01f, 0.5f);
+        i = new pid_t(8.0f, 0.005f, 0.0012f, 0.5f, 10.0f,20,10,4);
     }
 
     for (auto &i : _leg_rotate_pid)
     {
-        i = new pid_t(5.0f, 0.5f, 2.0f, 0.0f, 0.1f);
+        i = new pid_t(8.0f, 0.005f, 0.0012f, 0.5f, 10.0f,20,10,4);
     }
 
     // Balance PID (Outer loop: Pitch -> Leg Position)
@@ -102,30 +106,22 @@ void hybrid_chassis_t::init()
                              0.05f); // Output is radians (position offset)
 }
 
-void hybrid_chassis_t::update_imu_data(const float pitch_deg,
-                                       const float roll_deg,
-                                       const float yaw_deg)
+void hybrid_chassis_t::update_imu_data(const float pitch_rad,
+                                       const float roll_rad,
+                                       const float yaw_rad)
 {
-    _current_pitch_rad = pitch_deg;
-    _current_roll_rad  = roll_deg;
-    _current_yaw_rad   = yaw_deg;
+    _current_pitch_rad = pitch_rad;
+    _current_roll_rad  = roll_rad;
+    _current_yaw_rad   = yaw_rad;
 }
 
-void hybrid_chassis_t::set_command(const cmd_base_t &cmd)
+void hybrid_chassis_t::set_command(const cmd_base_t *cmd)
 {
     // Safe cast to hybrid command to access specific modes
-    if (cmd.type == type_t::WHEEL_LEG)
+    if (cmd->type == type_t::HYBRID)
     {
-        _cmd_hybrid = (const cmd_hybrid_t &)cmd;
-    }
-    else
-    {
-        // Fallback for generic commands, assume Cruising
-        _cmd_hybrid.vx         = cmd.vx;
-        _cmd_hybrid.vy         = cmd.vy;
-        _cmd_hybrid.wz         = cmd.wz;
-        _cmd_hybrid.timestamp  = cmd.timestamp;
-        _cmd_hybrid.drive_mode = hybrid_kin_t::drive_mode_t::CRUISING;
+        // NOLINTNEXTLINE(cppcoreguidelines-pro-type-static-cast-downcast)
+        _cmd_hybrid = static_cast<const cmd_hybrid_t *>(cmd);
     }
 }
 
@@ -161,38 +157,57 @@ void hybrid_chassis_t::update_feedback()
     _current_track_rpm[1] =
         _radps_to_rpm(_track_motor[1]->get_current_rotate());
 
-    _current_leg_rad[0]   = _track_motor[0]->get_current_position();
-    _current_leg_radps[0] = _track_motor[0]->get_current_rotate();
-    _current_leg_rad[1]   = _track_motor[1]->get_current_position();
-    _current_leg_radps[1] = _track_motor[1]->get_current_rotate();
+    _current_leg_rad[0]   = _leg_motor[0]->get_current_position();
+    _current_leg_radps[0] = _leg_motor[0]->get_current_rotate();
+    _current_leg_rad[1]   = _leg_motor[1]->get_current_position();
+    _current_leg_radps[1] = _leg_motor[1]->get_current_rotate();
 
     update_imu_data(0, 0, 0);
 }
 
 void hybrid_chassis_t::kinematics_solve()
 {
+    if (mode_t::ZERO_FORCE == _cmd_hybrid->mode)
+    {
+        return;
+    }
     // 1. Solve for Traction Motors (Mecanum + Tracks)
-    _solved_speeds_mps = _kinematics->solve(
-        _cmd_hybrid.vx, _cmd_hybrid.vy, _cmd_hybrid.wz, _cmd_hybrid.drive_mode);
+    _solved_speeds_mps =
+        _kinematics->solve(_cmd_hybrid->vx, _cmd_hybrid->vy, _cmd_hybrid->wz,
+                           _cmd_hybrid->drive_mode);
 
     _target_wheel_rpm[0] =
         _mps_to_rpm(_solved_speeds_mps.mec_fl, MEC_WHEEL_RADIUS_M);
     _target_wheel_rpm[1] =
-        _mps_to_rpm(_solved_speeds_mps.mec_fr, MEC_WHEEL_RADIUS_M);
+        -_mps_to_rpm(_solved_speeds_mps.mec_fr, MEC_WHEEL_RADIUS_M);
     _target_wheel_rpm[2] =
         _mps_to_rpm(_solved_speeds_mps.mec_bl, MEC_WHEEL_RADIUS_M);
     _target_wheel_rpm[3] =
-        _mps_to_rpm(_solved_speeds_mps.mec_br, MEC_WHEEL_RADIUS_M);
+        -_mps_to_rpm(_solved_speeds_mps.mec_br, MEC_WHEEL_RADIUS_M);
 
     _target_track_rpm[0] =
-        _mps_to_rpm(_solved_speeds_mps.track_l, TRACK_WHEEL_RADIUS_M);
+        0.75f * _mps_to_rpm(_solved_speeds_mps.track_l, TRACK_WHEEL_RADIUS_M);
     _target_track_rpm[1] =
-        _mps_to_rpm(_solved_speeds_mps.track_r, TRACK_WHEEL_RADIUS_M);
+        -0.75f * _mps_to_rpm(_solved_speeds_mps.track_r, TRACK_WHEEL_RADIUS_M);
+
+    _target_leg_rad[0] += _cmd_hybrid->wy;
+    _target_leg_rad[1] += -_cmd_hybrid->wy;
+    if (_target_leg_rad[0] > LEG_EXTEND_POS)
+        _target_leg_rad[0] = LEG_EXTEND_POS;
+    if (_target_leg_rad[0] < 0.2f)
+        _target_leg_rad[0] = 0.2f;
+    if (_target_leg_rad[1] < -LEG_EXTEND_POS)
+        _target_leg_rad[1] = -LEG_EXTEND_POS;
+    if (_target_leg_rad[1] > -0.2f)
+        _target_leg_rad[1] = -0.2f;
 }
 
 void hybrid_chassis_t::chassis_control()
 {
-
+    if (mode_t::ZERO_FORCE == _cmd_hybrid->mode)
+    {
+        return;
+    }
 
     for (int i = 0; i < 4; ++i)
     {
@@ -200,21 +215,31 @@ void hybrid_chassis_t::chassis_control()
             _target_wheel_rpm[i], _current_wheel_rpm[i]);
     }
 
-    for (int i = 0; i < 2; ++i)
-    {
-        _track_output_torque[i] = _track_speed_pid[i]->calculate(
-            _target_track_rpm[i], _current_track_rpm[i]);
-    }
-
     // Leg Position Loop
     for (int i = 0; i < 2; ++i)
     {
-        _target_leg_rad[i] =
-            _balance_pid->calculate(0.0f, _current_pitch_rad); // Pitch to Rad
+        // _target_leg_rad[i] =
+        //     _balance_pid->calculate(0.0f, _current_pitch_rad); // Pitch to
+        //     Rad
         _target_leg_radps[i] = _leg_position_pid[i]->calculate(
             _target_leg_rad[i], _current_leg_rad[i]);
         _leg_output_torque[i] = _leg_rotate_pid[i]->calculate(
             _target_leg_radps[i], _current_leg_radps[i]);
+    }
+
+    if (hybrid_kin_t::drive_mode_t::CLIMBING == _cmd_hybrid->drive_mode)
+    {
+        for (int i = 0; i < 2; ++i)
+        {
+            _track_output_torque[i] = _track_speed_pid[i]->calculate(
+                _target_track_rpm[i], _current_track_rpm[i]);
+        }
+    }
+    else
+    {
+        // In cruising mode, tracks are not used
+        _track_output_torque[0] = 0.0f;
+        _track_output_torque[1] = 0.0f;
     }
 }
 
@@ -225,15 +250,49 @@ void hybrid_chassis_t::power_control()
 
 void hybrid_chassis_t::send_motor_command()
 {
+    // _track_motor[0]->send_torque(_track_output_torque[0]);//正
+    // _track_motor[1]->send_torque(_track_output_torque[1]);//反
+
+    // _leg_motor[0]->send_torque(0.0f);   // 往上是正
+    // _leg_motor[1]->send_torque(0.0f);   // 往上是负
+    // _track_motor[0]->send_torque(0.0f); // 正
+    // _track_motor[1]->send_torque(0.0f); // 反
+
+    if (mode_t::ZERO_FORCE == _cmd_hybrid->mode)
+    {
+        for (const auto &i : _mecanum_motor)
+            i->send_torque(0.0f);
+        for (const auto &i : _track_motor)
+            i->send_torque(0.0f);
+        for (const auto &i : _leg_motor)
+            i->send_torque(0.0f);
+        return;
+    }
+    // _leg_motor[0]->send_torque(10.0f);   // 往上是正
+    // _leg_motor[1]->send_torque(-10.0f);  // 往上是负
+    //
     for (int i = 0; i < 4; ++i)
         _mecanum_motor[i]->send_torque(_mecanum_output_torque[i]);
     for (int i = 0; i < 2; ++i)
+    {
+        if (!_track_motor[i]->is_enable())
+        {
+            _track_motor[i]->enable();
+        }
         _track_motor[i]->send_torque(_track_output_torque[i]);
+    }
+
     for (int i = 0; i < 2; ++i)
+    {
+        if (!_leg_motor[i]->is_enable())
+        {
+            _leg_motor[i]->enable();
+        }
         _leg_motor[i]->send_torque(_leg_output_torque[i]);
+    }
 }
 
-float hybrid_chassis_t::_mps_to_rpm(float mps, float radius)
+float hybrid_chassis_t::_mps_to_rpm(const float mps, const float radius)
 {
     // v = w * r  -> w = v / r
     // RPM = w * 60 / 2pi
@@ -242,7 +301,7 @@ float hybrid_chassis_t::_mps_to_rpm(float mps, float radius)
     return (mps / radius) * 9.5492966f;
 }
 
-float hybrid_chassis_t::_radps_to_rpm(float radps)
+float hybrid_chassis_t::_radps_to_rpm(const float radps)
 {
     // RPM = (w * 60) / (2 * pi)
     return radps * 9.5492966f;

@@ -24,7 +24,7 @@ class rud_chassis_t final : public chassis_base_t
     ~rud_chassis_t() override;
 
     void init() override;
-    void set_command(const cmd_base_t &cmd) override;
+    void set_command(const cmd_base_t *cmd) override;
     void update_feedback() override;
     void kinematics_solve() override;
     void chassis_control() override;

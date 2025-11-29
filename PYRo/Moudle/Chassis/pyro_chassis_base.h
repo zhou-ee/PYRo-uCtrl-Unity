@@ -21,7 +21,14 @@ class chassis_base_t
         MECANUM,   // Mecanum wheel chassis
         WHEEL_LEG, // Wheel-legged robot
         OMNI,      // Omni wheel chassis
-        RUDDER     // Rudder wheel (Swerve) chassis
+        RUDDER,    // Rudder wheel (Swerve) chassis
+        HYBRID,
+    };
+
+    enum class mode_t
+    {
+        ZERO_FORCE,
+        ACTIVE,
     };
 
     /**
@@ -36,30 +43,28 @@ class chassis_base_t
         float vx; // Linear velocity X (m/s)
         float vy; // Linear velocity Y (m/s)
         float wz; // Angular velocity Z (rad/s)
+        float wy;
         // Yaw error for heading control (rad)
         // if not followed gimbal yaw, set to 0
         float yaw_err;
 
-
+        mode_t mode;
         /**
          * @brief Constructor with default initialization
          * @param t Specific chassis type
          */
         explicit cmd_base_t(const type_t t = type_t::UNKNOWN)
-            : type(t), timestamp(0), vx(0.0f), vy(0.0f), wz(0.0f), yaw_err(0.0f)
+            : type(t), timestamp(0), vx(0.0f), vy(0.0f), wz(0.0f),wy(0),
+              yaw_err(0.0f), mode(mode_t::ZERO_FORCE)
         {
         }
         // Ensure virtual destructor for polymorphism
         virtual ~cmd_base_t() = default;
     };
     virtual void init()                             = 0;
-    virtual void set_command(const cmd_base_t &cmd) = 0;
-    virtual void update_feedback()                  = 0;
-    virtual void kinematics_solve()                 = 0;
-    virtual void chassis_control()                  = 0;
-    virtual void power_control()                    = 0;
-    virtual void send_motor_command()               = 0;
+    virtual void set_command(const cmd_base_t *cmd) = 0;
     void thread();
+
     virtual ~chassis_base_t() = default;
     /**
      * @brief Get the chassis type
@@ -82,7 +87,11 @@ class chassis_base_t
     TaskHandle_t _chassis_init_handle{};
     chassis_base_t();
     explicit chassis_base_t(type_t type);
-
+    virtual void update_feedback()                  = 0;
+    virtual void kinematics_solve()                 = 0;
+    virtual void chassis_control()                  = 0;
+    virtual void power_control()                    = 0;
+    virtual void send_motor_command()               = 0;
 
     // Protected member variables (prefixed with _)
     type_t _type{};

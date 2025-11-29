@@ -60,6 +60,14 @@ status_t pyro::dm_motor_drv_t::update_feedback()
     std::array<uint8_t, 8> data;
     _feedback_msg->get_data(data);
     _error_code = static_cast<error_code>(((data[0]>>4)&0x0f));
+    if (1 != _error_code)
+    {
+        _enable = false;
+    }
+    else
+    {
+        _enable = true;
+    }
     uint16_t position = ((uint16_t)((data[1] << 8) | (data[2])));
     uint16_t rotate   = ((uint16_t)((data[3] << 4) | ((data[4] >> 4) & 0x0f)));
     uint16_t torque =

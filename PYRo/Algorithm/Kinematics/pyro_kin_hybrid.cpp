@@ -41,8 +41,8 @@ hybrid_kin_t::solve(const float vx, const float vy, const float wz, const drive_
 
         // 2. Tracks Logic (Differential Drive)
         const float v_rot_track = wz * _k_track;
-        ws.track_l = vx - v_rot_track;
-        ws.track_r = vx + v_rot_track;
+        ws.track_l = -(vx - v_rot_track);
+        ws.track_r = -(vx + v_rot_track);
 
         // 3. Mecanum Logic (Assisting Differential Drive)
         // Even without Vy, we calculate Mecanum speeds to match the rotation

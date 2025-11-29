@@ -18,25 +18,17 @@ class hybrid_chassis_t final : public chassis_base_t
     /**
      * @brief Extended command structure for hybrid chassis
      */
-    enum class hybrid_mode_t
-    {
-        ZERO_FORCE,
-        ACTIVE,
-    };
     struct cmd_hybrid_t final : cmd_base_t
     {
         // Use the mode enum defined in the kinematics class
         hybrid_kin_t::drive_mode_t drive_mode;
 
-
         // Target Pitch angle for active balancing (degrees), default 0.0
         // (horizontal)
-        float target_pitch_deg;
 
         cmd_hybrid_t()
-            : cmd_base_t(type_t::WHEEL_LEG), // Using WHEEL_LEG as closest type
-              drive_mode(hybrid_kin_t::drive_mode_t::CRUISING),
-              target_pitch_deg(0.0f)
+            : cmd_base_t(type_t::HYBRID), // Using WHEEL_LEG as closest type
+              drive_mode(hybrid_kin_t::drive_mode_t::CRUISING)
         {
         }
     };
@@ -46,7 +38,7 @@ class hybrid_chassis_t final : public chassis_base_t
 
     // --- Interface Implementation ---
     void init() override;
-    void set_command(const cmd_base_t &cmd) override;
+    void set_command(const cmd_base_t *cmd) override;
     void update_feedback() override;
     void kinematics_solve() override;
     void chassis_control() override;
@@ -61,7 +53,7 @@ class hybrid_chassis_t final : public chassis_base_t
 
   private:
     // --- Commands & State ---
-    cmd_hybrid_t _cmd_hybrid;
+    const cmd_hybrid_t *_cmd_hybrid{};
     hybrid_kin_t *_kinematics{};
     float _current_pitch_rad = 0.0f; // From IMU
     float _current_yaw_rad   = 0.0f; // From IMU
@@ -105,11 +97,11 @@ class hybrid_chassis_t final : public chassis_base_t
     // --- Constants & Config ---
     // You need to measure and fill these based on your CAD/Physical robot
     static constexpr float MEC_WHEEL_RADIUS_M   = 0.076f;
-    static constexpr float TRACK_WHEEL_RADIUS_M = 0.05f;
+    static constexpr float TRACK_WHEEL_RADIUS_M = 0.035f;
     static constexpr float LEG_RETRACT_POS      = 0.0f;
     static constexpr float LEG_EXTEND_POS       = 1.61f;
 
-    void update_imu_data(float pitch_deg, float yaw_deg, float roll_deg);
+    void update_imu_data(float pitch_rad, float yaw_rad, float roll_rad);
 
     // Helper to convert m/s to motor RPM/Rad/s
     static float _mps_to_rpm(float mps, float radius);

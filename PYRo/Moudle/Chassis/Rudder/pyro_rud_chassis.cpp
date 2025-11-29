@@ -58,10 +58,10 @@ void rud_chassis_t::init()
     _follow_angle_pid    = new pid_t(10.0f, 0.0f, 0.0f, 1.0f, 5.0f);
 }
 
-void rud_chassis_t::set_command(const cmd_base_t &cmd)
-{
-    _cmd_rud = (const cmd_rud_t &)cmd;
-}
+// void rud_chassis_t::set_command(const cmd_base_t &cmd)
+// {
+//     _cmd_rud = (const cmd_rud_t &)cmd;
+// }
 
 void rud_chassis_t::update_feedback()
 {
