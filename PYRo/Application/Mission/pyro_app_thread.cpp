@@ -13,7 +13,7 @@ extern "C"
         pyro::scoped_mutex_t lock(hybrid_chassis_ptr->get_mutex());
         auto *p_ctrl =
             static_cast<pyro::dr16_drv_t::dr16_ctrl_t const *>(rc_ctrl);
-        if (pyro::dr16_drv_t::dr16_sw_state_t::DR16_SW_MID !=
+        if (pyro::dr16_drv_t::dr16_sw_state_t::DR16_SW_DOWN ==
             p_ctrl->rc.s[pyro::dr16_drv_t::DR16_SW_RIGHT].state)
         {
             hybrid_cmd_ptr->mode = pyro::chassis_base_t::mode_t::ZERO_FORCE;
@@ -25,7 +25,7 @@ extern "C"
         }
         hybrid_cmd_ptr->mode = pyro::chassis_base_t::mode_t::ACTIVE;
         hybrid_cmd_ptr->vx = -p_ctrl->rc.ch[pyro::dr16_drv_t::DR16_CH_RIGHT_Y];
-        hybrid_cmd_ptr->vy = -p_ctrl->rc.ch[pyro::dr16_drv_t::DR16_CH_RIGHT_X];
+        hybrid_cmd_ptr->vy = p_ctrl->rc.ch[pyro::dr16_drv_t::DR16_CH_RIGHT_X];
         hybrid_cmd_ptr->wz   =
         - p_ctrl->rc.ch[pyro::dr16_drv_t::DR16_CH_LEFT_X];
         hybrid_cmd_ptr->wy =
@@ -42,6 +42,15 @@ extern "C"
         {
             hybrid_cmd_ptr->drive_mode =
                 pyro::hybrid_kin_t::drive_mode_t::CRUISING;
+        }
+        if (pyro::dr16_drv_t::dr16_sw_state_t::DR16_SW_UP ==
+            p_ctrl->rc.s[pyro::dr16_drv_t::DR16_SW_RIGHT].state)
+        {
+            hybrid_cmd_ptr->leg_contract_mode = 1;
+        }
+        else
+        {
+            hybrid_cmd_ptr->leg_contract_mode = 0;
         }
     }
 

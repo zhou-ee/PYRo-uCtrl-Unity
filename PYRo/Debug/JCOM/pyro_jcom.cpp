@@ -1,9 +1,16 @@
 #include "pyro_jcom.h"
-
 #include "pyro_core_dma_heap.h"
 #include "task.h"
-
 #include "cstring"
+
+
+#define private public
+#define protected public
+#include "pyro_hybrid_chassis.h"
+#undef protected
+#undef private
+
+extern pyro::hybrid_chassis_t *hybrid_chassis_ptr;
 
 namespace pyro
 {
@@ -25,7 +32,7 @@ jcom_drv_t::~jcom_drv_t()
 
 jcom_drv_t &jcom_drv_t::get_instance(uint8_t max_length)
 {
-    static jcom_drv_t instance(max_length, uart_drv_t::get_instance(uart_drv_t::uart1));
+    static jcom_drv_t instance(max_length, uart_drv_t::get_instance(uart_drv_t::uart10));
     return instance;
 }
 
@@ -72,8 +79,10 @@ void jcom_drv_t::remove_data(const float *data)
 
 void jcom_drv_t::update_data()
 {
-    static uint8_t frame_tail[4] = {0x00, 0x00, 0x80, 0x7F};
+    static uint8_t frame_tail[2] = {0x4C,0x75};
+    static uint8_t frame_head[2] = {0x63,0x6B};
     uint8_t offset               = 0;
+    _data_pack[offset++]        = *reinterpret_cast<float *>(&frame_head);
     for (const auto &[data, size] : _data_nodes)
     {
         for (uint8_t i = 0; i < size; ++i)
@@ -92,6 +101,7 @@ void jcom_drv_t::send()
 
 void jcom_drv_t::thread()
 {
+    add_data(hybrid_chassis_ptr->_current_wheel_rpm,4);
     while (true)
     {
         update_data();

@@ -50,6 +50,7 @@
 osThreadId defaultTaskHandle;
 osThreadId demo_taskHandle;
 osThreadId mission_planer_Handle;
+osThreadId debug_taskHandle;
 
 /* Private function prototypes -----------------------------------------------*/
 /* USER CODE BEGIN FunctionPrototypes */
@@ -59,6 +60,7 @@ osThreadId mission_planer_Handle;
 void StartDefaultTask(void const * argument);
 void start_demo_task(void const * argument);
 void start_mission_planer_task(void const * argument);
+void start_debug_task(void const * argument);
 
 void MX_FREERTOS_Init(void); /* (MISRA C 2004 rule 8.1) */
 
@@ -114,8 +116,12 @@ void MX_FREERTOS_Init(void) {
   demo_taskHandle = osThreadCreate(osThread(demo_task), NULL);
 
   /* definition and creation of mission_planer_ */
-  osThreadDef(mission_planer_, start_mission_planer_task, osPriorityIdle, 0, 128);
+  osThreadDef(mission_planer_, start_mission_planer_task, osPriorityRealtime, 0, 128);
   mission_planer_Handle = osThreadCreate(osThread(mission_planer_), NULL);
+
+  /* definition and creation of debug_task */
+  osThreadDef(debug_task, start_debug_task, osPriorityIdle, 0, 128);
+  debug_taskHandle = osThreadCreate(osThread(debug_task), NULL);
 
   /* USER CODE BEGIN RTOS_THREADS */
   /* add threads, ... */
@@ -175,6 +181,24 @@ __weak void start_mission_planer_task(void const * argument)
     osDelay(1);
   }
   /* USER CODE END start_mission_planer_task */
+}
+
+/* USER CODE BEGIN Header_start_debug_task */
+/**
+* @brief Function implementing the debug_task thread.
+* @param argument: Not used
+* @retval None
+*/
+/* USER CODE END Header_start_debug_task */
+__weak void start_debug_task(void const * argument)
+{
+  /* USER CODE BEGIN start_debug_task */
+  /* Infinite loop */
+  for(;;)
+  {
+    osDelay(1);
+  }
+  /* USER CODE END start_debug_task */
 }
 
 /* Private application code --------------------------------------------------*/

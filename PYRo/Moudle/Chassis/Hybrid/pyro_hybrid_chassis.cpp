@@ -78,26 +78,30 @@ void hybrid_chassis_t::init()
     // PID Params: MaxOut, IntergralLimit, Kp, Ki, Kd
 
     // Mecanum Speed Loop
-    for (auto &i : _mecanum_speed_pid)
-    {
-        i = new pid_t(0.45f, 0.001f, 0.0002f, 1.0f, 20.0f,30,10,4);
-    }
+    _mecanum_speed_pid[0] =
+        new pid_t(0.4f, 0.001f, 0.0002f, 1.0f, 20.0f, 20, 10, 4);
+    _mecanum_speed_pid[1] =
+        new pid_t(0.4f, 0.001f, 0.0002f, 1.0f, 20.0f, 20, 10, 4);
+    _mecanum_speed_pid[2] =
+        new pid_t(0.4f, 0.001f, 0.0002f, 1.0f, 20.0f, 20, 10, 4);
+    _mecanum_speed_pid[3] =
+        new pid_t(0.4f, 0.001f, 0.0002f, 1.0f, 20.0f, 20, 10, 4);
 
     // Track Speed Loop
     for (auto &i : _track_speed_pid)
     {
-        i = new pid_t(0.045f, 0.0001f, 0.000005f, 0.5f, 10.0f,30,10,4);
+        i = new pid_t(0.045f, 0.0001f, 0.000005f, 0.5f, 10.0f, 30, 10, 4);
     }
 
     // Leg Position Loop (Inner loop)
     for (auto &i : _leg_position_pid)
     {
-        i = new pid_t(8.0f, 0.005f, 0.0012f, 0.5f, 10.0f,20,10,4);
+        i = new pid_t(8.0f, 0.005f, 0.0012f, 0.5f, 10.0f, 20, 10, 4);
     }
 
     for (auto &i : _leg_rotate_pid)
     {
-        i = new pid_t(8.0f, 0.005f, 0.0012f, 0.5f, 10.0f,20,10,4);
+        i = new pid_t(8.0f, 0.005f, 0.0012f, 0.5f, 10.0f, 20, 10, 4);
     }
 
     // Balance PID (Outer loop: Pitch -> Leg Position)
@@ -189,17 +193,68 @@ void hybrid_chassis_t::kinematics_solve()
         0.75f * _mps_to_rpm(_solved_speeds_mps.track_l, TRACK_WHEEL_RADIUS_M);
     _target_track_rpm[1] =
         -0.75f * _mps_to_rpm(_solved_speeds_mps.track_r, TRACK_WHEEL_RADIUS_M);
+    static uint8_t jump_flag = 0;
 
-    _target_leg_rad[0] += _cmd_hybrid->wy;
-    _target_leg_rad[1] += -_cmd_hybrid->wy;
-    if (_target_leg_rad[0] > LEG_EXTEND_POS)
-        _target_leg_rad[0] = LEG_EXTEND_POS;
-    if (_target_leg_rad[0] < 0.2f)
-        _target_leg_rad[0] = 0.2f;
-    if (_target_leg_rad[1] < -LEG_EXTEND_POS)
-        _target_leg_rad[1] = -LEG_EXTEND_POS;
-    if (_target_leg_rad[1] > -0.2f)
-        _target_leg_rad[1] = -0.2f;
+    if (0 == _cmd_hybrid->leg_contract_mode)
+    {
+        jump_flag = 0;
+        _leg_position_pid[0]->clear();
+        _leg_position_pid[1]->clear();
+        _leg_rotate_pid[0]->clear();
+        _leg_rotate_pid[1]->clear();
+        _leg_position_pid[0]->set_gains(8.0f, 0.005f, 0.0012f);
+        _leg_position_pid[1]->set_gains(8.0f, 0.005f, 0.0012f);
+        _leg_rotate_pid[0]->set_gains(8.0f, 0.005f, 0.0012f);
+        _leg_rotate_pid[1]->set_gains(8.0f, 0.005f, 0.0012f);
+        _target_leg_rad[0] += _cmd_hybrid->wy;
+        _target_leg_rad[1] += -_cmd_hybrid->wy;
+        if (_target_leg_rad[0] > LEG_EXTEND_POS)
+            _target_leg_rad[0] = LEG_EXTEND_POS;
+        if (_target_leg_rad[0] < 0.2f)
+            _target_leg_rad[0] = 0.2f;
+        if (_target_leg_rad[1] < -LEG_EXTEND_POS)
+            _target_leg_rad[1] = -LEG_EXTEND_POS;
+        if (_target_leg_rad[1] > -0.2f)
+            _target_leg_rad[1] = -0.2f;
+    }
+    else
+    {
+        _leg_position_pid[0]->clear();
+        _leg_position_pid[1]->clear();
+        _leg_rotate_pid[0]->clear();
+        _leg_rotate_pid[1]->clear();
+        _leg_position_pid[0]->set_gains(40.0f, 0.01f, 0.002f);
+        _leg_position_pid[1]->set_gains(40.0f, 0.01f, 0.002f);
+        _leg_rotate_pid[0]->set_gains(100.0f, 0.01f, 0.002f);
+        _leg_rotate_pid[1]->set_gains(500.0f, 0.01f, 0.002f);
+        if (jump_flag == 0)
+        {
+            _target_leg_rad[0] = 0.2f;
+            _target_leg_rad[1] = -0.2f;
+            if (abs(_current_leg_rad[0] - _target_leg_rad[0]) < 0.2f &&
+                abs(_current_leg_rad[1] - _target_leg_rad[1]) < 0.2f)
+            {
+                jump_flag = 1;
+            }
+        }
+
+        if (jump_flag == 1)
+        {
+            jump_flag          = 2;
+            _target_leg_rad[0] = LEG_EXTEND_POS;
+            _target_leg_rad[1] = -LEG_EXTEND_POS;
+        }
+        if (jump_flag == 2)
+        {
+            if (abs(_current_leg_rad[0] - _target_leg_rad[0]) < 0.2f &&
+                abs(_current_leg_rad[1] - _target_leg_rad[1]) < 0.2f)
+            {
+                jump_flag          = 3;
+                _target_leg_rad[0] = 0.2f;
+                _target_leg_rad[1] = -0.2f;
+            }
+        }
+    }
 }
 
 void hybrid_chassis_t::chassis_control()
@@ -250,6 +305,20 @@ void hybrid_chassis_t::power_control()
 
 void hybrid_chassis_t::send_motor_command()
 {
+    for (const auto &i : _track_motor)
+    {
+        if (!i->is_enable())
+        {
+            i->enable();
+        }
+    }
+    for (const auto &i : _leg_motor)
+    {
+        if (!i->is_enable())
+        {
+            i->enable();
+        }
+    }
     // _track_motor[0]->send_torque(_track_output_torque[0]);//正
     // _track_motor[1]->send_torque(_track_output_torque[1]);//反
 
@@ -275,19 +344,11 @@ void hybrid_chassis_t::send_motor_command()
         _mecanum_motor[i]->send_torque(_mecanum_output_torque[i]);
     for (int i = 0; i < 2; ++i)
     {
-        if (!_track_motor[i]->is_enable())
-        {
-            _track_motor[i]->enable();
-        }
         _track_motor[i]->send_torque(_track_output_torque[i]);
     }
 
     for (int i = 0; i < 2; ++i)
     {
-        if (!_leg_motor[i]->is_enable())
-        {
-            _leg_motor[i]->enable();
-        }
         _leg_motor[i]->send_torque(_leg_output_torque[i]);
     }
 }

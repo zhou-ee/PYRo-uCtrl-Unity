@@ -49,10 +49,10 @@ hybrid_kin_t::solve(const float vx, const float vy, const float wz, const drive_
         // and forward movement, preventing drag.
         const float v_rot_mec = wz * _k_mec;
 
-        ws.mec_fl = vx - effective_vy - v_rot_mec;
-        ws.mec_fr = vx + effective_vy + v_rot_mec;
-        ws.mec_bl = vx + effective_vy - v_rot_mec;
-        ws.mec_br = vx - effective_vy + v_rot_mec;
+        ws.mec_fl = 3.2f * (vx - effective_vy - v_rot_mec);
+        ws.mec_fr = 3.2f * (vx + effective_vy + v_rot_mec);
+        ws.mec_bl = 3.2f * (vx + effective_vy - v_rot_mec);
+        ws.mec_br = 3.2f * (vx - effective_vy + v_rot_mec);
     }
 
     return ws;

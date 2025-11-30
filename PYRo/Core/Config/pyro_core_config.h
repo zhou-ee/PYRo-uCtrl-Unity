@@ -17,7 +17,7 @@
 
 #if DEBUG_MODE
 
-#define VOFA_DEBUG_EN 1
+#define VOFA_DEBUG_EN 0
 #define JCOM_DEBUG_EN 0
 
 #endif

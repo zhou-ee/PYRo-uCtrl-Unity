@@ -22,13 +22,15 @@ class hybrid_chassis_t final : public chassis_base_t
     {
         // Use the mode enum defined in the kinematics class
         hybrid_kin_t::drive_mode_t drive_mode;
+        uint8_t leg_contract_mode;
 
         // Target Pitch angle for active balancing (degrees), default 0.0
         // (horizontal)
 
         cmd_hybrid_t()
             : cmd_base_t(type_t::HYBRID), // Using WHEEL_LEG as closest type
-              drive_mode(hybrid_kin_t::drive_mode_t::CRUISING)
+              drive_mode(hybrid_kin_t::drive_mode_t::CRUISING),
+              leg_contract_mode(0)
         {
         }
     };
@@ -99,7 +101,7 @@ class hybrid_chassis_t final : public chassis_base_t
     static constexpr float MEC_WHEEL_RADIUS_M   = 0.076f;
     static constexpr float TRACK_WHEEL_RADIUS_M = 0.035f;
     static constexpr float LEG_RETRACT_POS      = 0.0f;
-    static constexpr float LEG_EXTEND_POS       = 1.61f;
+    static constexpr float LEG_EXTEND_POS       = 1.60f;
 
     void update_imu_data(float pitch_rad, float yaw_rad, float roll_rad);
 
