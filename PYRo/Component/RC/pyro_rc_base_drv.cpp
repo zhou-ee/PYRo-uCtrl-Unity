@@ -15,7 +15,6 @@
 
 /* Includes ------------------------------------------------------------------*/
 #include "pyro_rc_base_drv.h"
-#include "message_buffer.h"
 #include "task.h"
 #include <cstring>
 
@@ -44,6 +43,15 @@ rw_lock &rc_drv_t::get_lock() const
     return *_lock;
 }
 
+bool rc_drv_t::check_online() const
+{
+    return sequence >> _priority & 0x01;
+}
+
+void const* rc_drv_t::read() const
+{
+    return _rc_data;
+}
 
 /* Destructor ----------------------------------------------------------------*/
 /**
@@ -65,6 +73,11 @@ rc_drv_t::~rc_drv_t()
     {
         vTaskDelete(_rc_task_handle);
         _rc_task_handle = nullptr;
+    }
+
+    if (_lock)
+    {
+        delete _lock;
     }
 }
 } // namespace pyro

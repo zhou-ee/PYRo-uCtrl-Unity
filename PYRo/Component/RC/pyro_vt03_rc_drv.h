@@ -34,6 +34,7 @@ namespace pyro
  */
 class vt03_drv_t : public rc_drv_t
 {
+    friend class rc_hub_t;
     /* Private Types - Raw Buffer --------------------------------------------*/
     /**
      * @brief Raw structure of the 21-byte VT03 data packet.
@@ -81,28 +82,21 @@ class vt03_drv_t : public rc_drv_t
      */
 
   public:
-    enum vt03_gear_state_t
+    enum class gear_state_t
     {
-        VT03_GEAR_LEFT  = 0,
-        VT03_GEAR_MID   = 1,
-        VT03_GEAR_RIGHT = 2,
+        GEAR_LEFT  = 0,
+        GEAR_MID   = 1,
+        GEAR_RIGHT = 2,
     };
-    enum vt03_gear_ctrl_t
+    enum class gear_ctrl_t
     {
-        VT03_GEAR_NO_CHANGE    = 0,
-        VT03_GEAR_LEFT_TO_MID  = 1,
-        VT03_GEAR_MID_TO_RIGHT = 2,
-        VT03_GEAR_RIGHT_TO_MID = 3,
-        VT03_GEAR_MID_TO_LEFT  = 4,
+        GEAR_NO_CHANGE    = 0,
+        GEAR_LEFT_TO_MID  = 1,
+        GEAR_MID_TO_RIGHT = 2,
+        GEAR_RIGHT_TO_MID = 3,
+        GEAR_MID_TO_LEFT  = 4,
     };
-    enum vt03_channel_t
-    {
-        VT03_CH_RIGHT_X = 0,
-        VT03_CH_RIGHT_Y = 1,
-        VT03_CH_LEFT_X  = 2,
-        VT03_CH_LEFT_Y  = 3,
-    };
-    enum key_ctrl_t
+    enum class key_ctrl_t
     {
         KEY_RELEASED = 0,
         KEY_PRESSED  = 1,
@@ -110,20 +104,23 @@ class vt03_drv_t : public rc_drv_t
     };
     typedef struct key_t
     {
-        uint8_t ctrl;
+        key_ctrl_t ctrl;
         uint32_t time;
     } key_t;
     typedef struct vt03_gear_t
     {
-        uint8_t state;
-        uint8_t ctrl;
+        gear_state_t state;
+        gear_ctrl_t ctrl;
     } vt03_gear_t;
     typedef struct vt03_ctrl_t
     {
         struct
         {
-            float ch[4];    ///< Channel values scaled to [-1.0, 1.0]
-            float wheel;    ///< Wheel value scaled to [-1.0, 1.0]
+            float ch_lx;       ///< Channel values scaled to [-1.0, 1.0]
+            float ch_ly;       ///< Left stick Y
+            float ch_rx;       ///< Right stick X
+            float ch_ry;       ///< Right stick Y
+            float wheel; ///< Wheel value scaled to [-1.0, 1.0]
             vt03_gear_t gear;
             key_t fn_l;
             key_t fn_r;
@@ -143,29 +140,28 @@ class vt03_drv_t : public rc_drv_t
 
         struct
         {
-            key_t w     ;
-            key_t s     ;
-            key_t a     ;
-            key_t d     ;
-            key_t shift ;
-            key_t ctrl  ;
-            key_t q     ;
-            key_t e     ;
-            key_t r     ;
-            key_t f     ;
-            key_t g     ;
-            key_t z     ;
-            key_t x     ;
-            key_t c     ;
-            key_t v     ;
-            key_t b     ;
+            key_t w;
+            key_t s;
+            key_t a;
+            key_t d;
+            key_t shift;
+            key_t ctrl;
+            key_t q;
+            key_t e;
+            key_t r;
+            key_t f;
+            key_t g;
+            key_t z;
+            key_t x;
+            key_t c;
+            key_t v;
+            key_t b;
         } key;
     } vt03_ctrl_t;
     /* Public Members --------------------------------------------------------*/
 
     /* Public Methods - Construction and Lifecycle (Override)
      * ------------------*/
-    explicit vt03_drv_t(uart_drv_t *vt03_uart);
     status_t init() override;
     void enable() override;
     void disable() override;
@@ -174,11 +170,10 @@ class vt03_drv_t : public rc_drv_t
     /* Public Methods - Configuration
      * ------------------------------------------*/
 
-    void config_rc_cmd(const cmd_func &func) override;
 
   private:
+    explicit vt03_drv_t(uart_drv_t *vt03_uart);
     vt03_ctrl_t _vt03_ctrl{}; ///< The latest decoded control data.
-    vt03_ctrl_t _vt03_last_ctrl{};
     /* Private Methods - Overrides
      * ---------------------------------------------*/
     /**
@@ -202,13 +197,13 @@ class vt03_drv_t : public rc_drv_t
      * @param vt03_gear The gear state object (to be updated).
      * @param state The new raw state from the receiver.
      */
-    static void check_ctrl(vt03_gear_t &vt03_gear, uint8_t state);
+    static void check_ctrl(vt03_gear_t &vt03_gear, uint8_t raw_state);
     /**
      * @brief Checks for key state changes (PRESSED, HOLD, RELEASED).
      * @param key The key state object (to be updated).
      * @param state The new raw state (0 or 1) from the receiver.
      */
-    static void check_ctrl(key_t &key, uint8_t state);
+    static void check_ctrl(key_t &key, uint8_t raw_state);
     /**
      * @brief Unpacks raw VT03 data into the `vt03_ctrl_t` structure.
      * @param vt03_buf Pointer to the raw data buffer to unpack.

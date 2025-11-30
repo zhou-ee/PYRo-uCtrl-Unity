@@ -48,7 +48,7 @@ status_t dr16_drv_t::init()
     _rc_msg_buffer   = xMessageBufferCreate(108);
 
     // Create the processing task
-    BaseType_t x_ret = xTaskCreate(dr16_task, "dr16_task", 1024, this,
+    const BaseType_t x_ret = xTaskCreate(dr16_task, "dr16_task", 256, this,
                                    configMAX_PRIORITIES - 1, &_rc_task_handle);
 
     if (x_ret != pdPASS)
@@ -60,6 +60,7 @@ status_t dr16_drv_t::init()
         return PYRO_ERROR;
     }
     _lock = new rw_lock;
+    _rc_data = &_dr16_ctrl;
     return PYRO_OK;
 }
 
@@ -74,8 +75,8 @@ void dr16_drv_t::enable()
 {
     // Register the local rc_callback method as the UART RX event handler
     _rc_uart->add_rx_event_callback(
-        [this](uint8_t *buf, uint16_t len,
-               BaseType_t xHigherPriorityTaskWoken) -> bool
+        [this](uint8_t *buf, const uint16_t len,
+               const BaseType_t xHigherPriorityTaskWoken) -> bool
         { return rc_callback(buf, len, xHigherPriorityTaskWoken); },
         reinterpret_cast<uint32_t>(this));
 }
@@ -92,6 +93,7 @@ void dr16_drv_t::disable()
     // Remove the registered callback using the instance address as the owner ID
     _rc_uart->remove_rx_event_callback(reinterpret_cast<uint32_t>(this));
 }
+
 
 /* Data Processing - Error Check ---------------------------------------------*/
 /**
@@ -119,65 +121,67 @@ status_t dr16_drv_t::error_check(const dr16_buf_t *dr16_buf)
 /**
  * @brief Checks for switch state changes (e.g., UP_TO_MID).
  * @param dr16_switch The switch state object (to be updated).
- * @param state The new raw state from the receiver.
+ * @param raw_state
  */
-void
-dr16_drv_t::check_ctrl(dr16_switch_t &dr16_switch, const uint8_t state)
+void dr16_drv_t::check_ctrl(switch_t &dr16_switch, const uint8_t raw_state)
 {
-    dr16_switch_t switch_ = {};
+    switch_t switch_ = {};
+    const auto state = static_cast<sw_state_t>(raw_state);
     if (dr16_switch.state == state)
     {
-        switch_.ctrl = DR16_SW_NO_CHANGE;;
+        switch_.ctrl = sw_ctrl_t::SW_NO_CHANGE;
+
     }
-    if (DR16_SW_UP == dr16_switch.state && DR16_SW_MID == state)
+    if (sw_state_t::SW_UP == dr16_switch.state && sw_state_t::SW_MID == state)
     {
-        switch_.ctrl = DR16_SW_UP_TO_MID;
+        switch_.ctrl = sw_ctrl_t::SW_UP_TO_MID;
     }
-    else if (DR16_SW_MID == dr16_switch.state && DR16_SW_DOWN == state)
+    else if (sw_state_t::SW_MID == dr16_switch.state && sw_state_t::SW_DOWN == state)
     {
-        switch_.ctrl = DR16_SW_MID_TO_DOWN;
+        switch_.ctrl = sw_ctrl_t::SW_MID_TO_DOWN;
     }
-    else if (DR16_SW_DOWN == dr16_switch.state && DR16_SW_MID == state)
+    else if (sw_state_t::SW_DOWN == dr16_switch.state && sw_state_t::SW_MID == state)
     {
-        switch_.ctrl = DR16_SW_DOWN_TO_MID;
+        switch_.ctrl = sw_ctrl_t::SW_DOWN_TO_MID;
     }
-    else if (DR16_SW_MID == dr16_switch.state && DR16_SW_UP == state)
+    else if (sw_state_t::SW_MID == dr16_switch.state && sw_state_t::SW_UP == state)
     {
-        switch_.ctrl = DR16_SW_MID_TO_UP;
+        switch_.ctrl = sw_ctrl_t::SW_MID_TO_UP;
     }
     switch_.state = state;
-    dr16_switch = switch_;
+    dr16_switch   = switch_;
 }
 
 /**
  * @brief Checks for key state changes (PRESSED, HOLD, RELEASED).
  * @param key The key state object (to be updated).
- * @param state The new raw state (0 or 1) from the receiver.
+ * @param raw_state
  */
-void dr16_drv_t::check_ctrl(key_t &key, const uint8_t state)
+void dr16_drv_t::check_ctrl(key_t &key, const uint8_t raw_state)
 {
     key_t temp_key = {};
-    if (KEY_RELEASED == state)
+    const auto state = static_cast<key_ctrl_t>(raw_state);
+    if (key_ctrl_t::KEY_RELEASED == state)
     {
-        temp_key.ctrl = KEY_RELEASED;
+        temp_key.ctrl = key_ctrl_t::KEY_RELEASED;
         temp_key.time = 0;
     }
-    else if (KEY_PRESSED == state)
+    else if (key_ctrl_t::KEY_PRESSED == state)
     {
-        if (KEY_RELEASED == key.ctrl)
+        if (key_ctrl_t::KEY_RELEASED == key.ctrl)
         {
             temp_key.time = key.time + 14;
             if (temp_key.time > 40)
             {
-                temp_key.ctrl = KEY_PRESSED;
+                temp_key.ctrl = key_ctrl_t::KEY_PRESSED;
             }
         }
-        else if (KEY_PRESSED == key.ctrl)
+        else if (key_ctrl_t::KEY_PRESSED == key.ctrl)
         {
             temp_key.time = key.time + 14;
             if (temp_key.time > 160)
             {
-                temp_key.ctrl = KEY_HOLD;
+                temp_key.ctrl = key_ctrl_t::KEY_HOLD;
                 temp_key.time = 0;
             }
         }
@@ -197,22 +201,22 @@ void dr16_drv_t::unpack(const dr16_buf_t *dr16_buf)
 {
     if (PYRO_OK == error_check(dr16_buf))
     {
-        _dr16_last_ctrl = _dr16_ctrl; // Save last state
+        write_scope_lock rc_write_lock(get_lock());
         // Scale and center RC channels
-        _dr16_ctrl.rc.ch[0] =
+        _dr16_ctrl.rc.ch_rx =
             static_cast<float>(dr16_buf->ch0 - DR16_CH_VALUE_OFFSET) / 660.0f;
-        _dr16_ctrl.rc.ch[1] =
+        _dr16_ctrl.rc.ch_ry =
             static_cast<float>(dr16_buf->ch1 - DR16_CH_VALUE_OFFSET) / 660.0f;
-        _dr16_ctrl.rc.ch[2] =
+        _dr16_ctrl.rc.ch_lx =
             static_cast<float>(dr16_buf->ch2 - DR16_CH_VALUE_OFFSET) / 660.0f;
-        _dr16_ctrl.rc.ch[3] =
+        _dr16_ctrl.rc.ch_ly =
             static_cast<float>(dr16_buf->ch3 - DR16_CH_VALUE_OFFSET) / 660.0f;
         _dr16_ctrl.rc.wheel =
             static_cast<float>(dr16_buf->wheel - DR16_CH_VALUE_OFFSET) / 660.0f;
 
         // Copy switch and mouse data
-        check_ctrl(_dr16_ctrl.rc.s[DR16_SW_RIGHT], dr16_buf->s1);
-        check_ctrl(_dr16_ctrl.rc.s[DR16_SW_LEFT], dr16_buf->s2);
+        check_ctrl(_dr16_ctrl.rc.s_r, dr16_buf->s1);
+        check_ctrl(_dr16_ctrl.rc.s_l, dr16_buf->s2);
         _dr16_ctrl.mouse.x = static_cast<float>(dr16_buf->mouse_x) / 32768.0f;
         _dr16_ctrl.mouse.y = static_cast<float>(dr16_buf->mouse_y) / 32768.0f;
         _dr16_ctrl.mouse.z = static_cast<float>(dr16_buf->mouse_z) / 32768.0f;
@@ -222,18 +226,6 @@ void dr16_drv_t::unpack(const dr16_buf_t *dr16_buf)
         {
             check_ctrl(*(reinterpret_cast<key_t *>(&_dr16_ctrl.key) + i),
                        (dr16_buf->key_code >> i) & 0x01);
-        }
-
-        // Execute the registered consumer callback with the decoded data
-        write_scope_lock rc_write_lock(get_lock());
-        // Critical section - safely update shared control data
-        // (No other thread can access _dr16_ctrl during this time)
-        for (auto &rc_to_cmd : _cmd_funcs)
-        {
-            if (rc_to_cmd)
-            {
-                rc_to_cmd(&_dr16_ctrl);
-            }
         }
     }
 }
@@ -246,7 +238,7 @@ void dr16_drv_t::unpack(const dr16_buf_t *dr16_buf)
  * and sends the raw buffer to the message buffer for deferred processing.
  * @return true if data was buffered and the UART buffer should switch.
  */
-bool dr16_drv_t::rc_callback(uint8_t *buf, uint16_t len,
+bool dr16_drv_t::rc_callback(uint8_t *buf, const uint16_t len,
                              BaseType_t xHigherPriorityTaskWoken)
 {
     if (len == 18)
@@ -307,10 +299,6 @@ void dr16_drv_t::thread()
 /**
  * @brief Sets the callback function that receives the decoded control data.
  */
-void dr16_drv_t::config_rc_cmd(const cmd_func &func)
-{
-    _cmd_funcs.push_back(func);
-}
 
 } // namespace pyro
 

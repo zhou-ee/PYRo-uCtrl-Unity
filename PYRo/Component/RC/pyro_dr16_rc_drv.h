@@ -35,6 +35,7 @@ namespace pyro
  */
 class dr16_drv_t : public rc_drv_t
 {
+    friend class rc_hub_t;
     /* Private Types - Raw Buffer --------------------------------------------*/
     /**
      * @brief Raw structure of the 18-byte DR16 data packet.
@@ -75,34 +76,21 @@ class dr16_drv_t : public rc_drv_t
      */
 
   public:
-    enum dr16_sw_state_t
+    enum class sw_state_t
     {
-        DR16_SW_UP   = 1,
-        DR16_SW_MID  = 3,
-        DR16_SW_DOWN = 2
+        SW_UP   = 1,
+        SW_MID  = 3,
+        SW_DOWN = 2
     };
-    enum dr16_sw_ctrl_t
+    enum class sw_ctrl_t
     {
-        DR16_SW_NO_CHANGE   = 0,
-        DR16_SW_UP_TO_MID   = 1,
-        DR16_SW_MID_TO_DOWN = 2,
-        DR16_SW_DOWN_TO_MID = 3,
-        DR16_SW_MID_TO_UP   = 4,
+        SW_NO_CHANGE   = 0,
+        SW_UP_TO_MID   = 1,
+        SW_MID_TO_DOWN = 2,
+        SW_DOWN_TO_MID = 3,
+        SW_MID_TO_UP   = 4,
     };
-
-    enum dr16_sw_pos_t
-    {
-        DR16_SW_RIGHT = 0,
-        DR16_SW_LEFT  = 1,
-    };
-    enum dr16_channel_t
-    {
-        DR16_CH_RIGHT_X = 0,
-        DR16_CH_RIGHT_Y = 1,
-        DR16_CH_LEFT_X  = 2,
-        DR16_CH_LEFT_Y  = 3,
-    };
-    enum key_ctrl_t
+    enum class key_ctrl_t
     {
         KEY_RELEASED = 0,
         KEY_PRESSED  = 1,
@@ -110,21 +98,25 @@ class dr16_drv_t : public rc_drv_t
     };
     typedef struct key_t
     {
-        uint8_t ctrl;
+        key_ctrl_t ctrl;
         uint32_t time;
     } key_t;
-    typedef struct dr16_switch_t
+    typedef struct switch_t
     {
-        uint8_t state;
-        uint8_t ctrl;
-    } dr16_switch_t;
+        sw_state_t state;
+        sw_ctrl_t ctrl;
+    } switch_t;
     typedef struct dr16_ctrl_t
     {
         struct
         {
-            float ch[4];        ///< Channel values scaled to [-1.0, 1.0]
-            dr16_switch_t s[2]; ///< Switch positions
-            float wheel;        ///< Wheel value scaled to [-1.0, 1.0]
+            float ch_lx;       ///< Channel values scaled to [-1.0, 1.0]
+            float ch_ly;       ///< Left stick Y
+            float ch_rx;       ///< Right stick X
+            float ch_ry;       ///< Right stick Y
+            switch_t s_l; ///< Switch positions
+            switch_t s_r; ///< Switch positions
+            float wheel;       ///< Wheel value scaled to [-1.0, 1.0]
         } rc;
         struct
         {
@@ -158,7 +150,6 @@ class dr16_drv_t : public rc_drv_t
 
     /* Public Methods - Construction and Lifecycle (Override)
      * ------------------*/
-    explicit dr16_drv_t(uart_drv_t *dr16_uart);
     status_t init() override;
     void enable() override;
     void disable() override;
@@ -167,11 +158,10 @@ class dr16_drv_t : public rc_drv_t
     /* Public Methods - Configuration
      * ------------------------------------------*/
 
-    void config_rc_cmd(const cmd_func &func) override;
 
   private:
+    explicit dr16_drv_t(uart_drv_t *dr16_uart);
     dr16_ctrl_t _dr16_ctrl{}; ///< The latest decoded control data.
-    dr16_ctrl_t _dr16_last_ctrl{};
     /* Private Methods - Overrides
      * ---------------------------------------------*/
     /**
@@ -193,15 +183,17 @@ class dr16_drv_t : public rc_drv_t
     /**
      * @brief Checks for switch state changes (e.g., UP_TO_MID).
      * @param dr16_switch The switch state object (to be updated).
+     * @param raw_state
      * @param state The new raw state from the receiver.
      */
-    static void check_ctrl(dr16_switch_t &dr16_switch, uint8_t state);
+    static void check_ctrl(switch_t &dr16_switch, uint8_t raw_state);
     /**
      * @brief Checks for key state changes (PRESSED, HOLD, RELEASED).
      * @param key The key state object (to be updated).
+     * @param raw_state
      * @param state The new raw state (0 or 1) from the receiver.
      */
-    static void check_ctrl(key_t &key, uint8_t state);
+    static void check_ctrl(key_t &key, uint8_t raw_state);
     /**
      * @brief Unpacks raw DR16 data into the `dr16_ctrl_t` structure.
      * @param dr16_buf Pointer to the raw data buffer to unpack.
