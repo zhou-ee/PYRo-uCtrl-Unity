@@ -10,11 +10,6 @@
 
 extern "C"
 {
-    void dr16_cmd(void const *rc_ctrl)
-    {
-        // Example
-        static auto *p_ctrl = static_cast<pyro::dr16_drv_t::dr16_ctrl_t const*>(rc_ctrl);
-    }
     pyro::rc_drv_t *dr16_drv;
     void pyro_rc_demo(void *arg)
     {
@@ -26,8 +21,9 @@ extern "C"
         dr16_drv->init();
         dr16_drv->enable();
 
-        // if dr16_cmd is a member function, use a lambda to bind 'this'
-        dr16_drv->config_rc_cmd(dr16_cmd);
+        // read data for special usage
+        auto rc_data = static_cast<const pyro::dr16_drv_t::dr16_ctrl_t *>(
+            dr16_drv->read());
 
         vTaskDelete(nullptr);
     }
