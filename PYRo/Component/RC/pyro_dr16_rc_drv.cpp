@@ -35,6 +35,7 @@ static constexpr uint16_t DR16_CH_VALUE_OFFSET = 1024;
 dr16_drv_t::dr16_drv_t(uart_drv_t *dr16_uart) : rc_drv_t(dr16_uart)
 {
     _priority = 1;
+    dr16_drv_t::init();
 }
 
 /* Initialization ------------------------------------------------------------*/

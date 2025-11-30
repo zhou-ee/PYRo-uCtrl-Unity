@@ -36,6 +36,7 @@ static constexpr uint16_t VT03_CH_VALUE_OFFSET = 1024;
 vt03_drv_t::vt03_drv_t(uart_drv_t *vt03_uart) : rc_drv_t(vt03_uart)
 {
     _priority = 0;
+    vt03_drv_t::init();
 }
 
 /* Initialization ------------------------------------------------------------*/

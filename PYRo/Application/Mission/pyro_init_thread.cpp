@@ -21,9 +21,7 @@ extern "C"
         pyro::uart_drv_t::get_instance(pyro::uart_drv_t::uart10)
             ->enable_rx_dma();
 
-        pyro::rc_hub_t::get_instance(pyro::rc_hub_t::DR16)->init();
         pyro::rc_hub_t::get_instance(pyro::rc_hub_t::DR16)->enable();
-        pyro::rc_hub_t::get_instance(pyro::rc_hub_t::VT03)->init();
         pyro::rc_hub_t::get_instance(pyro::rc_hub_t::VT03)->enable();
 
         pyro::can_hub_t::get_instance();

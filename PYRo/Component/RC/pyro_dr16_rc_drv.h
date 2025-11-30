@@ -191,7 +191,6 @@ class dr16_drv_t : public rc_drv_t
      * @brief Checks for key state changes (PRESSED, HOLD, RELEASED).
      * @param key The key state object (to be updated).
      * @param raw_state
-     * @param state The new raw state (0 or 1) from the receiver.
      */
     static void check_ctrl(key_t &key, uint8_t raw_state);
     /**

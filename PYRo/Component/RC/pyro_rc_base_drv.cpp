@@ -1,5 +1,5 @@
 /**
-* @file pyro_rc_base_drv.cpp
+ * @file pyro_rc_base_drv.cpp
  * @brief Implementation file for the PYRO Remote Control (RC) Driver base
  * class.
  *
@@ -48,7 +48,7 @@ bool rc_drv_t::check_online() const
     return sequence >> _priority & 0x01;
 }
 
-void const* rc_drv_t::read() const
+void const *rc_drv_t::read() const
 {
     return _rc_data;
 }
@@ -74,10 +74,6 @@ rc_drv_t::~rc_drv_t()
         vTaskDelete(_rc_task_handle);
         _rc_task_handle = nullptr;
     }
-
-    if (_lock)
-    {
-        delete _lock;
-    }
+    delete _lock;
 }
 } // namespace pyro
