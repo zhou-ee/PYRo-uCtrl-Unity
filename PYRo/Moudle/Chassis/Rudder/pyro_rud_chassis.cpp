@@ -83,12 +83,12 @@ void rud_chassis_t::update_feedback()
 
 void rud_chassis_t::kinematics_solve()
 {
-    if (0 != _cmd_rud.yaw_err)
-    {
-        _cmd_rud.wz = _follow_angle_pid->calculate(0, _cmd_rud.yaw_err);
-    }
-    _target_states = _kinematics->solve(_cmd_rud.vx, _cmd_rud.vy, _cmd_rud.wz,
-                                        _current_states);
+    // if (0 != _cmd_rud.yaw_err)
+    // {
+    //     _cmd_rud.wz = _follow_angle_pid->calculate(0, _cmd_rud.yaw_err);
+    // }
+    // _target_states = _kinematics->solve(_cmd_rud.vx, _cmd_rud.vy, _cmd_rud.wz,
+    //                                     _current_states);
 }
 
 

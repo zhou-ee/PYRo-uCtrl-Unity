@@ -6,11 +6,11 @@
 #include "semphr.h"
 
 namespace pyro {
-
 /**
  * @brief 基于 FreeRTOS 的互斥锁封装
  */
 class mutex_t {
+    friend class scoped_mutex_t;
 public:
     mutex_t();
     ~mutex_t();
@@ -18,7 +18,7 @@ public:
     // 禁用拷贝
     mutex_t(const mutex_t&) = delete;
     mutex_t& operator=(const mutex_t&) = delete;
-
+private:
     /**
      * @brief 获取锁
      * @param timeout_ticks 等待时间，默认为永久等待
@@ -37,7 +37,7 @@ public:
      */
     [[nodiscard]] SemaphoreHandle_t native_handle() const;
 
-private:
+
     SemaphoreHandle_t _handle;
 };
 

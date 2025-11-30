@@ -38,7 +38,6 @@ class chassis_base_t
         float wz; // Angular velocity Z (rad/s)
         // Yaw error for heading control (rad)
         // if not followed gimbal yaw, set to 0
-        float yaw_err;
 
 
         /**
@@ -46,7 +45,7 @@ class chassis_base_t
          * @param t Specific chassis type
          */
         explicit cmd_base_t(const type_t t = type_t::UNKNOWN)
-            : type(t), timestamp(0), vx(0.0f), vy(0.0f), wz(0.0f), yaw_err(0.0f)
+            : type(t), timestamp(0), vx(0.0f), vy(0.0f), wz(0.0f)
         {
         }
         // Ensure virtual destructor for polymorphism
@@ -54,11 +53,6 @@ class chassis_base_t
     };
     virtual void init()                             = 0;
     virtual void set_command(const cmd_base_t &cmd) = 0;
-    virtual void update_feedback()                  = 0;
-    virtual void kinematics_solve()                 = 0;
-    virtual void chassis_control()                  = 0;
-    virtual void power_control()                    = 0;
-    virtual void send_motor_command()               = 0;
     void thread();
     virtual ~chassis_base_t() = default;
     /**
@@ -78,6 +72,11 @@ class chassis_base_t
     TaskHandle_t _chassis_task_handle{};
 
   protected:
+    virtual void update_feedback()                  = 0;
+    virtual void kinematics_solve()                 = 0;
+    virtual void chassis_control()                  = 0;
+    virtual void power_control()                    = 0;
+    virtual void send_motor_command()               = 0;
     mutex_t _mutex;
     TaskHandle_t _chassis_init_handle{};
     chassis_base_t();
