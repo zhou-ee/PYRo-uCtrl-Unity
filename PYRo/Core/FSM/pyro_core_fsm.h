@@ -178,24 +178,6 @@ template <typename Context> class fsm_t : public state_t<Context>
     }
 
     /**
-     * @brief Standard FSM Exit Logic (Sealed).
-     *
-     * Execution Order: Child State Exit -> Clean Stale Request -> Derived Hook.
-     *
-     * @param ctx Pointer to the shared context.
-     */
-    void exit(Context *ctx) final
-    {
-        if (_active_state)
-        {
-            _active_state->exit(ctx);
-            // Critical: Clean up child's garbage request before leaving
-            _active_state->discard_request();
-        }
-        on_exit(ctx);
-    }
-
-    /**
      * @brief Standard FSM Execution Logic (Sealed) - Clean State Tick.
      *
      * Implements strict separation between "Logic Execution" and "State
@@ -237,6 +219,29 @@ template <typename Context> class fsm_t : public state_t<Context>
         {
             _target_state = req;
         }
+    }
+
+    /**
+     * @brief Standard FSM Exit Logic (Sealed).
+     *
+     * Execution Order: Child State Exit -> Clean Stale Request -> Derived Hook.
+     *
+     * @param ctx Pointer to the shared context.
+     */
+    void exit(Context *ctx) final
+    {
+        if (_active_state)
+        {
+            _active_state->exit(ctx);
+            // Critical: Clean up child's garbage request before leaving
+            _active_state->discard_request();
+        }
+        on_exit(ctx);
+    }
+
+    void change_state(state_t<Context> *next)
+    {
+        _target_state = next;
     }
 
   protected:
