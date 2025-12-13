@@ -111,6 +111,7 @@ add_executable(${CMAKE_PROJECT_NAME}
         PYRo/Moudle/Chassis/Rudder/pyro_rud_chassis.cpp
         PYRo/Algorithm/Kinematics/pyro_kin_hybrid.cpp
         PYRo/Moudle/Chassis/Hybrid/pyro_hybrid_chassis.cpp
+        PYRo/Core/FSM/pyro_core_fsm.cpp
 
 )
 
@@ -136,6 +137,7 @@ target_include_directories(${CMAKE_PROJECT_NAME} PUBLIC
     PYRo/Core/Config
     PYRo/Core/ETL
     PYRo/Core/Lock
+    PYRo/Core/FSM
 
     PYRo/Peripheral/UART
     PYRo/Peripheral/CAN
