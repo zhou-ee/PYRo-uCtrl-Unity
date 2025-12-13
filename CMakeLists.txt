@@ -19,13 +19,13 @@ set(CPU_FLAGS
     "-mfloat-abi=hard"
 )
 
-add_compile_options(
-    ${CPU_FLAGS}
-    "-Ofast"
-    "-Wdouble-promotion"
-    "-funsafe-math-optimizations"
-    "-Wall"
-)
+#add_compile_options(
+#    ${CPU_FLAGS}
+#    "-Ofast"
+#    "-Wdouble-promotion"
+#    "-funsafe-math-optimizations"
+#    "-Wall"
+#)
 
 # Define the build type
 if(NOT CMAKE_BUILD_TYPE)
@@ -111,7 +111,6 @@ add_executable(${CMAKE_PROJECT_NAME}
         PYRo/Moudle/Chassis/Rudder/pyro_rud_chassis.cpp
         PYRo/Algorithm/Kinematics/pyro_kin_hybrid.cpp
         PYRo/Moudle/Chassis/Hybrid/pyro_hybrid_chassis.cpp
-        PYRo/Core/FSM/pyro_core_fsm.cpp
 
 )
 
