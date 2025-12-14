@@ -103,6 +103,10 @@ add_executable(${CMAKE_PROJECT_NAME}
         PYRo/Component/Referee/referee.c
         PYRo/Component/Referee/referee_drv.cpp
         PYRo/Component/Referee/referee_usart_task.c
+
+        PYRo/Component/Powercontrol/pyro_power_control_drv.cpp
+
+        PYRo/Component/Powermeter/pyro_powermeter.cpp
         PYRo/Moudle/Chassis/pyro_chassis_base.cpp
         PYRo/Algorithm/Kinematics/pyro_kin_mec.cpp
         PYRo/Moudle/Chassis/Mecanum/pyro_mec_chassis.cpp
@@ -153,6 +157,8 @@ target_include_directories(${CMAKE_PROJECT_NAME} PUBLIC
     PYRo/Component/Shoot
     PYRo/Component/IMU
     PYRo/Component/Referee
+    PYRo/Component/Powermeter
+    PYRo/Component/Powercontrol
 
     PYRo/Application/Demo
 
