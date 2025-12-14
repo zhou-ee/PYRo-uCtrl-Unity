@@ -3,8 +3,6 @@
 
 #include <cmath>
 
-#define Ox 0.17332f
-#define Oy 0.16238f
 #define Sy 0.17135f
 #define Sx 0.1675f
 

@@ -22,7 +22,7 @@ class rudder_kin_t
     struct module_state_t
     {
         float speed; // Linear speed (m/s)
-        float angle; // Steering angle (rad, -PI to +PI)
+        float radian; // Steering radian (rad, -PI to +PI)
     };
 
     struct rudder_states_t
@@ -39,7 +39,7 @@ class rudder_kin_t
 
     /**
      * @brief Inverse Kinematics (Body Velocity -> Module States)
-     * Calculates target speed and angle for each module with smart optimization.
+     * Calculates target speed and radian for each module with smart optimization.
      * @param vx  Linear velocity in X-axis (Forward +, m/s)
      * @param vy  Linear velocity in Y-axis (Left +, m/s)
      * @param wz  Angular velocity in Z-axis (Counter-Clockwise +, rad/s)
@@ -70,14 +70,14 @@ class rudder_kin_t
     const float _deadband = 1e-3f;
 
     /**
-     * @brief Helper to perform "Smart Selection" (Closest Angle & Reverse)
+     * @brief Helper to perform "Smart Selection" (Closest radian & Reverse)
      */
     void _optimize_module(float target_vx, float target_vy,
                           const module_state_t &current_state,
                           module_state_t &out_state) const;
 
-    // Utility: Normalize angle to [-PI, PI]
-    static float _normalize_angle(float angle);
+    // Utility: Normalize radian to [-PI, PI]
+    static float _normalize_radian(float radian);
 };
 
 } // namespace pyro

@@ -77,34 +77,34 @@ void rudder_kin_t::_optimize_module(const float target_vx,
         raw_speed = 0.0f;
     }
 
-    // 2. Calculate target angle (atan2 from standard math library)
-    const float raw_angle = atan2f(target_vy, target_vx);
+    // 2. Calculate target radian (atan2 from standard math library)
+    const float raw_radian = atan2f(target_vy, target_vx);
 
     // 3. Deadband check: Prevent steering jitter at near-zero speed
     if (raw_speed < _deadband)
     {
         out_state.speed = 0.0f;
-        out_state.angle = current_state.angle; // Maintain last angle
+        out_state.radian = current_state.radian; // Maintain last radian
         return;
     }
 
     // 4. Smart Selection (Optimization)
     // Calculate the shortest rotation path
-    const float delta = _normalize_angle(raw_angle - current_state.angle);
+    const float delta = _normalize_radian(raw_radian - current_state.radian);
 
     // If the turn is > 90 degrees, it's more efficient to reverse the motor
-    // and turn the complementary angle.
+    // and turn the complementary radian.
     if (fabsf(delta) > (PI / 2.0f))
     {
-        // Invert speed and rotate target angle by 180 degrees
+        // Invert speed and rotate target radian by 180 degrees
         out_state.speed = -raw_speed;
-        out_state.angle = _normalize_angle(raw_angle + PI);
+        out_state.radian = _normalize_radian(raw_radian + PI);
     }
     else
     {
         // Normal operation
         out_state.speed = raw_speed;
-        out_state.angle = raw_angle;
+        out_state.radian = raw_radian;
     }
 }
 
@@ -115,17 +115,17 @@ void rudder_kin_t::compute_odometry(const rudder_states_t &states,
     // Forward Kinematics: Project wheel velocities back to body frame
     // Using arm_dsp optimized trig functions (Lookup table + interpolation)
 
-    const float fl_vx = states.modules[FL].speed * arm_cos_f32(states.modules[FL].angle);
-    const float fl_vy = states.modules[FL].speed * arm_sin_f32(states.modules[FL].angle);
+    const float fl_vx = states.modules[FL].speed * arm_cos_f32(states.modules[FL].radian);
+    const float fl_vy = states.modules[FL].speed * arm_sin_f32(states.modules[FL].radian);
 
-    const float fr_vx = states.modules[FR].speed * arm_cos_f32(states.modules[FR].angle);
-    const float fr_vy = states.modules[FR].speed * arm_sin_f32(states.modules[FR].angle);
+    const float fr_vx = states.modules[FR].speed * arm_cos_f32(states.modules[FR].radian);
+    const float fr_vy = states.modules[FR].speed * arm_sin_f32(states.modules[FR].radian);
 
-    const float bl_vx = states.modules[BL].speed * arm_cos_f32(states.modules[BL].angle);
-    const float bl_vy = states.modules[BL].speed * arm_sin_f32(states.modules[BL].angle);
+    const float bl_vx = states.modules[BL].speed * arm_cos_f32(states.modules[BL].radian);
+    const float bl_vy = states.modules[BL].speed * arm_sin_f32(states.modules[BL].radian);
 
-    const float br_vx = states.modules[BR].speed * arm_cos_f32(states.modules[BR].angle);
-    const float br_vy = states.modules[BR].speed * arm_sin_f32(states.modules[BR].angle);
+    const float br_vx = states.modules[BR].speed * arm_cos_f32(states.modules[BR].radian);
+    const float br_vy = states.modules[BR].speed * arm_sin_f32(states.modules[BR].radian);
 
     // 1. Average linear velocities
     out_vx            = (fl_vx + fr_vx + bl_vx + br_vx) / 4.0f;
@@ -149,14 +149,14 @@ void rudder_kin_t::compute_odometry(const rudder_states_t &states,
     out_wz = (wz_from_y - wz_from_x) / 2.0f;
 }
 
-float rudder_kin_t::_normalize_angle(float angle)
+float rudder_kin_t::_normalize_radian(float radian)
 {
-    // Normalize angle to [-PI, PI]
-    while (angle > PI)
-        angle -= 2.0f * PI;
-    while (angle < -PI)
-        angle += 2.0f * PI;
-    return angle;
+    // Normalize radian to [-PI, PI]
+    while (radian > PI)
+        radian -= 2.0f * PI;
+    while (radian < -PI)
+        radian += 2.0f * PI;
+    return radian;
 }
 
 } // namespace pyro

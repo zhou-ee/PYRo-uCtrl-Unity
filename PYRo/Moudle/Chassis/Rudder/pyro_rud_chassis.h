@@ -32,6 +32,7 @@ class rud_chassis_t final : public chassis_base_t
     void send_motor_command() override;
 
   private:
+    static constexpr float _wheel_radius = 0.06f;
     cmd_rud_t _cmd_rud;
     rudder_kin_t::rudder_states_t _target_states{};
     rudder_kin_t::rudder_states_t _current_states{};
@@ -42,7 +43,7 @@ class rud_chassis_t final : public chassis_base_t
     float _rudder_output[4]{};        // Rudder torque command output
 
     // Rudder angle offset calibration
-    float _rudder_offset[4] = {0.0f, 0.0f, 0.0f, 0.0f};
+    float _rudder_offset[4] = {1.76254392f, -1.817f, 0.753184557f, 2.3554275f};
 
     motor_base_t *_wheel_motor[4]{};  // FL, FR, BL, BR
     motor_base_t *_rudder_motor[4]{}; // Rudder motor
