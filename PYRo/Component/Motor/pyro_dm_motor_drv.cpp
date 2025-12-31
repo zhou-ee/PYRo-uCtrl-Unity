@@ -53,7 +53,7 @@ status_t dm_motor_drv_t::clear_error()
     return PYRO_OK;
 }
 
-error_code dm_motor_drv_t::get_error_code()
+dm_motor_drv_t::error_code dm_motor_drv_t::get_error_code()
 {
     return _error_code;
 }
