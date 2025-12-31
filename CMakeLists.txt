@@ -149,12 +149,13 @@ add_executable(${CMAKE_PROJECT_NAME}
         PYRo/Component/Powercontrol/pyro_power_control_drv.cpp
 
         PYRo/Component/Powermeter/pyro_powermeter.cpp
-        PYRo/Moudle/Chassis/pyro_chassis_base.cpp
-        PYRo/Moudle/Chassis/Rudder/pyro_rud_chassis.cpp
+        PYRo/Moudle/Chassis/Hybrid/pyro_hybrid_chassis.cpp
 
         PYRo/Algorithm/Kinematics/pyro_kin_mec.cpp
         PYRo/Algorithm/Kinematics/pyro_kin_rudder.cpp
         PYRo/Algorithm/Kinematics/pyro_kin_hybrid.cpp
+        PYRo/Moudle/Chassis/pyro_chassis_base.cpp
+        PYRo/Application/Mission/pyro_app_thread.cpp
 
 
 )
@@ -198,7 +199,7 @@ target_include_directories(${CMAKE_PROJECT_NAME} PUBLIC
         PYRo/Debug/VOFA
 
         PYRo/Moudle/Chassis
-        PYRo/Moudle/Chassis/Rudder
+        PYRo/Moudle/Chassis/Hybrid
 
 
 )
