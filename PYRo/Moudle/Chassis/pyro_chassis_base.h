@@ -38,6 +38,12 @@ template <typename CmdType> class chassis_base_t
     [[nodiscard]] mutex_t &get_mutex();
 
   protected:
+    explicit chassis_base_t(
+        const char *name = "chassis", uint16_t init_stack = 512,
+        uint16_t loop_stack              = 256,
+        task_base_t::priority_t priority = task_base_t::priority_t::HIGH);
+
+    virtual ~chassis_base_t() = default;
     // -----------------------------------------------------
     // 业务逻辑接口 (由派生类实现)
     // -----------------------------------------------------
@@ -56,11 +62,10 @@ template <typename CmdType> class chassis_base_t
     {
         class active_fsm_t;
         class passive_fsm_t;
-        using TypeToCheck = std::remove_pointer_t<T>;
-        static_assert(std::is_base_of_v<chassis_base_t, TypeToCheck>,
+        static_assert(std::is_base_of_v<chassis_base_t, T>,
                       "T MUST inherit from pyro::chassis_base_t");
     };
-    base_fsm_t<chassis_base_t *> *_fsm;
+    base_fsm_t<chassis_base_t> *_fsm;
 
   private:
     // -----------------------------------------------------
@@ -86,12 +91,7 @@ template <typename CmdType> class chassis_base_t
     // -----------------------------------------------------
     // 构造函数 (Private as per your code)
     // -----------------------------------------------------
-    explicit chassis_base_t(
-        const char *name = "chassis", uint16_t init_stack = 512,
-        uint16_t loop_stack              = 256,
-        task_base_t::priority_t priority = task_base_t::priority_t::HIGH);
 
-    virtual ~chassis_base_t() = default;
 
     // 核心循环逻辑实现
     void run_loop_impl();

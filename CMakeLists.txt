@@ -150,6 +150,8 @@ add_executable(${CMAKE_PROJECT_NAME}
 
         PYRo/Component/Powermeter/pyro_powermeter.cpp
         PYRo/Moudle/Chassis/pyro_chassis_base.cpp
+        PYRo/Moudle/Chassis/Rudder/pyro_rud_chassis.cpp
+
         PYRo/Algorithm/Kinematics/pyro_kin_mec.cpp
         PYRo/Algorithm/Kinematics/pyro_kin_rudder.cpp
         PYRo/Algorithm/Kinematics/pyro_kin_hybrid.cpp
@@ -196,6 +198,7 @@ target_include_directories(${CMAKE_PROJECT_NAME} PUBLIC
         PYRo/Debug/VOFA
 
         PYRo/Moudle/Chassis
+        PYRo/Moudle/Chassis/Rudder
 
 
 )
