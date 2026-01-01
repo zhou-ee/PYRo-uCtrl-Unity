@@ -25,6 +25,10 @@ void hybrid_chassis_t::fsm_active_t::on_execute(owner *owner)
     {
         this->change_state(&_climbing_state);
     }
+    else if (owner->_ctx.cmd->jump_mode == 1)
+    {
+        this->change_state(&_jumping_state);
+    }
     owner->_kinematics_solve();
 }
 

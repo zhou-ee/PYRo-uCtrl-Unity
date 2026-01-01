@@ -138,8 +138,8 @@ class hybrid_chassis_t final
 
     struct state_passive_t : public state_t<owner>
     {
-        void on_enter(owner *owner) override;
-        void on_execute(owner *owner) override;
+        void enter(owner *owner) override;
+        void execute(owner *owner) override;
         void exit(owner *owner) override;
     };
 
@@ -149,16 +149,23 @@ class hybrid_chassis_t final
         // 子状态定义
         struct state_cruising_t : public state_t<owner>
         {
-            void on_enter(owner *owner) override;
-            void on_execute(owner *owner) override;
+            void enter(owner *owner) override;
+            void execute(owner *owner) override;
             void exit(owner *owner) override;
         };
 
-        struct state_climbing_t : public fsm_t<owner>
+        struct state_climbing_t : public state_t<owner>
         {
-            void on_enter(owner *owner) override;
-            void on_execute(owner *owner) override;
-            void on_exit(owner *owner) override;
+            void enter(owner *owner) override;
+            void execute(owner *owner) override;
+            void exit(owner *owner) override;
+        };
+
+        struct state_jumping_t : public state_t<owner>
+        {
+            void enter(owner *owner) override;
+            void execute(owner *owner) override;
+            void exit(owner *owner) override;
         };
 
 
@@ -170,6 +177,7 @@ class hybrid_chassis_t final
       private:
         state_cruising_t _cruising_state;
         state_climbing_t _climbing_state;
+        state_jumping_t _jumping_state;
     };
 
     // 状态实例

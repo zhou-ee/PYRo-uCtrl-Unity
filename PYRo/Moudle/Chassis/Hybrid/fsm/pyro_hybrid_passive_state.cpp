@@ -3,7 +3,7 @@
 namespace pyro
 {
 
-void hybrid_chassis_t::state_passive_t::on_enter(owner *owner)
+void hybrid_chassis_t::state_passive_t::enter(owner *owner)
 {
     owner->_ctx.motor.mecanum[0]->disable();
     owner->_ctx.motor.mecanum[1]->disable();
@@ -15,7 +15,7 @@ void hybrid_chassis_t::state_passive_t::on_enter(owner *owner)
     owner->_ctx.motor.track[1]  ->disable();
 }
 
-void hybrid_chassis_t::state_passive_t::on_execute(owner *owner)
+void hybrid_chassis_t::state_passive_t::execute(owner *owner)
 {
     owner->_ctx.motor.mecanum[0]->send_torque(0);
     owner->_ctx.motor.mecanum[1]->send_torque(0);

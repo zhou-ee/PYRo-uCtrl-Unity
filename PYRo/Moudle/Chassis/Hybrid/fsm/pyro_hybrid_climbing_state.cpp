@@ -3,20 +3,18 @@
 namespace pyro
 {
 
-void hybrid_chassis_t::fsm_active_t::state_climbing_t::on_enter(
+void hybrid_chassis_t::fsm_active_t::state_climbing_t::enter(
     hybrid_chassis_t *owner)
 {
     owner->_ctx.motor.track[0]->enable();
     owner->_ctx.motor.track[1]->enable();
 }
 
-void hybrid_chassis_t::fsm_active_t::state_climbing_t::on_execute(
+void hybrid_chassis_t::fsm_active_t::state_climbing_t::execute(
     hybrid_chassis_t *owner)
 {
-    // 3. 运行闭环控制
     _chassis_control(&owner->_ctx);
 
-    // 4. 输出到硬件
     _send_motor_command(&owner->_ctx);
 }
 

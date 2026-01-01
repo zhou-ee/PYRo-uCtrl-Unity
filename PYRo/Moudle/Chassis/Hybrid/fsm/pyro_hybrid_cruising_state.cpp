@@ -3,14 +3,14 @@
 namespace pyro
 {
 
-void hybrid_chassis_t::fsm_active_t::state_cruising_t::on_enter(
+void hybrid_chassis_t::fsm_active_t::state_cruising_t::enter(
     hybrid_chassis_t *owner)
 {
     owner->_ctx.data.target_leg_rad[0] = 0.0f;
     owner->_ctx.data.target_leg_rad[1] = 0.0f;
 }
 
-void hybrid_chassis_t::fsm_active_t::state_cruising_t::on_execute(
+void hybrid_chassis_t::fsm_active_t::state_cruising_t::execute(
     hybrid_chassis_t *owner)
 {
     // 3. 运行闭环控制
