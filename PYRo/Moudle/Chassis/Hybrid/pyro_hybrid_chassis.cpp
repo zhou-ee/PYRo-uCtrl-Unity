@@ -1,4 +1,5 @@
 #include "pyro_hybrid_chassis.h"
+#include "main.h"
 #include <cmath>
 #include <cstring>
 
@@ -145,7 +146,140 @@ void hybrid_chassis_t::_update_feedback()
     _ctx.data.current_leg_radps[0] = _ctx.motor.leg[0]->get_current_rotate();
     _ctx.data.current_leg_rad[1]   = _ctx.motor.leg[1]->get_current_position();
     _ctx.data.current_leg_radps[1] = _ctx.motor.leg[1]->get_current_rotate();
+}
 
+void hybrid_chassis_t::_kinematics_solve()
+{
+    static hybrid_kin_t::hybrid_speeds_t solved_speeds_mps{};
+    static uint32_t jump_start_tick = 0;
+    static bool is_jumping          = false;
+
+    solved_speeds_mps =
+        _kinematics->solve(_ctx.cmd->vx, _ctx.cmd->vy, _ctx.cmd->wz, _ctx.cmd->drive_mode);
+    _ctx.data.target_wheel_rpm[0] =
+        _mps_to_rpm(solved_speeds_mps.mec_fl, MEC_RADIUS);
+    _ctx.data.target_wheel_rpm[1] =
+        _mps_to_rpm(solved_speeds_mps.mec_fr, MEC_RADIUS);
+    _ctx.data.target_wheel_rpm[2] =
+        _mps_to_rpm(solved_speeds_mps.mec_bl, MEC_RADIUS);
+    _ctx.data.target_wheel_rpm[3] =
+        _mps_to_rpm(solved_speeds_mps.mec_br, MEC_RADIUS);
+
+    _ctx.data.target_track_rpm[0] =
+        _mps_to_rpm(solved_speeds_mps.track_l, TRACK_RADIUS);
+    _ctx.data.target_track_rpm[1] =
+        _mps_to_rpm(solved_speeds_mps.track_r, TRACK_RADIUS);
+
+    if (1 == _ctx.cmd->jump_mode)
+    {
+        if (!is_jumping)
+        {
+            is_jumping      = true;
+            jump_start_tick = HAL_GetTick();
+        }
+
+        uint32_t dt                 = HAL_GetTick() - jump_start_tick;
+
+        // 1. 快速伸展 (0-150ms)
+        // 设定最大伸展位置
+        _ctx.data.target_leg_rad[0] = LEG_EXTEND_POS;
+        _ctx.data.target_leg_rad[1] = -LEG_EXTEND_POS;
+
+        // 给予最大前馈力矩以加速伸展
+        // 逻辑：不断加速直到接近设定速度或接近最大伸展角度
+        const float jump_spd_limit  = 12.0f;
+
+        if (_ctx.data.current_leg_radps[0] < jump_spd_limit &&
+            _ctx.data.current_leg_rad[0] < (LEG_EXTEND_POS - 0.1f))
+        {
+            _ctx.data.out_leg_torque[0] = 6.0f;
+        }
+        else
+        {
+            _ctx.data.out_leg_torque[0] = 0.0f;
+        }
+
+        if (_ctx.data.current_leg_radps[1] > -jump_spd_limit &&
+            _ctx.data.current_leg_rad[1] > (-LEG_EXTEND_POS + 0.1f))
+        {
+            _ctx.data.out_leg_torque[1] = -6.0f;
+        }
+        else
+        {
+            _ctx.data.out_leg_torque[1] = 0.0f;
+        }
+
+        // 2. 快速收腿 (150-300ms)
+        if (dt < 300)
+        {
+            // 设定收缩位置
+            _ctx.data.target_leg_rad[0] = LEG_RETRACT_POS;
+            _ctx.data.target_leg_rad[1] = LEG_RETRACT_POS;
+
+            // 给予反向力矩加速收缩
+            _ctx.data.out_leg_torque[0] = -6.0f;
+            _ctx.data.out_leg_torque[1] = 6.0f;
+        }
+        // 3. 恢复控制
+        else
+        {
+            is_jumping                  = false;
+            // 恢复正常控制逻辑，这里可以重置为当前位置或者保持收缩
+            _ctx.data.target_leg_rad[0] = _ctx.data.current_leg_rad[0];
+            _ctx.data.target_leg_rad[1] = _ctx.data.current_leg_rad[1];
+            _ctx.data.out_leg_torque[0] = 0;
+            _ctx.data.out_leg_torque[1] = 0;
+        }
+    }
+    else
+    {
+        _ctx.data.target_leg_rad[0] += _ctx.cmd->wy;
+        _ctx.data.target_leg_rad[1] -= _ctx.cmd->wy;
+    }
+}
+
+void hybrid_chassis_t::_chassis_control(hybrid_context_t *ctx)
+{
+    // 1. Mecanum Wheels PID (Speed Loop)
+    for (int i = 0; i < 4; i++)
+    {
+        ctx->data.out_mecanum_torque[i] = ctx->pid.mecanum_pid[i]->calculate(
+            ctx->data.target_wheel_rpm[i], ctx->data.current_wheel_rpm[i]);
+    }
+
+    // 2. Track PID (Speed Loop)
+    for (int i = 0; i < 2; i++)
+    {
+        ctx->data.out_track_torque[i] = ctx->pid.track_pid[i]->calculate(
+            ctx->data.target_track_rpm[i], ctx->data.current_track_rpm[i]);
+    }
+
+    static float leg_pos_target_radps[2] = {0.0f, 0.0f};
+    for (int i = 0; i < 2; i++)
+    {
+        leg_pos_target_radps[i] = ctx->pid.leg_pos_pid[i]->calculate(
+            ctx->data.target_leg_rad[i], ctx->data.current_leg_rad[i]);
+        ctx->data.out_leg_torque[i] = ctx->pid.leg_spd_pid[i]->calculate(
+            leg_pos_target_radps[i], ctx->data.current_leg_radps[i]);
+    }
+}
+
+void hybrid_chassis_t::_send_motor_command(hybrid_context_t *ctx)
+{
+    for (int i = 0; i < 4; i++)
+    {
+        ctx->motor.mecanum[i]->send_torque(ctx->data.out_mecanum_torque[i]);
+    }
+
+    for (int i = 0; i < 2; i++)
+    {
+        ctx->motor.track[i]->send_torque(ctx->data.out_track_torque[i]);
+    }
+
+    for (int i = 0; i < 2; i++)
+    {
+        ctx->motor.leg[i]->send_torque(ctx->data.out_leg_torque[i]);
+    }
 }
 
 // =========================================================
@@ -154,10 +288,11 @@ void hybrid_chassis_t::_update_feedback()
 void hybrid_chassis_t::_fsm_execute()
 {
     // 1. 数据刷新
+    _ctx.cmd = &_cmd[_read_index];
 
-    if (cmd_base_t::mode_t::ACTIVE == _cmd[_read_index].mode)
+    if (cmd_base_t::mode_t::ACTIVE == _ctx.cmd->mode)
         _main_fsm.change_state(&_state_active);
-    else if (cmd_base_t::mode_t::ZERO_FORCE == _cmd[_read_index].mode)
+    else if (cmd_base_t::mode_t::ZERO_FORCE == _ctx.cmd->mode)
         _main_fsm.change_state(&_state_passive);
 
     // 2. 反馈更新
@@ -165,7 +300,7 @@ void hybrid_chassis_t::_fsm_execute()
 
     // 3. 状态机运行
     // 父级 execute 内部会自动调用 fetch_request 处理子状态的切换请求
-    _main_fsm.execute(this);
+    _main_fsm.on_execute(this);
 
     // 4. 硬件输出
     // _pure_hw_write(_ctx.motor, _ctx.data);

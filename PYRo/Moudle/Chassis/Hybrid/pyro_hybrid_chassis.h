@@ -19,11 +19,12 @@ struct hybrid_cmd_t : cmd_base_t
 {
     hybrid_kin_t::drive_mode_t drive_mode;
     uint8_t leg_contract_mode;
+    uint8_t jump_mode;
     float wy;
 
     hybrid_cmd_t()
         : drive_mode(hybrid_kin_t::drive_mode_t::CRUISING),
-          leg_contract_mode(0), wy(0)
+          leg_contract_mode(0), jump_mode(0), wy(0)
     {
     }
 };
@@ -53,6 +54,11 @@ class hybrid_chassis_t final
     void _init() override;
     void _update_feedback() override;
     void _fsm_execute() override;
+
+    // --- 派生方法 ---
+    void _kinematics_solve();
+    static void _chassis_control(hybrid_context_t *ctx);
+    static void _send_motor_command(hybrid_context_t *ctx);
 
 
 
@@ -115,6 +121,7 @@ class hybrid_chassis_t final
         hardware_ctx_t hardware;
         power_ctx_t power;
         data_ctx_t data;
+        hybrid_cmd_t *cmd;
     };
 
     // 总 Context
@@ -131,8 +138,8 @@ class hybrid_chassis_t final
 
     struct state_passive_t : public state_t<owner>
     {
-        void enter(owner *owner) override;
-        void execute(owner *owner) override;
+        void on_enter(owner *owner) override;
+        void on_execute(owner *owner) override;
         void exit(owner *owner) override;
     };
 
@@ -142,22 +149,27 @@ class hybrid_chassis_t final
         // 子状态定义
         struct state_cruising_t : public state_t<owner>
         {
-            void enter(owner *owner) override;
-            void execute(owner *owner) override;
+            void on_enter(owner *owner) override;
+            void on_execute(owner *owner) override;
             void exit(owner *owner) override;
         };
 
-        struct state_climbing_t : public state_t<owner>
+        struct state_climbing_t : public fsm_t<owner>
         {
-            void enter(owner *owner) override;
-            void execute(owner *owner) override;
-            void exit(owner *owner) override;
+            void on_enter(owner *owner) override;
+            void on_execute(owner *owner) override;
+            void on_exit(owner *owner) override;
         };
+
 
         // FSM Hooks
         void on_enter(owner *owner) override;
         void on_execute(owner *owner) override;
         void on_exit(owner *owner) override;
+
+      private:
+        state_cruising_t _cruising_state;
+        state_climbing_t _climbing_state;
     };
 
     // 状态实例
@@ -179,8 +191,10 @@ class hybrid_chassis_t final
     // // 辅助
     // static float _mps_to_rpm(float mps, float radius);
     // static float _radps_to_rpm(float radps);
-    static constexpr float MEC_RADIUS   = 0.076f;
-    static constexpr float TRACK_RADIUS = 0.035f;
+    static constexpr float MEC_RADIUS      = 0.076f;
+    static constexpr float TRACK_RADIUS    = 0.035f;
+    static constexpr float LEG_RETRACT_POS = 0.0f;
+    static constexpr float LEG_EXTEND_POS  = 1.60f;
 };
 
 } // namespace pyro

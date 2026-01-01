@@ -168,7 +168,7 @@ template <typename Context> class fsm_t : public state_t<Context>
      *
      * @param ctx Pointer to the shared context.
      */
-    void enter(Context *ctx) final
+    void enter(Context *ctx)
     {
         on_enter(ctx);
         if (_active_state)
@@ -190,7 +190,7 @@ template <typename Context> class fsm_t : public state_t<Context>
      *
      * @param ctx Pointer to the shared context.
      */
-    void execute(Context *ctx) final
+    void execute(Context *ctx)
     {
         // 1. Phase A: Transition Processing
         // If a target was set in the previous frame, execute the switch NOW.

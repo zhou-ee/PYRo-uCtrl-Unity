@@ -155,6 +155,7 @@ add_executable(${CMAKE_PROJECT_NAME}
         PYRo/Moudle/Chassis/Hybrid/fsm/pyro_hybrid_cruising_state.cpp
         PYRo/Moudle/Chassis/Hybrid/fsm/pyro_hybrid_climbing_state.cpp
         PYRo/Application/Mission/pyro_app_thread.cpp
+        PYRo/Moudle/Chassis/Hybrid/fsm/pyro_hybrid_jumping_state.cpp
 
 
 )
