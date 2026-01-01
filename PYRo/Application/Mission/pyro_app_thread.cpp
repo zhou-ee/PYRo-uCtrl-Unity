@@ -55,19 +55,23 @@ extern "C"
     //         hybrid_cmd_ptr->leg_contract_mode = 0;
     //     }
     // }
+    void start_app_thread(void *argument)
+    {
+        hybrid_chassis_ptr->start();
+        while (true)
+        {
+        }
+    }
 
     void pyro_app_init_thread(void *argument)
     {
         // Initialize Hybrid Chassis
         hybrid_chassis_ptr = pyro::hybrid_chassis_t::instance();
         hybrid_cmd_ptr     = new pyro::hybrid_cmd_t();
+        xTaskCreate(start_app_thread, "start_app_thread", 512, nullptr,
+                    configMAX_PRIORITIES - 1, nullptr);
         vTaskDelete(nullptr);
     }
 
-    void start_app_thread(void const *argument)
-    {
-        while (true)
-        {
-        }
-    }
+
 }

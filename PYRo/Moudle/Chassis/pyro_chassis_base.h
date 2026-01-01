@@ -11,9 +11,10 @@ namespace pyro
 
 struct cmd_base_t
 {
+    enum class mode_t : uint8_t { ZERO_FORCE, ACTIVE } mode;
     uint32_t timestamp;
     float vx, vy, wz;
-    cmd_base_t() : timestamp(0), vx(0), vy(0), wz(0)
+    cmd_base_t() : mode(mode_t::ZERO_FORCE), timestamp(0), vx(0), vy(0), wz(0)
     {
     }
     virtual ~cmd_base_t() = default;
@@ -69,17 +70,16 @@ class chassis_base_t
     // 业务逻辑接口 (由派生类实现)
     // -----------------------------------------------------
     virtual void _init()               = 0;
-    virtual void _fsm_execute()        = 0;
     virtual void _update_feedback()    = 0;
-    virtual void _kinematics_solve()   = 0;
-    virtual void _chassis_control()    = 0;
-    virtual void _power_control()      = 0;
-    virtual void _send_motor_command() = 0;
+    virtual void _fsm_execute()        = 0;
+    // virtual void _update_feedback()    = 0;
+    // virtual void _kinematics_solve()   = 0;
+    // virtual void _chassis_control()    = 0;
+    // virtual void _power_control()      = 0;
+    // virtual void _send_motor_command() = 0;
 
     CmdType _cmd[2];
     uint8_t _read_index{0};
-    bool _cmd_updated{false};
-    mutex_t _mutex;
 
   private:
     // -----------------------------------------------------
@@ -105,6 +105,8 @@ class chassis_base_t
 
     // 组合成员变量
     chassis_task_t _task;
+    bool _cmd_updated{false};
+    mutex_t _mutex;
 };
 
 } // namespace pyro

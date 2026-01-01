@@ -42,9 +42,9 @@ class rud_chassis_t final : public chassis_base_t<cmd_rud_t>
         class active_state_t : public fsm_t<Context>
         {
         public:
-            void on_enter(Context *ctx) override;
-            void on_execute(Context *ctx) override;
-            void on_exit(Context *ctx) override;
+            void on_enter(Context *owner) override;
+            void on_execute(Context *owner) override;
+            void on_exit(Context *owner) override;
         };
         class passive_state_t : public fsm_t<Context>
         {

@@ -62,11 +62,6 @@ message("Build type: " ${CMAKE_BUILD_TYPE})
 # ==============================================================================
 set(DSP_REPO "${CMAKE_CURRENT_SOURCE_DIR}/Ported_third_lib/CMSIS-DSP")
 
-add_compile_definitions(
-        ARM_MATH_CM7
-        __FPU_PRESENT=1
-        ARM_MATH_LOOPUNROLL
-)
 
 set(CMSISDSP_BUILD_EXAMPLES OFF CACHE BOOL "Disable examples" FORCE)
 
@@ -122,10 +117,10 @@ add_executable(${CMAKE_PROJECT_NAME}
         PYRo/Component/IMU/MATH_LIB.c
         PYRo/Component/IMU/PID.c
 
-        PYRo/Component/Shoot/pyro_fric_drv.cpp
-        PYRo/Component/Shoot/pyro_trigger_drv.cpp
-        PYRo/Component/Shoot/pyro_shoot_base.cpp
-        PYRo/Component/Shoot/pyro_shoot_17mm_control.cpp
+#        PYRo/Component/Shoot/pyro_fric_drv.cpp
+#        PYRo/Component/Shoot/pyro_trigger_drv.cpp
+#        PYRo/Component/Shoot/pyro_shoot_base.cpp
+#        PYRo/Component/Shoot/pyro_shoot_17mm_control.cpp
 
         PYRo/Application/Demo/pyro_rc_demo.cpp
         PYRo/Application/Demo/demo_task.cpp
@@ -155,6 +150,10 @@ add_executable(${CMAKE_PROJECT_NAME}
         PYRo/Algorithm/Kinematics/pyro_kin_rudder.cpp
         PYRo/Algorithm/Kinematics/pyro_kin_hybrid.cpp
         PYRo/Moudle/Chassis/pyro_chassis_base.cpp
+        PYRo/Moudle/Chassis/Hybrid/fsm/pyro_hybrid_active_state.cpp
+        PYRo/Moudle/Chassis/Hybrid/fsm/pyro_hybrid_passive_state.cpp
+        PYRo/Moudle/Chassis/Hybrid/fsm/pyro_hybrid_cruising_state.cpp
+        PYRo/Moudle/Chassis/Hybrid/fsm/pyro_hybrid_climbing_state.cpp
         PYRo/Application/Mission/pyro_app_thread.cpp
 
 

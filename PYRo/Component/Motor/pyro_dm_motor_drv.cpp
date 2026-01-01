@@ -15,9 +15,9 @@ dm_motor_drv_t::dm_motor_drv_t(uint32_t can_id, uint32_t master_id,
     }
 }
 
-dm_motor_drv_t::~dm_motor_drv_t()
-{
-}
+// dm_motor_drv_t::~dm_motor_drv_t()
+// {
+// }
 
 status_t pyro::dm_motor_drv_t::enable()
 {
