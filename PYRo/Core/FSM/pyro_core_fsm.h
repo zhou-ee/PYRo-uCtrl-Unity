@@ -205,8 +205,10 @@ template <typename Context> class fsm_t : public state_t<Context>
         on_execute(ctx);
 
         // Checkpoint: Did Parent logic set a target?
+
         if (_target_state)
             return;
+
 
         if (!_active_state)
             return;
@@ -241,6 +243,7 @@ template <typename Context> class fsm_t : public state_t<Context>
 
     void change_state(state_t<Context> *next)
     {
+        if (next != _active_state)
         _target_state = next;
     }
 

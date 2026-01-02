@@ -35,8 +35,11 @@ struct hybrid_cmd_t : cmd_base_t
 class hybrid_chassis_t final
     : public chassis_base_t<hybrid_chassis_t, hybrid_cmd_t>
 {
+
     // 前向声明
     friend class chassis_base_t;
+    friend class jcom_drv_t;
+
     struct motor_ctx_t;
     struct pid_ctx_t;
     struct data_ctx_t;
@@ -69,7 +72,7 @@ class hybrid_chassis_t final
     struct motor_ctx_t
     {
         motor_base_t *mecanum[4]{nullptr};
-        motor_base_t *track[2]{nullptr};
+        // motor_base_t *track[2]{nullptr};
         motor_base_t *leg[2]{nullptr};
     };
 
@@ -123,9 +126,13 @@ class hybrid_chassis_t final
         data_ctx_t data;
         hybrid_cmd_t *cmd;
     };
-
+    struct debug_ctx_t
+    {
+        float debug_leg_torque[2]{};
+    };
     // 总 Context
     hybrid_context_t _ctx;
+    debug_ctx_t debug_data;
 
 
     // =====================================================
@@ -201,7 +208,7 @@ class hybrid_chassis_t final
     // static float _radps_to_rpm(float radps);
     static constexpr float MEC_RADIUS      = 0.076f;
     static constexpr float TRACK_RADIUS    = 0.035f;
-    static constexpr float LEG_RETRACT_POS = 0.0f;
+    static constexpr float LEG_RETRACT_POS = 0.6f;
     static constexpr float LEG_EXTEND_POS  = 1.60f;
 };
 

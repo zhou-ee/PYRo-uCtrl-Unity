@@ -21,14 +21,15 @@ void hybrid_chassis_t::fsm_active_t::on_execute(owner *owner)
     {
         this->change_state(&_cruising_state);
     }
-    else if (hybrid_kin_t::drive_mode_t::CLIMBING == owner->_ctx.cmd->drive_mode)
-    {
-        this->change_state(&_climbing_state);
-    }
     else if (owner->_ctx.cmd->jump_mode == 1)
     {
         this->change_state(&_jumping_state);
     }
+    else if (hybrid_kin_t::drive_mode_t::CLIMBING == owner->_ctx.cmd->drive_mode)
+    {
+        this->change_state(&_climbing_state);
+    }
+
     owner->_kinematics_solve();
 }
 

@@ -22,7 +22,7 @@ void hybrid_chassis_t::fsm_active_t::state_jumping_t::execute(
         if (owner->_ctx.data.current_leg_radps[0] < jump_spd_limit &&
             owner->_ctx.data.current_leg_rad[0] < (LEG_EXTEND_POS - 0.1f))
         {
-            owner->_ctx.data.out_leg_torque[0] = 6.0f;
+            owner->_ctx.data.out_leg_torque[0] = 8.0f;
         }
         else
         {
@@ -32,7 +32,7 @@ void hybrid_chassis_t::fsm_active_t::state_jumping_t::execute(
         if (owner->_ctx.data.current_leg_radps[1] > -jump_spd_limit &&
             owner->_ctx.data.current_leg_rad[1] > (-LEG_EXTEND_POS + 0.1f))
         {
-            owner->_ctx.data.out_leg_torque[1] = -6.0f;
+            owner->_ctx.data.out_leg_torque[1] = -8.0f;
         }
         else
         {

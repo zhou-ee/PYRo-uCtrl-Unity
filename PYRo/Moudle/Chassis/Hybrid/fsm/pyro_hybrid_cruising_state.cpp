@@ -6,8 +6,16 @@ namespace pyro
 void hybrid_chassis_t::fsm_active_t::state_cruising_t::enter(
     hybrid_chassis_t *owner)
 {
-    owner->_ctx.data.target_leg_rad[0] = 0.0f;
-    owner->_ctx.data.target_leg_rad[1] = 0.0f;
+    float current_leg_avg_rad = (owner->_ctx.data.current_leg_rad[0] -
+                               owner->_ctx.data.current_leg_rad[1]) /
+                              2.0f;
+    // if (current_leg_avg_rad < LEG_RETRACT_POS)
+    // {
+    //     current_leg_avg_rad = LEG_RETRACT_POS;
+    // }
+
+    owner->_ctx.data.target_leg_rad[0] = current_leg_avg_rad;
+    owner->_ctx.data.target_leg_rad[1] = -current_leg_avg_rad;
 }
 
 void hybrid_chassis_t::fsm_active_t::state_cruising_t::execute(

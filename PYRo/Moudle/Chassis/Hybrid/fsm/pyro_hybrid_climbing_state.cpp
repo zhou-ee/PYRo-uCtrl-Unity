@@ -6,8 +6,8 @@ namespace pyro
 void hybrid_chassis_t::fsm_active_t::state_climbing_t::enter(
     hybrid_chassis_t *owner)
 {
-    owner->_ctx.motor.track[0]->enable();
-    owner->_ctx.motor.track[1]->enable();
+    // owner->_ctx.motor.track[0]->enable();
+    // owner->_ctx.motor.track[1]->enable();
 }
 
 void hybrid_chassis_t::fsm_active_t::state_climbing_t::execute(
@@ -21,8 +21,8 @@ void hybrid_chassis_t::fsm_active_t::state_climbing_t::execute(
 void hybrid_chassis_t::fsm_active_t::state_climbing_t::exit(
     hybrid_chassis_t *owner)
 {
-    owner->_ctx.motor.track[0]->disable();
-    owner->_ctx.motor.track[1]->disable();
+    // owner->_ctx.motor.track[0]->disable();
+    // owner->_ctx.motor.track[1]->disable();
 }
 
 } // namespace pyro

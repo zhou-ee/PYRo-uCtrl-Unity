@@ -15,7 +15,7 @@ extern "C"
 
 #if JCOM_DEBUG_EN
         xTaskCreate(pyro_jcom_task, "pyro_jcom_task", 128, nullptr,
-                    tskIDLE_PRIORITY + 1, nullptr);
+                    tskIDLE_PRIORITY + 2, nullptr);
 #endif
         vTaskDelete(nullptr);
     }
