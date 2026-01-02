@@ -1,9 +1,18 @@
+/**
+ * @file pyro_task.cpp
+ * @brief Implementation of the task management base.
+ * 任务管理基类的实现。
+ */
+
 #include "pyro_task.h"
 
 namespace pyro
 {
 
-// 构造函数：初始化自定义枚举
+/**
+ * @brief Constructor for task_base_t.
+ * task_base_t 构造函数。
+ */
 task_base_t::task_base_t(const char *name, const uint16_t init_stack,
                          const uint16_t loop_stack, const priority_t priority)
     : _loop_task_handle(nullptr), _task_name(name),
@@ -12,11 +21,19 @@ task_base_t::task_base_t(const char *name, const uint16_t init_stack,
 {
 }
 
+/**
+ * @brief Destructor ensuring task stop.
+ * 确保任务停止的析构函数。
+ */
 task_base_t::~task_base_t()
 {
     stop();
 }
 
+/**
+ * @brief Spawns the initial setup task.
+ * 生成初始设置任务。
+ */
 void task_base_t::start()
 {
     if (_loop_task_handle != nullptr)
@@ -24,11 +41,14 @@ void task_base_t::start()
         return;
     }
 
-    // 创建任务时进行优先级转换
     xTaskCreate(init_entry_point, "init_tmp", _init_stack_depth, this,
                 convert_priority(_priority), nullptr);
 }
 
+/**
+ * @brief Deletes the loop task if it exists.
+ * 如果循环任务存在则将其删除。
+ */
 void task_base_t::stop()
 {
     if (_loop_task_handle != nullptr)
@@ -38,6 +58,10 @@ void task_base_t::stop()
     }
 }
 
+/**
+ * @brief Internal entry for the initialization phase.
+ * 初始化阶段的内部入口。
+ */
 void task_base_t::init_entry_point(void *arg)
 {
     auto *self = static_cast<task_base_t *>(arg);
@@ -48,7 +72,6 @@ void task_base_t::init_entry_point(void *arg)
 
         if (self->_loop_stack_depth > 0)
         {
-            // 创建 Loop 任务时同步转换优先级
             xTaskCreate(loop_entry_point, self->_task_name,
                         self->_loop_stack_depth, self,
                         convert_priority(self->_priority),
@@ -58,13 +81,16 @@ void task_base_t::init_entry_point(void *arg)
     vTaskDelete(nullptr);
 }
 
+/**
+ * @brief Internal entry for the continuous loop phase.
+ * 持续循环阶段的内部入口。
+ */
 void task_base_t::loop_entry_point(void *arg)
 {
     auto *self = static_cast<task_base_t *>(arg);
     if (self)
     {
         self->run_loop();
-        // 正常退出时的资源回收逻辑
 
         self->_loop_task_handle = nullptr;
         vTaskDelete(nullptr);
@@ -73,14 +99,15 @@ void task_base_t::loop_entry_point(void *arg)
 }
 
 /**
- * @brief 最简高效的优先级映射实现
- * 公式：(priority * (MAX_PRIORITIES - 1)) / 6
- * 确保 0 对应最低优先级，6 对应系统允许的最大值
+ * @brief Converts abstract priority to FreeRTOS scale.
+ * 将抽象优先级转换为 FreeRTOS 刻度。
+ *
+ * @details
+ * Formula: (p * (max - 1)) / 6.
+ * 公式：(p * (max - 1)) / 6。
  */
 UBaseType_t task_base_t::convert_priority(priority_t p)
 {
-    // 强制转换为整数进行运算，先乘后除防止精度损失
-    // FreeRTOS 允许的最大优先级数值为 MAX_PRIORITIES - 1
     return static_cast<UBaseType_t>(p) * (configMAX_PRIORITIES - 1) / 6;
 }
 

@@ -7,8 +7,8 @@ void hybrid_chassis_t::fsm_active_t::state_cruising_t::enter(
     hybrid_chassis_t *owner)
 {
     float current_leg_avg_rad = (owner->_ctx.data.current_leg_rad[0] -
-                               owner->_ctx.data.current_leg_rad[1]) /
-                              2.0f;
+                                 owner->_ctx.data.current_leg_rad[1]) /
+                                2.0f;
     // if (current_leg_avg_rad < LEG_RETRACT_POS)
     // {
     //     current_leg_avg_rad = LEG_RETRACT_POS;
