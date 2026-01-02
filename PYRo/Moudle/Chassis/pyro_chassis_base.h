@@ -38,7 +38,7 @@ class chassis_base_t
   public:
     static Derived *instance()
     {
-        static Derived _instance_obj;
+        static Derived _instance_obj; //NOLINT
         return &_instance_obj;
     }
 
