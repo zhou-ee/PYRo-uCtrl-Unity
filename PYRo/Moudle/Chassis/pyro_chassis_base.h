@@ -24,7 +24,9 @@ struct cmd_base_t
     uint32_t timestamp;
     float vx, vy, wz;
     cmd_base_t() : mode(mode_t::ZERO_FORCE), timestamp(0),
-                   vx(0), vy(0), wz(0) {}
+                   vx(0), vy(0), wz(0)
+    {
+    }
     virtual ~cmd_base_t() = default;
 };
 

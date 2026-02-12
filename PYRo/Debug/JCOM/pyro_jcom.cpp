@@ -1,7 +1,9 @@
 
 #include "pyro_jcom.h"
 #include "pyro_core_dma_heap.h"
+
 #include "pyro_hybrid_chassis.h"
+
 #include "task.h"
 
 extern pyro::hybrid_chassis_t *hybrid_chassis_ptr;

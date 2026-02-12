@@ -38,7 +38,7 @@ class hybrid_chassis_t final
 
     // 前向声明
     friend class chassis_base_t;
-    friend class jcom_drv_t;
+    // friend class jcom_drv_t;
 
     struct motor_ctx_t;
     struct pid_ctx_t;

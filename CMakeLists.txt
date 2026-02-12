@@ -81,6 +81,8 @@ target_include_directories(dsppp_lib INTERFACE
         ${DSP_REPO}/Include
 )
 
+
+
 # ==============================================================================
 # 5. 源文件配置
 # ==============================================================================
@@ -161,6 +163,8 @@ add_executable(${CMAKE_PROJECT_NAME}
 
 )
 
+
+
 # Add STM32CubeMX generated sources (这会自动引入 specs 文件)
 add_subdirectory(cmake/stm32cubemx)
 
@@ -213,3 +217,15 @@ target_link_libraries(${CMAKE_PROJECT_NAME}
         CMSISDSP
         dsppp_lib
 )
+
+# ==============================================================================
+# 特殊配置：允许 JCOM 调试模块无视 C++ 访问权限 (上帝模式)
+# ==============================================================================
+set_source_files_properties(
+        PYRo/Debug/JCOM/pyro_jcom.cpp
+        PROPERTIES
+        COMPILE_OPTIONS "-fno-access-control"
+)
+# 在之前的 set_source_files_properties 下面再加一行
+# 专门把 flag 传给 IDE 的 Clangd 引擎
+target_compile_options(${CMAKE_PROJECT_NAME} PRIVATE $<$<COMPILE_LANGUAGE:CXX>:-fno-access-control>)

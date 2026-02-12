@@ -1,0 +1,8 @@
+If:
+  # 只匹配文件名是 pyro_jcom.cpp 的文件 (支持正则)
+  # 注意：根据你的文件层级，可能需要写成 .*/pyro_jcom.cpp
+  PathMatch: .*/pyro_jcom.cpp
+
+CompileFlags:
+  # 只给匹配到的文件添加“上帝模式”flag
+  Add: [-fno-access-control]
